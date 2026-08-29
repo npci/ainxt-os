@@ -20,7 +20,7 @@ tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "net"
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.8"
+toml = "1.1"
 # Format-PRESERVING edits: Settings must not strip the shipped example config's comments,
 # which are the most useful documentation in the repo. Already in the tree via `toml`.
 toml_edit = "0.22"

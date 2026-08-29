@@ -146,7 +146,7 @@ ainxt-eval = { path = "../ainxt-eval" }
 # because the pin now happens on the served publish path, not just in tests.
 ainxt-governance = { path = "../ainxt-governance" }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "net", "sync", "time"] }
-toml = "0.8"
+toml = "1.1"
 serde = { version = "1", features = ["derive"] }
 # R15 — the served workforce turn handler parses an authored RoleSpec out of the turn's `input` when
 # the caller supplies one (falls back to the canonical golden-path role otherwise); needed in

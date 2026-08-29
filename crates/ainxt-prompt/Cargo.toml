@@ -26,7 +26,7 @@ serde_json = "1"
 # GAP-FIX prompt L2-policy — proves PolicyEngineConfig deserializes through real TOML (the same crate
 # ainxt-config's Loader uses), not just via serde's in-memory derive. Dev-dependency only (test-only);
 # no cycle (toml has no ainxt-* deps).
-toml = "0.8"
+toml = "1.1"
 
 [lints.rust]
 unsafe_code = "forbid"

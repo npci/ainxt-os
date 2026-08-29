@@ -16,7 +16,7 @@ ainxt-injection = { path = "../ainxt-injection" }
 ainxt-telemetry = { path = "../ainxt-telemetry" }
 ainxt-prompt = { path = "../ainxt-prompt" }
 serde = { version = "1", features = ["derive"] }
-toml = "0.8"
+toml = "1.1"
 
 [lints.rust]
 unsafe_code = "forbid"
