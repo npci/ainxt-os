@@ -27,7 +27,7 @@ jobs:
     name: build (locked)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: Swatinem/rust-cache@v2
 
       # `--locked` is the point of this step: it fails if Cargo.lock is missing or stale. The
@@ -119,7 +119,7 @@ jobs:
     name: secret scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0        # scan history, not just the tip
       - uses: gitleaks/gitleaks-action@v2
@@ -134,7 +134,7 @@ jobs:
     name: cargo-deny (licences, advisories, bans, sources)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: taiki-e/install-action@cargo-deny
       - run: cargo deny check
 
@@ -145,7 +145,7 @@ jobs:
     name: docs (links + mermaid escaping)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: ./.github/scripts/check-doc-links.sh
       # Guards the one mistake that breaks a diagram only in the browser: an HTML entity inside a
       # mermaid block, which `marked` decodes before mermaid sees it. Five documents shipped this
@@ -165,7 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Linking a test binary per crate needs ~40 GB in target/debug, and an ubuntu-latest runner
       # starts with about 14 GB free. Without this, the job dies at link time with
       # `ld: write() failed, errno=28`, which never mentions disk.
@@ -188,7 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all --check
       # 11 warnings currently exist in test targets (unused imports, dead test helpers), which
