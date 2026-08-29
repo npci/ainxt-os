@@ -1,0 +1,200 @@
+[package]
+name = "ainxt-runtimed"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the composition binary (plan L6). Assembles the whole runtime from a layered RuntimeConfig: selects the mandatory gates (compliance/authz/audit) — refusing to start if an enterprise gate is requested but not built in (no silent security downgrade) — wires the provider set (real OpenAI/Anthropic adapters when keyed, an offline provider air-gapped), applies limits/retry/guardrails/injection, and serves the protocol over ainxt-server behind the SessionManager. `--check` validates + assembles without serving (CI)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "ainxt-runtimed"
+path = "src/main.rs"
+
+[lib]
+name = "ainxt_runtimed"
+path = "src/lib.rs"
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-config = { path = "../ainxt-config" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-tools = { path = "../ainxt-tools" }
+# GAP-FIX guardrails-injection — needed directly (not just via ainxt-runtime's re-export) for
+# `InjectionDetector::with_tools`, which `ainxt-runtime` does not re-export.
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-eventlog = { path = "../ainxt-eventlog" }
+# FI-10 — governs the daemon Event Log's chain-hash primitive through the ADR-023 crypto-agility
+# policy (GovernedChainHasher) instead of a hard-coded sha2 call. ainxt-cryptoagility has no
+# ainxt-* deps, so depending on it here is ACYCLIC.
+ainxt-cryptoagility = { path = "../ainxt-cryptoagility" }
+ainxt-session = { path = "../ainxt-session" }
+ainxt-server = { path = "../ainxt-server" }
+ainxt-providers = { path = "../ainxt-providers" }
+ainxt-convo = { path = "../ainxt-convo" }
+ainxt-compliance = { path = "../ainxt-compliance" }
+ainxt-prompt = { path = "../ainxt-prompt" }
+ainxt-chat = { path = "../ainxt-chat" }
+ainxt-context = { path = "../ainxt-context" }
+ainxt-cache = { path = "../ainxt-cache" }
+ainxt-surface = { path = "../ainxt-surface" }
+ainxt-profile = { path = "../ainxt-profile" }
+ainxt-skill = { path = "../ainxt-skill" }
+# Durable memory store (OKIs / MemoryFacts / consent / audit-chain) wired into the assembled memory
+# layer. ainxt-memory is LOWER-level than ainxt-runtime (ainxt-runtime already depends on it), so
+# depending on it from the composition root is ACYCLIC.
+ainxt-memory = { path = "../ainxt-memory" }
+# LOOP/teams/long-horizon subsystem + per-Run identity + statutory incident engine. These are all
+# LOWER-level than ainxt-runtime (none of them depends on ainxt-runtime), so depending on them from
+# the composition root is ACYCLIC. This is the wire that makes the Program Supervisor + 3-tier Team
+# loop REACHABLE from the assembled daemon (LOOP-01/LOOP-15/IDN-03/FI-02/LOOP-13).
+ainxt-planner = { path = "../ainxt-planner" }
+ainxt-teams = { path = "../ainxt-teams" }
+ainxt-identity = { path = "../ainxt-identity" }
+ainxt-incident = { path = "../ainxt-incident" }
+# R4 — the governed data/serving/connector surfaces the fully-wired daemon (serve_full / FullApp) mounts.
+# All are LOWER-level than ainxt-server (ainxt-server already depends on each of them), so depending on
+# them from the composition root is ACYCLIC — none depends on ainxt-runtimed.
+ainxt-graph = { path = "../ainxt-graph" }
+ainxt-nl2sql = { path = "../ainxt-nl2sql" }
+ainxt-serving = { path = "../ainxt-serving" }
+ainxt-token = { path = "../ainxt-token" }
+# R5 — served-path governance leaves the composition root drives directly (all LOWER-level than
+# ainxt-runtime / ainxt-server, which already depend on them, so depending on them here is ACYCLIC —
+# none depends on ainxt-runtimed):
+#  * ainxt-retrieval — the ACL/RLS-carrying retrieval Corpus + the pre-rank node/dept/ad_level RBAC
+#    the served Context-Fabric compile drives (the ainxt-context Corpus drops the per-node ACL).
+#  * ainxt-responsibleai — the RBI outsourcing register the Model Router consumes as its
+#    non-overridable eligibility input.
+#  * ainxt-canary + ainxt-quality — the online canary → auto-rollback → drift controller instantiated
+#    live on the served surface.
+#  * ainxt-payments — the Payment-Adjacent Mandate (ADR-016 §6) fourth dispatch gate. LOWER-level
+#    than ainxt-runtime (already a dep of ainxt-connector-http/ainxt-tools, both already deps of
+#    ainxt-server, which already depends on it), so depending on it here is ACYCLIC.
+ainxt-retrieval = { path = "../ainxt-retrieval" }
+ainxt-responsibleai = { path = "../ainxt-responsibleai" }
+ainxt-canary = { path = "../ainxt-canary" }
+ainxt-quality = { path = "../ainxt-quality" }
+ainxt-payments = { path = "../ainxt-payments" }
+# R6 — the shipped-composition cluster: the daemon MOUNTS the harness invoke/run surface, the connector
+# OAuth surface, the artifact-generation surface, and the store-backed step-replay surface, and holds the
+# DSAR/right-to-erasure + SR-11-7 quality-circuit-breaker control organs. All are LOWER-level than
+# ainxt-server (which already depends on each), so depending on them from the composition root is ACYCLIC.
+ainxt-admission = { path = "../ainxt-admission" }
+ainxt-client = { path = "../ainxt-client" }
+ainxt-connector = { path = "../ainxt-connector" }
+ainxt-connector-http = { path = "../ainxt-connector-http" }
+ainxt-oauth = { path = "../ainxt-oauth" }
+# GAP-FIX connectors "distributed refresh lock never wired" — the served composition root builds the
+# REAL cross-process double-checked-locking RefreshCoordinator (RefreshCoordinator::served_default)
+# behind the connector USE-path TokenSource, instead of a StaticTokenSource. Deps = ainxt-token +
+# ainxt-oauth (both already depended on here), so this edge is ACYCLIC.
+ainxt-refresh = { path = "../ainxt-refresh" }
+ainxt-artifact = { path = "../ainxt-artifact" }
+ainxt-replay = { path = "../ainxt-replay" }
+# R7 OBS — the per-turn telemetry sink the shipped daemon records to (cost attribution). Deps =
+# ainxt-types + serde only, so depending on it from the composition root is ACYCLIC.
+ainxt-telemetry = { path = "../ainxt-telemetry" }
+# R7 REGFI — the data-lifecycle control organ (retention TTL / legal-hold / DSAR right-to-erasure over
+# the durable record store) the shipped daemon holds LIVE on the served surface. ainxt-lifecycle depends
+# only on ainxt-types + ainxt-memory + ainxt-eventlog + ainxt-incident (all already depended on here, none
+# with a reverse dep on ainxt-runtimed), so depending on it from the composition root is ACYCLIC.
+ainxt-lifecycle = { path = "../ainxt-lifecycle" }
+# R8 EDIT — the semantic Code-Review Pipeline gate the shipped daemon assembles + mounts at `/v1/edit`.
+# LOWER-level than ainxt-server (which already depends on it) — acyclic, none reverse-depends on runtimed.
+ainxt-pipeline = { path = "../ainxt-pipeline" }
+# R12 EDIT — the deterministic Architecture/Regression graph types (`CochangeGraph`) wired onto the
+# shipped edit engine via `with_semantic_review`. LOWER-level than ainxt-pipeline (which already depends
+# on it) — acyclic, none reverse-depends on runtimed.
+ainxt-semantic = { path = "../ainxt-semantic" }
+# R10 — the MCP runtime whose discovered/pinned tools register into the ONE unified Capability registry
+# via `ainxt_tools::mcp_bridge::register_plannable_mcp_tools`. ainxt-mcp = serde + sha2 only (no reverse
+# dep on ainxt-runtimed), so depending on it from the composition root is ACYCLIC.
+ainxt-mcp = { path = "../ainxt-mcp" }
+# GAP-AUDIT tooling-mcp-plugins-routing — "Plugin runtime unreachable": needed directly (previously
+# only a TRANSITIVE dep via ainxt-tools) so the composition root can itself run the §3.4 supply-chain
+# load gate (`ainxt_plugin::supply_chain::verify_for_load`) and construct the `PluginHost`/manifest/
+# grant a plugin capability is adapted from, before handing it to
+# `ainxt_tools::plugin_bridge::PluginCapability`. ainxt-plugin has no reverse dep on ainxt-runtimed
+# (serde + sha2 only), so this edge is ACYCLIC — the same shape as the ainxt-mcp edge above.
+ainxt-plugin = { path = "../ainxt-plugin" }
+# GAP-FIX tooling-mcp-plugins-routing — "Plugin WASI sandbox never used by the daemon": the real
+# wasmtime-backed `WasmPluginHost` (ainxt-wasm) was fully implemented and unit-proven, but
+# `register_served_plugin_runtime` (this crate's composition root) had only ever been exercised
+# end-to-end with `NativeHost` — nothing in `ainxt-runtimed` ever constructed a WASM-hosted
+# `ApprovedPlugin`. `approved_wasm_sandboxed_plugin` (below) is that missing producer. Already a
+# TRANSITIVE dep via ainxt-skill's `WasmSkillExecutor`; promoted to direct here for the same reason
+# ainxt-plugin was above. ainxt-wasm has no reverse dep on ainxt-runtimed, so this edge is ACYCLIC.
+ainxt-wasm = { path = "../ainxt-wasm" }
+# R13 — the AiNxt-OS digital-workforce ladder + Role Studio factory. Its governed Role-publish path
+# (Role Studio → validate → non-skippable Breaker gate → git-native ADR-026 governed publish) is
+# assembled + exposed as a served surface from the composition root here, ending its island status.
+# ainxt-workforce depends only on ainxt-types + ainxt-governance (the latter already in this tree via
+# ainxt-admission) and has no reverse dep on ainxt-runtimed, so depending on it here is ACYCLIC.
+ainxt-workforce = { path = "../ainxt-workforce" }
+# GAP-FIX prompt — the automated prompt-optimizer's DRAFT-pipeline bridge (PROMPT_ENGINEERING.md §5.5),
+# so the composition root can drive a scheduled optimizer sweep (`run_prompt_optimizer_sweep_tick`)
+# against the live Prompt Registry. ainxt-promptopt depends on ainxt-eval + ainxt-prompt (both already
+# in this tree); neither has a reverse dep on ainxt-runtimed, so depending on it here is ACYCLIC.
+ainxt-promptopt = { path = "../ainxt-promptopt" }
+ainxt-eval = { path = "../ainxt-eval" }
+# GAP-AUDIT os-workforce #5 — the Marketplace TOFU-pin a governed role publish resolves into
+# (`WorkforceSurface::publish_role`). Was only a [dev-dependencies] entry (test-only); needed here
+# because the pin now happens on the served publish path, not just in tests.
+ainxt-governance = { path = "../ainxt-governance" }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "net", "sync", "time"] }
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+# R15 — the served workforce turn handler parses an authored RoleSpec out of the turn's `input` when
+# the caller supplies one (falls back to the canonical golden-path role otherwise); needed in
+# [dependencies], not just [dev-dependencies], because the parse happens on the served path.
+serde_json = "1"
+# GAP-AUDIT os-workforce #5 — content hash for the Marketplace TOFU pin. Was only a
+# [dev-dependencies] entry (test-only JWT minting); needed here for the same reason as above.
+sha2 = "0.11"
+
+[dev-dependencies]
+ainxt-client = { path = "../ainxt-client" }
+ainxt-types = { path = "../ainxt-types" }
+ainxt-chat = { path = "../ainxt-chat" }
+ainxt-context = { path = "../ainxt-context" }
+ainxt-profile = { path = "../ainxt-profile" }
+ainxt-memory = { path = "../ainxt-memory" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-planner = { path = "../ainxt-planner" }
+ainxt-cache = { path = "../ainxt-cache" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
+# R8 — mint an HS256 JWT in-test to prove the SELECTED JwtSsoAuth accepts a validly-signed token (the
+# same RustCrypto dep the runtime already uses; test-only). No new tree license.
+sha2 = "0.11"
+ainxt-pipeline = { path = "../ainxt-pipeline" }
+# R10 — drive the served program proof seams, the shared exactly-once ledger + ReconcilerSweeper, and
+# the MCP-runtime-into-unified-registry wire directly in the integration tests.
+ainxt-tools = { path = "../ainxt-tools" }
+ainxt-mcp = { path = "../ainxt-mcp" }
+# R13 — drive the assembled workforce surface + build RoleSpecs / governed-publish evidence directly
+# in the integration test that proves the (formerly island) subsystem is reachable from the daemon.
+ainxt-workforce = { path = "../ainxt-workforce" }
+ainxt-governance = { path = "../ainxt-governance" }
+# GAP-FIX memory (write-path-missing) — bind a real ephemeral-port axum server (`axum::serve`) so the
+# proving test issues a genuine HTTP `POST /memory/remember` against `ainxt_server::memory_router`,
+# the SAME function the real composition root (`app_full_ext`) merges — never a hand-rolled call into
+# the handler. Same version ainxt-server itself depends on.
+# GAP-AUDIT tooling-mcp-plugins-routing — also binds a real HTTP server directly over
+# `ainxt_server::saga_router` so the saga-served proving test can drive a real HTTP request, mirroring
+# the `serve_router(harness_router(...))` pattern `ainxt-server`'s own tests use.
+axum = "0.7"
+# GAP-FIX context-fabric proving test — a raw, hand-rolled mock OpenAI-schema upstream (no axum dep
+# needed) that captures the exact outbound prompt a served turn sends to the model, so the test can
+# prove fabric-grounded content actually reached the model-call boundary through the REAL --surface
+# dispatch table, not merely through a direct library call.
+[dev-dependencies.tokio]
+workspace = true
+features = ["io-util"]
+
+[lints.rust]
+unsafe_code = "forbid"

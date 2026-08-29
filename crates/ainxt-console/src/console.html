@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<!-- AiNxt OS Console. Served by the `ainxt-os` binary from an embedded copy of this file.
+     Deliberately self-contained: no CDN, no framework, no build step. The console must work on an
+     air-gapped machine, which is the same reason AiNxt OS ships an offline provider. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AiNxt OS Console</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  :root{
+    --bg:#f7f8fa; --panel:#fff; --ink:#1a1d23; --muted:#5b6472; --line:#e3e7ed;
+    --accent:#2563eb; --ok:#0f9960; --warn:#b7791f; --bad:#c0392b; --code:#f1f3f7;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#14161a; --panel:#1c1f26; --ink:#e8eaed; --muted:#9aa4b2; --line:#2a2f38;
+           --accent:#5b9dff; --ok:#3ecf8e; --warn:#e0b252; --bad:#f2705f; --code:#22262e; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink)}
+  header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);
+         background:var(--panel);position:sticky;top:0;z-index:5}
+  /* The approved AiNxt mark. Its navy sits on white in the asset, so on the dark theme it is given
+     a light plate rather than being recoloured — the brand asset is never altered. */
+  .brand{flex:none;display:block}
+  @media (prefers-color-scheme:dark){
+    .brand{background:#fff;border-radius:5px;padding:2px}
+  }
+  h1{font-size:16px;margin:0;font-weight:650;letter-spacing:-.01em}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+  .dot.up{background:var(--ok)} .dot.down{background:var(--bad)}
+  #statusText{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  nav{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+  nav button{appearance:none;border:0;background:none;color:var(--muted);font:inherit;font-size:14px;
+             padding:11px 14px;cursor:pointer;border-bottom:2px solid transparent}
+  nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+  main{max-width:820px;margin:0 auto;padding:20px}
+  section[hidden]{display:none}
+
+  /* ---- chat ---- */
+  #log{display:flex;flex-direction:column;gap:16px;min-height:40vh}
+  .turn{display:flex;flex-direction:column;gap:6px}
+  .who{font-size:12px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .bubble{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+          white-space:pre-wrap;overflow-wrap:anywhere}
+  .turn.you .bubble{background:transparent;border-style:dashed}
+  .meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+  .refusal{border-left:3px solid var(--warn);background:var(--panel)}
+  .refusal .title{font-weight:650;color:var(--warn);margin-bottom:4px}
+  .refusal .why{color:var(--ink)}
+  .refusal .hint{margin-top:8px;font-size:13px;color:var(--muted)}
+  .failed{border-left:3px solid var(--bad)} .failed .title{color:var(--bad)}
+  /* Empty state: the first thing a non-technical operator sees. */
+  #empty{padding:36px 4px 8px;text-align:center}
+  #empty h2{font-size:19px;margin:0 0 8px;font-weight:650;letter-spacing:-.01em}
+  #empty p{margin:0 auto 20px;max-width:52ch;color:var(--muted);font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .chip{font:inherit;font-size:13.5px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;
+        background:var(--panel);color:var(--ink);cursor:pointer;text-align:left}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .assure{margin-top:24px;font-size:12.5px;color:var(--muted);display:flex;gap:14px;
+          justify-content:center;flex-wrap:wrap}
+  .assure span::before{content:"✓ ";color:var(--ok)}
+  form#ask{display:flex;gap:10px;margin-top:20px;position:sticky;bottom:0;background:var(--bg);padding:12px 0}
+  #input{flex:1;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:8px;
+         background:var(--panel);color:var(--ink);resize:vertical;min-height:44px}
+  button.primary{font:inherit;font-weight:600;padding:11px 20px;border:0;border-radius:8px;
+                 background:var(--accent);color:#fff;cursor:pointer}
+  button.primary:disabled{opacity:.5;cursor:default}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .hintline{color:var(--muted);font-size:13px;margin:4px 0 0}
+
+  /* ---- settings ---- */
+  fieldset{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:0 0 18px;padding:16px}
+  legend{font-weight:650;font-size:13px;padding:0 6px}
+  label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
+  label:first-of-type{margin-top:0}
+  /* A label directly after help text needs room, or the two run together. */
+  .sub + label, p.sub + div > label:first-of-type{margin-top:18px}
+  #modelFields > div{margin-top:18px}
+  input[type=text],input[type=password],input[type=number],select{
+      width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:7px;
+      background:var(--bg);color:var(--ink)}
+  .sub{font-weight:400;color:var(--muted);font-size:12px;margin:4px 0 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .switch{display:flex;align-items:center;gap:9px;margin:12px 0}
+  .switch input{width:auto;margin:0}
+  .switch label{margin:0;font-weight:600}
+  .readonly{background:var(--code);border-radius:7px;padding:12px;font-size:13px;color:var(--muted)}
+  .readonly b{color:var(--ink)}
+  #saveMsg{margin-left:12px;font-size:13px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px;
+      overflow:auto;font-size:12.5px;max-height:60vh;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header>
+  <img class="brand" src="/favicon.svg" alt="AiNxt" width="26" height="28">
+  <span class="dot" id="dot"></span>
+  <h1>AiNxt OS</h1>
+  <span id="statusText">connecting…</span>
+  <span class="spacer"></span>
+  <span id="whoami" style="font-size:12px;color:var(--muted)"></span>
+</header>
+
+<nav>
+  <button id="tabChat" aria-selected="true">Chat</button>
+  <button id="tabSettings">Settings</button>
+  <button id="tabActivity">Activity</button>
+</nav>
+
+<main>
+  <!-- ================= CHAT ================= -->
+  <section id="paneChat">
+    <div id="empty">
+      <h2>Ask AiNxt OS anything</h2>
+      <p id="emptyLead">Every question goes through the same checks: who you are, what you are allowed
+         to see, and a record of what happened. Try one of these to see it working.</p>
+      <div class="chips">
+        <button class="chip" type="button">What can you help me with?</button>
+        <button class="chip" type="button">Summarise our settlement process in three points</button>
+        <button class="chip" type="button">Draft a short note explaining a payment delay to a customer</button>
+      </div>
+      <div class="assure">
+        <span>Runs on your machine</span>
+        <span>Permissions enforced</span>
+        <span>Every answer recorded</span>
+      </div>
+    </div>
+    <div id="log"></div>
+    <form id="ask">
+      <textarea id="input" rows="1" placeholder="Ask something…" autofocus></textarea>
+      <button class="primary" id="send" type="submit">Send</button>
+    </form>
+    <p class="hintline" id="chatHint"></p>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="paneSettings" hidden>
+    <fieldset>
+      <legend>Model</legend>
+      <label for="kind">Where should answers come from?</label>
+      <select id="kind">
+        <option value="offline">No model yet — offline replies (safe default)</option>
+        <option value="local">A model running on my own machine or network</option>
+        <option value="anthropic">Anthropic (cloud)</option>
+        <option value="open-ai-schema">OpenAI or any OpenAI-compatible endpoint</option>
+        <option value="gemini">Google Gemini (cloud)</option>
+      </select>
+      <p class="sub" id="kindHelp"></p>
+
+      <div id="modelFields" hidden>
+        <label for="modelId">Model name</label>
+        <input type="text" id="modelId" placeholder="llama3.1:8b">
+        <p class="sub">Exactly as your provider names it. This is also what appears in the audit trail.</p>
+
+        <div id="urlWrap">
+          <label for="baseUrl">Endpoint address</label>
+          <input type="text" id="baseUrl" placeholder="http://localhost:11434/v1">
+          <p class="sub">For example <code>http://localhost:11434/v1</code> for Ollama.</p>
+        </div>
+
+        <div id="keyWrap" hidden>
+          <label for="apiKey">API key</label>
+          <input type="password" id="apiKey" placeholder="leave blank to keep the saved key">
+          <p class="sub">Stored on this machine only, readable by you alone, and never written into
+             your configuration file.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Behaviour</legend>
+      <div class="switch">
+        <input type="checkbox" id="rag"><label for="rag">Answer from my documents when possible</label>
+      </div>
+      <p class="sub">Searches the configured knowledge base before asking the model, and cites what it used.</p>
+      <div class="switch">
+        <input type="checkbox" id="persist"><label for="persist">Remember conversations after a restart</label>
+      </div>
+      <p class="sub">Saves each conversation to disk so context survives restarting AiNxt OS.</p>
+      <label for="port">Port AiNxt OS listens on</label>
+      <input type="number" id="port" min="1024" max="65535">
+    </fieldset>
+
+    <fieldset>
+      <legend>Safety checks</legend>
+      <p class="sub" style="margin-top:0">
+        <b>Audit</b> records a flag and lets the answer through. <b>Enforce</b> can stop an answer.
+        <b>Off</b> disables the check.</p>
+      <div class="grid" id="guardrails"></div>
+      <label for="injection">Prompt-injection defence</label>
+      <select id="injection">
+        <option value="enforce">Enforce — shipped default</option>
+        <option value="audit">Audit — record only</option>
+        <option value="off">Off</option>
+      </select>
+      <p class="sub">Screens untrusted content pulled in from documents or connectors. It never blocks
+         an ordinary question.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Governance — not editable here</legend>
+      <div class="readonly" id="gates">…</div>
+      <p class="sub">These are the guarantees AiNxt OS enforces on every request and can never be set
+         to “none”. Changing them is a deployment decision, made in the configuration file with a
+         review — not from a chat window.</p>
+    </fieldset>
+
+    <div class="row">
+      <button class="primary" id="save" type="button">Save and restart</button>
+      <span id="saveMsg"></span>
+    </div>
+  </section>
+
+  <!-- ================= ACTIVITY ================= -->
+  <section id="paneActivity" hidden>
+    <p class="hintline" style="margin-top:0">What AiNxt OS wired at startup, and what it deliberately
+       left unwired. This is the daemon's own report.</p>
+    <pre id="activity">loading…</pre>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const panes = {Chat:'paneChat', Settings:'paneSettings', Activity:'paneActivity'};
+
+// ---------- tabs (hash-routed, so a tab is linkable and survives a reload) ----------
+function showTab(name){
+  if (!panes[name]) name = 'Chat';
+  for (const n of Object.keys(panes)) {
+    $('tab'+n).setAttribute('aria-selected', String(n === name));
+    $(panes[n]).hidden = (n !== name);
+  }
+  if (location.hash.slice(1).toLowerCase() !== name.toLowerCase()) {
+    history.replaceState(null, '', '#' + name.toLowerCase());
+  }
+  if (name === 'Activity') loadActivity();
+}
+for (const name of Object.keys(panes)) {
+  $('tab'+name).addEventListener('click', () => showTab(name));
+}
+function tabFromHash(){
+  const h = location.hash.slice(1).toLowerCase();
+  return Object.keys(panes).find(n => n.toLowerCase() === h) || 'Chat';
+}
+window.addEventListener('hashchange', () => showTab(tabFromHash()));
+showTab(tabFromHash());
+
+// ---------- status ----------
+async function refreshStatus(){
+  try{
+    const r = await fetch('/api/status');
+    const s = await r.json();
+    $('dot').className = 'dot ' + (s.up ? 'up' : 'down');
+    $('statusText').textContent = s.up
+      ? (s.provider_kind === 'offline'
+          ? 'running · no model configured'
+          : 'running · ' + s.model)
+      : 'not running';
+    $('whoami').textContent = [s.identity.user, s.identity.role, s.identity.department, s.identity.clearance]
+      .filter(Boolean).join(' · ');
+    const offline = s.provider_kind === 'offline';
+    $('chatHint').textContent = offline
+      ? 'No model is configured yet, so replies are placeholders. Open Settings to choose one.'
+      : '';
+    if (offline) {
+      $('emptyLead').textContent = 'No model is configured yet, so AiNxt OS will reply with a '
+        + 'placeholder — which still proves the whole path works: permissions, safety checks and '
+        + 'the audit record all run. Open Settings to connect a model and get real answers.';
+    }
+  }catch(e){
+    $('dot').className='dot down'; $('statusText').textContent='console lost the daemon';
+  }
+}
+
+// ---------- chat ----------
+const CATEGORY_LABEL = {
+  capability_denied:  'Refused — you do not have permission',
+  capacity:           'Busy — at capacity',
+  provider_unavailable:'The model could not be reached',
+  capped:             'Stopped — could not confirm a complete answer',
+  ambiguous:          'Needs clarification',
+  protocol_incompatible:'This client is out of date',
+  invalid_command:    'The request was malformed',
+};
+
+for (const chip of document.querySelectorAll('.chip')) {
+  chip.addEventListener('click', () => {
+    $('input').value = chip.textContent.trim();
+    $('input').focus();
+  });
+}
+
+function addTurn(who, cls){
+  const e = $('empty'); if (e) e.hidden = true;
+  const t = document.createElement('div');
+  t.className = 'turn ' + (cls||'');
+  const w = document.createElement('div'); w.className='who'; w.textContent=who;
+  const b = document.createElement('div'); b.className='bubble';
+  const m = document.createElement('div'); m.className='meta';
+  t.append(w,b,m); $('log').append(t);
+  window.scrollTo(0, document.body.scrollHeight);
+  return {bubble:b, meta:m, wrap:t};
+}
+
+$('ask').addEventListener('submit', async e => {
+  e.preventDefault();
+  const text = $('input').value.trim();
+  if (!text) return;
+  $('input').value=''; $('send').disabled = true;
+
+  addTurn('You','you').bubble.textContent = text;
+  const out = addTurn('AiNxt OS');
+  const started = performance.now();
+  let answered = false;
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({input:text})
+    });
+    if (!resp.ok) throw new Error('console error ' + resp.status + ': ' + (await resp.text()));
+
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    for(;;){
+      const {value, done} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream:true});
+      // SSE frames are separated by a blank line; each carries one `data:` JSON payload.
+      let i;
+      while ((i = buf.indexOf('\n\n')) >= 0) {
+        const frame = buf.slice(0, i); buf = buf.slice(i+2);
+        const line = frame.split('\n').find(l => l.startsWith('data:'));
+        if (!line) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
+        answered = renderEvent(ev, out, started) || answered;
+      }
+    }
+    if (!answered) {
+      out.bubble.textContent = '(no reply — the stream ended without an answer)';
+    }
+  } catch (err) {
+    out.wrap.classList.add('failed');
+    // A browser reports a dead server as the bare TypeError "Failed to fetch", which tells a
+    // non-technical operator nothing. The overwhelmingly common cause is that the Console process
+    // was stopped while this page stayed open in the browser, so say that.
+    const dead = (err instanceof TypeError) || /failed to fetch|load failed|networkerror/i.test(String(err.message || err));
+    out.bubble.innerHTML = '<div class="title"></div><div class="why"></div><div class="hint"></div>';
+    if (dead) {
+      out.bubble.querySelector('.title').textContent = 'AiNxt OS Console is not running';
+      out.bubble.querySelector('.why').textContent =
+        'This page is still open in your browser, but the Console that serves it has stopped, so the '
+        + 'question could not be sent anywhere.';
+      out.bubble.querySelector('.hint').textContent =
+        'Start it again from a terminal —  ./target/release/ainxt-os  — then reload this page.';
+    } else {
+      out.bubble.querySelector('.title').textContent = 'Could not complete';
+      out.bubble.querySelector('.why').textContent = String(err.message || err);
+    }
+  } finally {
+    $('send').disabled = false; $('input').focus();
+  }
+});
+
+// A refusal arrives INSIDE the stream with HTTP 200. Treating 200 as success is the classic
+// docking mistake, so the console renders `type:"error"` as a refusal, never as an answer.
+function renderEvent(ev, out, started){
+  switch (ev.type) {
+    case 'text.delta':
+      out.bubble.textContent += (ev.text || '');
+      return true;
+    case 'turn.rationale': {
+      const ms = Math.round(performance.now() - started);
+      const bits = [];
+      if (ev.model) bits.push(ev.model);
+      if (ev.model_tier) bits.push(ev.model_tier);
+      bits.push(ms + ' ms');
+      out.meta.textContent = bits.join('   ·   ');
+      return false;
+    }
+    case 'usage':
+      if (ev.input_tokens != null) {
+        const t = document.createElement('span');
+        t.textContent = ev.input_tokens + ' in / ' + ev.output_tokens + ' out';
+        out.meta.append(t);
+      }
+      return false;
+    case 'compliance.notice': {
+      const n = document.createElement('span');
+      n.textContent = 'compliance: ' + (ev.action||'noted')
+        + (ev.categories && ev.categories.length ? ' (' + ev.categories.join(', ') + ')' : '');
+      out.meta.append(n);
+      return false;
+    }
+    case 'error':
+    case 'turn.failed': {
+      const e = ev.error || ev;
+      out.wrap.classList.add(e.category === 'capability_denied' ? 'refusal' : 'failed');
+      out.bubble.classList.add(e.category === 'capability_denied' ? 'refusal' : 'failed');
+      const title = CATEGORY_LABEL[e.category] || 'Refused';
+      out.bubble.innerHTML = '<div class="title"></div><div class="why"></div><div class="hint"></div>';
+      out.bubble.querySelector('.title').textContent = title;
+      out.bubble.querySelector('.why').textContent = e.message || '';
+      out.bubble.querySelector('.hint').textContent = e.retryable
+        ? 'This may succeed if you try again.'
+        : 'Trying again will not help — this is a policy decision, and it has been recorded.';
+      return true;
+    }
+    default: return false;   // unknown frame types are ignorable by contract
+  }
+}
+
+// ---------- settings ----------
+const RAIL_LABEL = {
+  jailbreak:'Jailbreak attempts', groundedness:'Answer is grounded in sources',
+  toxicity:'Toxic content', system_prompt_leak:'System-prompt leaks', citation:'Citations present'
+};
+
+function onKindChange(){
+  const k = $('kind').value;
+  $('modelFields').hidden = (k === 'offline');
+  $('urlWrap').hidden = !(k === 'local' || k === 'open-ai-schema');
+  $('keyWrap').hidden = !(k === 'anthropic' || k === 'open-ai-schema' || k === 'gemini');
+  $('kindHelp').textContent = {
+    offline:'AiNxt OS answers with a placeholder. Everything else — permissions, safety checks, '
+           +'audit — still runs, so this is a real test of the path.',
+    local:'Nothing leaves your network. Works with Ollama, vLLM, or anything OpenAI-compatible.',
+    anthropic:'Requests go to Anthropic over the internet.',
+    'open-ai-schema':'Requests go to whichever endpoint you name below.',
+    gemini:'Requests go to Google over the internet.',
+  }[k] || '';
+}
+$('kind').addEventListener('change', onKindChange);
+
+async function loadSettings(){
+  const s = await (await fetch('/api/settings')).json();
+  $('kind').value = s.provider_kind;
+  $('modelId').value = s.provider_id || '';
+  $('baseUrl').value = s.provider_base_url || '';
+  $('rag').checked = s.rag_enabled;
+  $('persist').checked = s.persist_sessions;
+  $('port').value = s.port;
+  $('injection').value = s.injection_mode;
+
+  const g = $('guardrails'); g.innerHTML = '';
+  for (const [rail, mode] of Object.entries(s.guardrails)) {
+    const wrap = document.createElement('div');
+    const lab = document.createElement('label'); lab.textContent = RAIL_LABEL[rail] || rail;
+    lab.htmlFor = 'g_'+rail;
+    const sel = document.createElement('select'); sel.id = 'g_'+rail; sel.dataset.rail = rail;
+    for (const m of ['off','audit','enforce']) {
+      const o = document.createElement('option'); o.value = m;
+      o.textContent = m.charAt(0).toUpperCase()+m.slice(1); sel.append(o);
+    }
+    sel.value = mode; wrap.append(lab, sel); g.append(wrap);
+  }
+  $('gates').innerHTML = '<b>Compliance:</b> ' + s.gates.compliance
+    + ' &nbsp;·&nbsp; <b>Authorisation:</b> ' + s.gates.authz
+    + ' &nbsp;·&nbsp; <b>Audit:</b> ' + s.gates.audit
+    + ' &nbsp;·&nbsp; <b>Identity:</b> verified token (jwt-sso)';
+  onKindChange();
+}
+
+$('save').addEventListener('click', async () => {
+  const guardrails = {};
+  for (const sel of $('guardrails').querySelectorAll('select')) guardrails[sel.dataset.rail] = sel.value;
+  const body = {
+    provider_kind: $('kind').value,
+    provider_id: $('modelId').value.trim(),
+    provider_base_url: $('baseUrl').value.trim(),
+    rag_enabled: $('rag').checked,
+    persist_sessions: $('persist').checked,
+    port: Number($('port').value),
+    injection_mode: $('injection').value,
+    guardrails,
+    api_key: $('apiKey').value,     // blank = keep whatever is stored
+  };
+  $('save').disabled = true;
+  $('saveMsg').textContent = 'validating and restarting…'; $('saveMsg').className = '';
+  try {
+    const r = await fetch('/api/settings', {
+      method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body)
+    });
+    const res = await r.json();
+    if (!r.ok || !res.ok) throw new Error(res.error || 'could not save');
+    $('saveMsg').textContent = 'Saved. AiNxt OS restarted.'; $('saveMsg').className='ok';
+    $('apiKey').value = '';
+    await refreshStatus();
+  } catch (e) {
+    $('saveMsg').textContent = String(e.message || e); $('saveMsg').className='bad';
+  } finally { $('save').disabled = false; }
+});
+
+async function loadActivity(){
+  try {
+    const r = await fetch('/api/activity');
+    $('activity').textContent = await r.text();
+  } catch { $('activity').textContent = 'could not read the startup report'; }
+}
+
+refreshStatus(); loadSettings();
+setInterval(refreshStatus, 5000);
+</script>
+</body>
+</html>

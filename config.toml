@@ -1,0 +1,43 @@
+version = 1
+
+[server]
+host = "127.0.0.1"
+port = 8080
+event_log_dir = "logs"
+# Persist conversation history to disk so multi-turn context survives daemon restarts
+# and session idle timeouts. Each session is stored as sessions/<session_id>.jsonl
+# (tamper-evident, SHA-256 hash-chained, CHD-redacted).
+chat_sessions_dir = "sessions"
+
+[session]
+max_sessions = 100
+inbox_capacity = 8
+
+[limits]
+max_agent_iters = 4
+
+[kb]
+rls_department_isolation = false
+# RAG toggle: true = BM25 corpus retrieval before every LLM call (grounded answers + citations).
+# false = skip retrieval entirely — history + message go directly to the LLM.
+# Change requires a daemon restart. Default: true.
+rag_enabled = false
+
+[incident]
+# Statutory breach-clock arming policy.
+# "generic"          — no pre-armed clocks (OSS default, safe for any jurisdiction).
+# "india-regulatory" — arms CERT-In (6h), DPDP-Board (72h), RBI (24h) clocks.
+#                      Set this in a private config overlay for India-regulated deployments.
+arming_policy = "generic"
+
+[[models.providers]]
+id = "local"
+kind = "local"
+# Set LLM_BASE_URL env var to your LLM endpoint, e.g.:
+#   Ollama:  http://localhost:11434/v1
+#   vLLM:    http://localhost:8000/v1
+#   Any OpenAI-compatible endpoint works.
+# Can also be overridden via --config overlay at startup.
+base_url = ""   # Leave empty to use LLM_BASE_URL env var (set in deploy/.env).
+                # Or set directly here, or via a --config overlay file.
+eligible = ["public", "internal", "confidential", "regulated-payment"]

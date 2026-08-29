@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "ainxt-workforce"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the AiNxt-OS digital-workforce ladder (Skill -> Agent -> Role -> Digital Team) and the Role Studio factory (AINXT_OS.md / WORKFORCE_AND_OS.md). Every rung is a governed, declarative, deterministic object: an Agent rung binds a persona + skills + least-privilege capabilities + a model policy; a Role is a digital worker (charter + agent(s) + skills + connectors + knowledge scopes + governance + KPIs + per-task autonomy); a DigitalTeam is a governed department of collaborating published Roles. The Role Studio is the 10-step conversational factory expressed as a typed state machine that produces a validated RoleSpec, and the Breaker (adversarial Test Agent) is a CANNOT-SKIP publish gate enforced in the type system: a Role with a failing Breaker report can never be constructed as Published. WORKFORCE_AND_OS §6 (citizen-artifact lifecycle: decay-sweep / recert nudge / orphan detection / succession / forced-review-before-deprecation) and §7 (automation-complacency controls: approve-latency + override-rate metrics, Breaker-generated attention-check decoys, competency-status re-routing) are pure logic. No infra, no clock, no RNG; exhaustively unit-tested."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable declarative rung specs; ainxt-types by path for the
+# shared DataClass / Principal model (least-privilege capability ceilings, data-residency, clearance);
+# ainxt-governance by path to re-host the git-native definition lifecycle (DRAFT -> PENDING_APPROVAL
+# -> APPROVED -> PRODUCTION -> DEPRECATED, ADR-026) that a published Role's control-plane definition
+# lives on. Acyclic: ainxt-types depends on nothing in-tree; ainxt-governance depends on
+# ainxt-payments + serde; nothing depends on ainxt-workforce. No copyleft enters the supply chain.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+ainxt-governance = { path = "../ainxt-governance" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

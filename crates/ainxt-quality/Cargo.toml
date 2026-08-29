@@ -1,0 +1,30 @@
+[package]
+name = "ainxt-quality"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — answer-QUALITY as a measured dimension (gaps BF/BT), separate from correctness, plus online quality-DRIFT detection. Provides deterministic per-dimension scorers (Completeness, FormatValidity, VerbosityFit, CitationPresence, Groundedness, ToneConsistency) that each produce a 0-100 score + rationale from an answer and its context; a weighted QualityProfile aggregating them into an overall; a two-sample change-point drift monitor that names the regressed dimension when a recent window drops meaningfully below a baseline window; and a QualityJudge bridge into ainxt-eval so a quality dimension can drive the release GATE. Pure, deterministic (no clock/rng), exhaustively testable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable profiles/reports; ainxt-types by path for the
+# shared DataClass model (tone is held to a stricter bar on regulated-payment answers); ainxt-eval
+# by path so a quality dimension can be wired behind the eval GATE's judge seam. NOTHING copyleft;
+# LLM-judge scoring is a downstream seam, so no ML crates enter the supply-chain surface here.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+ainxt-eval = { path = "../ainxt-eval" }
+# ainxt-canary by path — the anytime-valid online canary + git-ref pointer-flip auto-rollback. The
+# online release CONTROLLER (controller.rs) composes that pre-promotion decision with this crate's
+# post-promotion drift monitor into one live-drivable seam. Acyclic: ainxt-canary depends only on
+# serde. Permissive-only; no copyleft enters the supply-chain surface.
+ainxt-canary = { path = "../ainxt-canary" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

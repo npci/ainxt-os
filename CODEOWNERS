@@ -1,0 +1,20 @@
+# CODEOWNERS — review ownership for AiNxt OS.
+#
+# Every path is owned by the NPCI Open Source Programme. GitHub resolves the address below to the
+# account it belongs to; that account (or a team it is a member of) must have write access to this
+# repository for the rule to take effect, and branch protection must have
+# "Require review from Code Owners" enabled. Without both, this file is advisory only.
+#
+# Referenced by CONTRIBUTING.md ("Review ownership is defined in CODEOWNERS").
+
+*                       opensource@npci.org.in
+
+# Licence, notices and governance change the project's legal posture — same owner, called out so a
+# reviewer sees immediately that a PR touches them.
+/LICENSE                opensource@npci.org.in
+/NOTICE                 opensource@npci.org.in
+/THIRD_PARTY_*          opensource@npci.org.in
+/SECURITY.md            opensource@npci.org.in
+/CODE_OF_CONDUCT.md     opensource@npci.org.in
+/GOVERNANCE.md          opensource@npci.org.in
+/CODEOWNERS             opensource@npci.org.in

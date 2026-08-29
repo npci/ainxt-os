@@ -1,0 +1,32 @@
+[package]
+name = "ainxt-session"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Session Manager: actor-per-session (serial turns), bounded inbox with backpressure→503, global session cap + idle reaping (bounded memory), per-turn cancellation. The concurrency spine for 2000+ sessions."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+# The interaction/replay spine (branch/edit/stop/steer over a linear log). ACYCLIC: ainxt-replay
+# depends only on ainxt-types + serde + sha2 — it does NOT depend on the runtime or this crate, so
+# ainxt-session -> ainxt-replay adds no cycle (SURF-11). replay_tail/EventEnvelope for the resume
+# tail (TURN-05) already come from ainxt-protocol above.
+ainxt-replay = { path = "../ainxt-replay" }
+serde = { version = "1", features = ["derive"] }
+tokio = { workspace = true }
+# FutureExt::catch_unwind isolates a panicking turn so it cannot kill the session actor
+# (catch_unwind lives behind the `std` feature).
+futures-util = { version = "0.3.7", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+# Paused virtual clock for deterministic idle-reaping tests.
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,18 @@
+# AiNxt OS — Rust workspace root.
+# 65 member crates and 6 binaries: `ainxt-runtimed` (the runtime), `ainxt-os` (the Console),
+# `ainxt` (headless CLI), `ainxt-injection-svc`, `scenario-runner` and `release-gate-ci`.
+[workspace]
+resolver = "2"
+members = ["crates/ainxt-cli", "crates/ainxt-console", "crates/ainxt-scenario", "crates/ainxt-types", "crates/ainxt-protocol", "crates/ainxt-runtime", "crates/ainxt-providers", "crates/ainxt-server", "crates/ainxt-context", "crates/ainxt-eventlog", "crates/ainxt-tools", "crates/ainxt-convo", "crates/ainxt-guardrails", "crates/ainxt-config", "crates/ainxt-injection", "crates/ainxt-telemetry", "crates/ainxt-session", "crates/ainxt-prompt", "crates/ainxt-connector", "crates/ainxt-token", "crates/ainxt-oauth", "crates/ainxt-refresh", "crates/ainxt-connector-http", "crates/ainxt-profile", "crates/ainxt-skill", "crates/ainxt-surface", "crates/ainxt-edit", "crates/ainxt-judge", "crates/ainxt-artifact", "crates/ainxt-client", "crates/ainxt-admission", "crates/ainxt-governance", "crates/ainxt-plugin", "crates/ainxt-runtimed", "crates/ainxt-eval", "crates/ainxt-compliance", "crates/ainxt-retrieval", "crates/ainxt-memory", "crates/ainxt-teams", "crates/ainxt-mcp", "crates/ainxt-synthesis", "crates/ainxt-answer", "crates/ainxt-quality", "crates/ainxt-conformance", "crates/ainxt-payments", "crates/ainxt-serving", "crates/ainxt-identity", "crates/ainxt-classify", "crates/ainxt-cache", "crates/ainxt-canary", "crates/ainxt-planner", "crates/ainxt-promptopt", "crates/ainxt-responsibleai", "crates/ainxt-lifecycle", "crates/ainxt-chat", "crates/ainxt-nl2sql", "crates/ainxt-cryptoagility", "crates/ainxt-graph", "crates/ainxt-semantic", "crates/ainxt-wasm", "crates/ainxt-incident", "crates/ainxt-pipeline", "crates/ainxt-replay", "crates/ainxt-workforce", "crates/ainxt-injection-svc"]
+
+[workspace.package]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/npci/ainxt-os"
+authors = ["National Payments Corporation of India"]
+rust-version = "1.94"
+
+[workspace.dependencies]
+# Async runtime for the streaming core. MIT-licensed; its transitive tree is permissive
+# (verified by the `cargo deny` license gate in CI / deny.toml).
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "sync", "time"] }

@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-cryptoagility"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — crypto-agility / PQC-readiness policy core (ADR-023, Pass-5 gap 42). Real, pure, deterministic algorithm-selection machinery: a per-Purpose (Signing / KeyExchange / Hashing / SymmetricEncryption) ordered registry of candidate algorithms each carrying an AlgStatus (Approved / Deprecated{not_after} / Forbidden) and a pqc_safe flag; resolve(purpose, now) returns the highest-preference algorithm that is Approved — or Deprecated but still within its not_after tick at the injected logical time `now` — and NEVER returns a Forbidden one, erroring with NoApprovedAlgorithm when nothing is usable; is_pqc_ready reports whether the resolved algorithm is post-quantum safe; and must_rotate flags an in-use algorithm that has become Forbidden or has passed its not_after. A broken primitive or the PQC transition can be enacted by policy alone — no code silently keeps signing or encrypting with a deprecated algorithm. No clock, no rng, no I/O — logical time is an injected parameter, so every guarantee is unit-testable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable policy registries so a deployment/tenant can
+# ship its crypto-agility policy as data, not code. NOTHING copyleft; no clock/rng/HTTP crate
+# enters the supply-chain surface — algorithm selection is pure and deterministic.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Permissive (RustCrypto, MIT/Apache-2.0, already in the workspace tree). Lets the crate GOVERN a real
+# cryptographic operation — [`GovernedHasher`] resolves the Hashing purpose via the policy and then
+# actually computes the digest — so the agility policy is not advisory: a Forbidden/expired primitive
+# cannot be used, by construction, because the only hashing entrypoint asks the registry first.
+sha2 = "0.11"
+
+[lints.rust]
+unsafe_code = "forbid"

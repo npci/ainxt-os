@@ -1,0 +1,44 @@
+[package]
+name = "ainxt-connector-http"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — concrete connector adapters (GitLab/Jira/Microsoft Graph) over an air-gap-aware HTTP transport (Phase 2). Every outbound call flows through the Connector Runtime's admission (on-behalf-of authz) and egress DLP + data-class ceiling; responses are tagged untrusted (Provenance::Connector) for the injection stage. The transport is a seam: a pure StubTransport for tests, and an optional reqwest-based transport (feature `reqwest-transport`) that honors the air-gap forward proxy."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[features]
+# The real HTTP transport (reqwest + rustls, honoring the air-gap forward proxy). OFF by default so
+# the pure adapter/invoker core builds and tests without any network stack; the composition binary
+# turns it on. Under this feature the transport has OFFLINE tests (constructor + proxy wiring +
+# connect-refused → Unavailable mapping, all against localhost, no external network); the one test
+# that needs a live reachable endpoint is `#[ignore]` (run explicitly, never in CI).
+reqwest-transport = ["dep:reqwest"]
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-connector = { path = "../ainxt-connector" }
+ainxt-payments = { path = "../ainxt-payments" }
+ainxt-token = { path = "../ainxt-token" }
+ainxt-oauth = { path = "../ainxt-oauth" }
+ainxt-refresh = { path = "../ainxt-refresh" }
+ainxt-injection = { path = "../ainxt-injection" }
+# The ONE capability trait + registry (§0). A connector call is exposed as an `ainxt_tools::Tool`
+# (see [`capability::ConnectorCapability`]) so it dispatches through the SAME `CapabilityRegistry` as
+# native + MCP + plugin tools — ledger/idempotency/resource-locking/approval apply with no
+# connector-specific work. ACYCLIC: ainxt-tools depends on eventlog/payments/nl2sql/mcp/plugin/types,
+# none of which reach ainxt-connector-http; the edge ainxt-connector-http → ainxt-tools is new and safe.
+ainxt-tools = { path = "../ainxt-tools" }
+percent-encoding = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Real transport (optional). rustls-tls (no OpenSSL); already cleared by the deny license gate.
+reqwest = { version = "0.13", default-features = false, features = ["blocking", "rustls"], optional = true }
+
+[dev-dependencies]
+ainxt-scenario = { path = "../ainxt-scenario" }
+
+[lints.rust]
+unsafe_code = "forbid"

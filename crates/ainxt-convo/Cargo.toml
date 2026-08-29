@@ -1,0 +1,53 @@
+[package]
+name = "ainxt-convo"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — conversation intelligence: intent cascade, follow-up rewrite, referent/content resolution (instruction != content)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+# The STRONG generic DLP/redaction ComplianceGate default (ADR-003). Used as the compliance-OUT
+# implementation of the mandatory short-circuit gate ([`TerminalTurnGate`]) so a terminal turn that
+# never enters `Engine::run_turn_cancellable` is still output-scanned before ANY byte reaches a
+# sink. Acyclic: ainxt-compliance depends only on ainxt-runtime.
+ainxt-compliance = { path = "../ainxt-compliance" }
+ainxt-context = { path = "../ainxt-context" }
+# The production hybrid engine's token counter + eligible-model window types, used by the Context
+# Optimizer (`ainxt_context::compile`) the conversation surface now drives on the live turn path.
+ainxt-retrieval = { path = "../ainxt-retrieval" }
+# The answer-path verification gate (faithfulness + cross-source conflict + numeric re-derivation)
+# called AFTER generation and BEFORE the answer is returned — the "output-lint seam".
+ainxt-synthesis = { path = "../ainxt-synthesis" }
+ainxt-eventlog = { path = "../ainxt-eventlog" }
+ainxt-guardrails = { path = "../ainxt-guardrails" }
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-prompt = { path = "../ainxt-prompt" }
+# Stage-2 constrained intent classifier (model-agnostic label extraction) and the typed
+# answer-composition core (verbosity right-sizing + citation UX). Both permissive, pure Rust.
+ainxt-classify = { path = "../ainxt-classify" }
+ainxt-answer = { path = "../ainxt-answer" }
+# R16 fix (doc_generation dead-ends): the structured document IR + `Document::from_text` builder a
+# doc-generation turn's resolved content is converted into, so the surface hands a real pre-built
+# IR downstream instead of a naked string. Acyclic: ainxt-artifact depends only on ainxt-types.
+ainxt-artifact = { path = "../ainxt-artifact" }
+# GAP-FIX conversation-intelligence "doc-gen artifact IR dead on the streaming path": serializing the
+# `ainxt_artifact::Document` IR to JSON for `Event::Artifact.output` / `TurnSummary.document_json` —
+# `ainxt-runtime` cannot name `ainxt_artifact::Document` (dependency-cycle-free layering), so the
+# streaming path hands it across as pre-serialized JSON, the same string-payload convention
+# `Event::Artifact` already uses.
+serde_json = "1"
+tokio = { workspace = true }
+
+[dev-dependencies]
+# Integration tests register tools to exercise the RAG injection → tool-gating backstop.
+ainxt-tools = { path = "../ainxt-tools" }
+
+[lints.rust]
+unsafe_code = "forbid"

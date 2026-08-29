@@ -1,0 +1,16 @@
+[package]
+name = "ainxt-types"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — core domain types (pure, no I/O)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[lints.rust]
+unsafe_code = "forbid"
