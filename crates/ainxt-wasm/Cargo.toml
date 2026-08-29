@@ -27,7 +27,7 @@ rust-version.workspace = true
 # gate. This sandbox only runs CORE wasm modules (no component model), so dropping that feature keeps
 # the whole tree permissive with zero loss of function. We keep: std, runtime (Store/Instance/Func),
 # cranelift (compile), wat (inline-WAT fixtures), gc (Val), addr2line/demangle (readable traps).
-wasmtime = { version = "46.0.2", default-features = false, features = ["std", "runtime", "cranelift", "wat", "addr2line", "demangle"] }
+wasmtime = { version = "48.0.1", default-features = false, features = ["std", "runtime", "cranelift", "wat", "addr2line", "demangle"] }
 # The capability-confinement SEAM (PluginHost / ResourceLimits / PluginError). This crate is the real
 # WASM implementation of that offline-defined contract, so `WasmSandbox` drops in behind the same trait
 # `NativeHost` implements — one seam, two hosts. ainxt-plugin has no wasm dependency (serde + sha2 only),
