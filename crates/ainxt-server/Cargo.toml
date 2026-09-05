@@ -100,7 +100,7 @@ tokio-stream = "0.1"
 # already this crate's entire transport dependency, so reusing it avoids pulling tonic/gRPC's
 # separate prost/h2 stack for a first binding). Pulls in `tokio-tungstenite` (MIT) transitively —
 # already covered by the same axum/hyper/tower tree `cargo deny` clears today.
-axum = { version = "0.7", features = ["ws"] }
+axum = { version = "0.8", features = ["ws"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # HS256 JWT/SSO signature verification for the selectable JwtSsoAuth authenticator (RustCrypto,
