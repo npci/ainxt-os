@@ -134,7 +134,7 @@ ainxt-judge = { path = "../ainxt-judge" }
 # GAP-FIX turn-pipeline #2 — a REAL WebSocket client (independent implementation from axum's
 # server-side "ws" feature above) to prove the `/v1/ws` transport end-to-end over an actual TCP
 # socket + WebSocket handshake, not an in-process mock. MIT-licensed, test-only.
-tokio-tungstenite = "0.24"
+tokio-tungstenite = "0.30"
 
 [lints.rust]
 unsafe_code = "forbid"
