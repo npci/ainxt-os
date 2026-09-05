@@ -1,0 +1,52 @@
+[package]
+name = "ainxt-runtime"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime core — turn pipeline, mandatory gates, data-class-aware model router (P1 vertical slice; sync/mock; async+HTTP providers land next)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-tools = { path = "../ainxt-tools" }
+ainxt-guardrails = { path = "../ainxt-guardrails" }
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-telemetry = { path = "../ainxt-telemetry" }
+# Memory (Context-Fabric layer 12) + Responsible-AI (RBI outsourcing register / SR-11-7 model-risk)
+# are BASE crates (deps: serde + ainxt-types only) — they do NOT depend on the runtime, so the
+# runtime may depend on them (acyclic). Memory is read on the context-assembly path (MEM-04);
+# responsible-AI backs the router's non-overridable outsourcing eligibility (FI-03) and the
+# quality circuit-breaker / promotion gate (FI-07).
+ainxt-memory = { path = "../ainxt-memory" }
+ainxt-responsibleai = { path = "../ainxt-responsibleai" }
+# Serving-Ops node-level admission (ADR-020/021) — the runtime consults the node-attestation gate
+# BEFORE model dispatch for regulated data (fail-closed, §8.2). ainxt-serving deps are serde +
+# ainxt-types + ainxt-cache only (no path back to the runtime), so this edge is ACYCLIC.
+# GAP-AUDIT turn-pipeline #7 — the richer Cycle/NoProgress stuck detector (already used by the
+# self-heal loop and the LOOP teams tier-escalation path) replaces the engine's own narrow
+# exact-repeat-only heuristic. Deps are `serde` only (no path back to the runtime) — acyclic.
+ainxt-judge = { path = "../ainxt-judge" }
+ainxt-serving = { path = "../ainxt-serving" }
+tokio = { workspace = true }
+
+[dev-dependencies]
+# The scenario harness drives the engine in integration tests (harness ⇒ SUT, one direction).
+ainxt-scenario = { path = "../ainxt-scenario" }
+# Config layer resolves the declarative config that composes the engine (assembly test).
+ainxt-config = { path = "../ainxt-config" }
+# GAP-FIX prompt §9 — proves `ModelRouter::with_steerability_gate`'s eligible-id set is genuinely
+# derived from `ainxt_prompt::steerability::is_eligible`, not a router-internal reinvention of the
+# rule. Dev-dependency only (test binary), so this is NOT a build cycle: `ainxt-prompt` already
+# reaches `ainxt-runtime` transitively via the existing `ainxt-config` dev-dependency above (`ainxt-
+# config` re-exports `ainxt_prompt::PromptConfig`) — Cargo explicitly allows a dev-dependency cycle
+# because it is only needed to build this crate's tests, never its library.
+ainxt-prompt = { path = "../ainxt-prompt" }
+# test-util enables the paused virtual clock for deterministic backoff/cancel-timing tests.
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints.rust]
+unsafe_code = "forbid"

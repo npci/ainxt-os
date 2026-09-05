@@ -1,0 +1,30 @@
+[package]
+name = "ainxt-incident"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — statutory AI-incident breach-notification engine (REGULATED_FI_COMPLIANCE_OPS.md §2, ADR-011/ADR-017; Pass-5 gap [3]). A durable, deterministic state machine fed a logical clock: an IncidentRegister with a control-plane ArmingPolicy (incident class → which statutory clocks fire), StatutoryClocks (CERT-In 6h / DPDP / RBI countdowns from an immutable NTP-sourced t0 that survive a kill -9 by re-projecting from t0 on restart), a 50/75/90%→owner/DPO/CISO + breach→board-delegate escalation ladder, an auto-raised P1 compliance META-INCIDENT the moment a clock crosses its budget without a recorded filing (a missed deadline is structurally un-hideable), authenticated reason-coded downgrades (fail-safe: arm early, disarm only on authority), and an append-only, SHA-256 hash-chained event log so the whole register is tamper-evident and admissible. No clock/rng/I/O — logical time and the control-plane SHA are injected, so every guarantee is unit-testable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# Permissive-only. serde for durable (de)serialization of the register (the "survive kill -9"
+# property = deserialize + continue). sha2 (RustCrypto, MIT/Apache-2.0, already in the tree) for the
+# tamper-evident hash chain. ainxt-types by path for the shared Principal (downgrade authority) and
+# DataClass (affected-class tagging). No clock/rng/HTTP crate enters the supply-chain surface.
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.11"
+ainxt-types = { path = "../ainxt-types" }
+# ADR-023 crypto-agility: the register's evidentiary hash-chain resolves its digest primitive through
+# the crypto-agility policy (GovernedHasher) instead of a hard-coded sha2 call — so a Forbidden/expired
+# hash primitive cannot seal the statutory register, and a PQC migration is a policy edit, not a code
+# change. ainxt-cryptoagility depends only on serde + sha2 (no reverse dep on ainxt-incident) → acyclic.
+ainxt-cryptoagility = { path = "../ainxt-cryptoagility" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

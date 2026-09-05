@@ -1,0 +1,25 @@
+# Dependency update automation. Audit finding H-03: a public repository with a committed
+# Cargo.lock needs a mechanism that proposes updates, or the locked set silently ages.
+# `cargo deny check advisories` already FAILS CI on a known vulnerability; this is what
+# actually produces the fix.
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+    # Grouped so 300+ transitive crates do not produce a wall of individual PRs.
+    groups:
+      cargo-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"

@@ -1,0 +1,27 @@
+[package]
+name = "ainxt-nl2sql"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the safe NL-to-SQL boundary over structured ledger/reporting data. A model NEVER emits raw SQL: it proposes a structured, validated QueryIntent (SELECT-only, no mutation representable in the type system) and this crate compiles it to bounded, parameterized SQL. Pure, deterministic core: a Schema allowlist of Table{name, columns:[Column{name, data_class}]}; validate_and_compile(intent, schema, principal) that rejects unknown tables/columns, refuses any selected/filtered/ordered column above the principal's clearance WITHOUT leaking existence (ADR-012), forces a bounded LIMIT (clamped to a configured max), and emits values as $1,$2… placeholders so SQL injection is structurally impossible and statement stacking (a `;`) can never appear. Identifiers come only from the allowlist and are validated at schema-build time, so even the allowlist cannot carry an injection. No clock, no rng, no I/O — every guarantee is a unit-testable property."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for the (de)serializable QueryIntent the model proposes as JSON;
+# ainxt-types by path for the shared DataClass clearance model (ADR-012) and Principal. NOTHING
+# copyleft. No SQL parser / regex / heavy crate enters the supply-chain surface — the intent is
+# already structured, so compilation is a hand-rolled, deterministic string assembly.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+
+# Test-only. serde_json (permissive MIT/Apache-2.0) exercises the real model→JSON→intent flow and
+# the `deny_unknown_fields` raw-SQL-smuggle rejection. It does NOT enter the shipped dependency
+# surface (dev-dependencies are excluded from downstream builds).
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

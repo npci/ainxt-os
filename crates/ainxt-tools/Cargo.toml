@@ -1,0 +1,50 @@
+[package]
+name = "ainxt-tools"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Tool Runtime with the Side-Effect Ledger (exactly-once), saga/compensation, and in-doubt reconciliation (ADR-002/013)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-eventlog = { path = "../ainxt-eventlog" }
+# The canonical 4-value effect class (Pure|Idempotent|SideEffecting|PaymentInitiating) lives in the
+# payment-domain crate (ADR-016 §3.1); the Tool Runtime adopts it directly rather than re-declaring a
+# divergent 3-value copy — one source of truth for the payment boundary (IDN-11). Permissive (serde +
+# ainxt-types only; no cycle — ainxt-payments does not depend on ainxt-tools).
+ainxt-payments = { path = "../ainxt-payments" }
+# The safe NL-to-SQL boundary a `query_ledger` capability compiles a model's QueryIntent through
+# (SURF-09). Permissive-only (serde + ainxt-types).
+ainxt-nl2sql = { path = "../ainxt-nl2sql" }
+# §0 one-registry: MCP-discovered tools and WASM/native plugin exports are adapted into the SAME
+# `Tool`/`CapabilityRegistry` here, so nothing downstream branches on origin. Both are permissive
+# (ainxt-mcp = serde + sha2; ainxt-plugin = serde) and neither depends on ainxt-tools — the added
+# edges ainxt-tools→ainxt-mcp and ainxt-tools→ainxt-plugin are ACYCLIC.
+ainxt-mcp = { path = "../ainxt-mcp" }
+ainxt-plugin = { path = "../ainxt-plugin" }
+# The canonical data-sensitivity class (ADR-012) the §4.2 tri-signal tool-call classifier fuses. A
+# leaf crate (serde only) — the edge ainxt-tools→ainxt-types is ACYCLIC.
+ainxt-types = { path = "../ainxt-types" }
+# GAP-FIX guardrails-injection "connector-provenance lost" — the canonical `Provenance` enum (ADR-009)
+# a `Tool` impl declares itself as originating from (`Tool::tool_provenance`), so the served engine's
+# post-dispatch injection/quarantine scan can tag a connector-sourced result `Provenance::Connector`
+# instead of the generic `Provenance::ToolResult` it used for every dispatch regardless of origin. A
+# leaf crate (serde only, zero internal deps) — the edge ainxt-tools→ainxt-injection is ACYCLIC.
+ainxt-injection = { path = "../ainxt-injection" }
+serde_json = "1"
+# §1.9 guaranteed-linear-time detector engine mandate: Rust's `regex` crate is architecturally a
+# "RE2-class" engine — its finite-automata construction makes catastrophic backtracking IMPOSSIBLE for
+# any pattern that compiles, because backreferences/lookaround (what a backtracking engine needs to
+# blow up) are not expressible in its grammar. MIT/Apache-2.0 dual-licensed (permissive); already
+# present transitively in the workspace lockfile.
+regex = "1.5.5"
+# Deterministic content hashing for the §4.5 stable-prefix prompt-cache key (same canonical-hash
+# discipline already used elsewhere in the workspace, e.g. ainxt-mcp's TOFU pin). Permissive
+# (MIT/Apache-2.0), already vetted in the workspace lockfile.
+sha2 = "0.11"
+
+[lints.rust]
+unsafe_code = "forbid"

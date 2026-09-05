@@ -1,0 +1,332 @@
+# Injection Defence — Policy Rules
+# ─────────────────────────────────────────────────────────────────────────────
+# NOTE: This is a STARTER TEMPLATE of example rules for a financial-services
+# LLM deployment. Rule IDs are generic (FIN-*, PAY-*, PII-*, PCI-*, TRADING-*)
+# and descriptions do not reference any specific regulator or country.
+#
+# The keywords/patterns include several tokens from the Indian payments domain
+# (UPI, VPA, Aadhaar, PAN, IFSC, NEFT/RTGS/IMPS, KYC) purely as concrete
+# EXAMPLES of the pattern shape. Adapt or replace them for your own domain,
+# regulator, and language mix before shipping to production.
+# ─────────────────────────────────────────────────────────────────────────────
+# Each rule has:
+#   id          — unique identifier (used in audit logs)
+#   description — human-readable reason (logged on block)
+#   keywords    — case-insensitive substring matches (any match triggers)
+#   pattern     — optional regex pattern (matched after keywords)
+#   phase       — "ingress" | "egress" | "both"
+#   action      — "deny" | "flag"
+#
+# Rules are evaluated in order. First match wins.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ═════════════════════════════════════════════════════════════════════════════
+# INGRESS RULES — scan incoming requests / retrieved content
+# ═════════════════════════════════════════════════════════════════════════════
+
+# ── Payment / transfer limit and authorisation ────────────────────────────────
+
+[[rules]]
+id          = "FIN-LIMIT-001"
+description = "Per-transaction limit bypass attempt on a fast-payment rail"
+keywords    = ["bypass upi limit", "exceed upi limit", "override upi limit", "upi limit bypass", "ignore upi limit"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-TRANSFER-001"
+description = "Unauthorised fund-transfer instruction in retrieved content (fast-payment rail)"
+keywords    = ["transfer all funds via upi", "send all money upi", "upi transfer to unknown"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-TRANSFER-002"
+description = "Direct unauthorised fund-transfer command — AI must not execute financial transactions on command"
+keywords    = [
+    "transfer to my account",
+    "send money to my account",
+    "transfer funds to my account",
+    "send funds to my account",
+    "pay to my account",
+    "deposit to my account",
+    "transfer to account number",
+    "send to account number",
+    "transfer to upi id",
+    "send to upi id",
+    "pay to upi",
+    "transfer to vpa",
+    "send to vpa",
+    "please transfer",
+    "please send money",
+    "please pay to",
+    "initiate transfer",
+    "initiate payment to",
+    "execute transfer",
+    "do a transfer",
+    "make a transfer to",
+]
+# Pattern matches IMPERATIVE direct commands only.
+# Requires the command to start with an optional imperative prefix (please/kindly/now/immediately)
+# followed directly by the verb — this excludes past-tense like "i transfer", "yesterday i sent".
+# regex-lite does not support lookbehind, so we anchor on the imperative structure instead.
+pattern     = "(?i)^\\s*(please |kindly |now |immediately |go ahead and )?(transfer|send|pay|deposit|credit)\\s+(rs\\.?|₹|inr)?\\s*[\\d,]+\\s*(rs\\.?|₹|inr)?\\s+(to|into)\\s+(my|the|this|his|her|their)\\s+(account|wallet|upi|vpa|bank)"
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-BANK-TRANSFER-001"
+description = "Unauthorised bank-transfer instruction (NEFT/RTGS-style rails) in retrieved content"
+keywords    = ["transfer all funds neft", "initiate neft transfer without", "rtgs transfer bypass"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-BANK-TRANSFER-002"
+description = "Unauthorised instant-payment instruction (IMPS-style rails) in retrieved content"
+keywords    = ["imps transfer bypass", "transfer funds imps without otp", "bypass imps limit"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-OTP-001"
+description = "OTP bypass attempt — 2FA is typically mandated for financial transactions"
+keywords    = ["bypass otp", "skip otp", "without otp", "ignore otp", "override otp", "otp not required"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-2FA-001"
+description = "Two-factor authentication bypass attempt"
+keywords    = ["bypass 2fa", "skip 2fa", "disable 2fa", "without 2fa", "bypass two factor", "skip two factor authentication"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "FIN-FRAUD-001"
+description = "Fraudulent transaction instruction — social-engineering pattern"
+keywords    = [
+    "transfer funds to safety account",
+    "move money to secure account",
+    "transfer to regulator account",
+    "transfer to government account",
+    "your account will be blocked transfer",
+    "send money to verify account"
+]
+phase       = "ingress"
+action      = "deny"
+
+# ── KYC / customer-onboarding controls ────────────────────────────────────────
+
+[[rules]]
+id          = "PAY-KYC-001"
+description = "KYC bypass attempt — customer verification is typically mandatory for payment accounts"
+keywords    = ["bypass kyc", "skip kyc", "without kyc", "ignore kyc", "kyc not required", "no kyc needed"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "PAY-KYC-002"
+description = "KYC override instruction in retrieved content"
+keywords    = ["override kyc", "disable kyc", "kyc override", "circumvent kyc"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "PAY-VPA-001"
+description = "Payment-address manipulation attempt (e.g. UPI VPA)"
+keywords    = ["change vpa without", "override vpa", "bypass vpa verification", "vpa bypass"]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "PAY-MANDATE-001"
+description = "Unauthorised standing-instruction / mandate creation or modification"
+keywords    = ["create mandate without consent", "modify mandate without", "bypass mandate limit", "override mandate"]
+phase       = "ingress"
+action      = "deny"
+
+# ── AML (Anti-Money Laundering) ───────────────────────────────────────────────
+
+[[rules]]
+id          = "AML-001"
+description = "Money-laundering instruction pattern — structuring / smurfing"
+keywords    = [
+    "split transaction to avoid",
+    "break transaction into smaller",
+    "avoid transaction monitoring",
+    "bypass transaction limit",
+    "structure payments to avoid",
+    "smurfing"
+]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "AML-002"
+description = "Suspicious fund-movement instruction in retrieved content"
+keywords    = [
+    "transfer to multiple accounts to avoid",
+    "move funds to avoid detection",
+    "transfer before freeze",
+    "withdraw before block"
+]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "AML-003"
+description = "AML check bypass attempt"
+keywords    = ["bypass aml", "skip aml", "avoid aml", "override aml check", "disable aml"]
+phase       = "ingress"
+action      = "deny"
+
+# ── Account Takeover (ATO) ────────────────────────────────────────────────────
+
+[[rules]]
+id          = "ATO-001"
+description = "Account-takeover social-engineering pattern"
+keywords    = [
+    "security protocol override required",
+    "emergency account transfer",
+    "regulator security alert transfer",
+    "payment network security override",
+    "bank system alert override",
+    "your account is compromised transfer"
+]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "ATO-002"
+description = "Credential-harvesting attempt in retrieved content"
+keywords    = [
+    "provide your pin",
+    "share your password",
+    "enter your mpin",
+    "give your otp",
+    "share your cvv",
+    "provide card details"
+]
+phase       = "ingress"
+action      = "deny"
+
+# ── Prompt injection — financial context ──────────────────────────────────────
+
+[[rules]]
+id          = "INJ-FIN-001"
+description = "Financial-instruction injection — transfer command in untrusted content"
+keywords    = [
+    "transfer all funds to account",
+    "send all money to",
+    "wire transfer to account number",
+    "initiate transfer to"
+]
+phase       = "ingress"
+action      = "deny"
+
+[[rules]]
+id          = "INJ-FIN-002"
+description = "System-prompt override attempt with financial context"
+keywords    = [
+    "ignore previous instructions transfer",
+    "forget your rules transfer",
+    "new instruction transfer funds",
+    "override safety transfer"
+]
+phase       = "ingress"
+action      = "deny"
+
+# ═════════════════════════════════════════════════════════════════════════════
+# EGRESS RULES — scan outgoing responses before returning to user
+# ═════════════════════════════════════════════════════════════════════════════
+
+# ── PII exposure controls ────────────────────────────────────────────────────
+
+[[rules]]
+id          = "PII-NATIONAL-ID-001"
+description = "12-digit national-ID pattern with spacing (e.g. Aadhaar) in response — data-protection risk"
+keywords    = []
+pattern     = "\\b\\d{4}\\s\\d{4}\\s\\d{4}\\b"
+phase       = "egress"
+action      = "deny"
+
+[[rules]]
+id          = "PII-NATIONAL-ID-002"
+description = "12-digit numeric ID without spaces in response"
+keywords    = []
+pattern     = "\\b\\d{12}\\b"
+phase       = "egress"
+action      = "flag"
+
+[[rules]]
+id          = "PII-TAX-ID-001"
+description = "Alphanumeric tax-ID pattern (e.g. PAN: 5 letters + 4 digits + 1 letter) in response"
+keywords    = []
+pattern     = "\\b[A-Z]{5}[0-9]{4}[A-Z]\\b"
+phase       = "egress"
+action      = "deny"
+
+[[rules]]
+id          = "PII-MOBILE-001"
+description = "Mobile-number pattern (10 digits starting 6-9) in response — potential PII exposure"
+keywords    = []
+pattern     = "\\b[6-9]\\d{9}\\b"
+phase       = "egress"
+action      = "flag"
+
+# ── Payment-address egress ───────────────────────────────────────────────────
+
+[[rules]]
+id          = "PAY-VPA-EGRESS-001"
+description = "Payment address (e.g. UPI VPA) in response — potential data exposure"
+keywords    = []
+pattern     = "\\b[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9]+\\b"
+phase       = "egress"
+action      = "flag"
+
+# ── PCI-DSS v4.0 ──────────────────────────────────────────────────────────────
+# Note: Card numbers (PAN) are already caught by ainxt-compliance StrongRedactor.
+# These rules add supplementary patterns not covered by the generic redactor.
+
+[[rules]]
+id          = "PCI-CVV-001"
+description = "CVV/CVC keyword with digits in response — PCI-DSS prohibits CVV storage/exposure"
+keywords    = []
+pattern     = "(?i)\\b(cvv|cvc|cvv2|cvc2)\\s*[:\\-]?\\s*\\d{3,4}\\b"
+phase       = "egress"
+action      = "deny"
+
+[[rules]]
+id          = "PCI-EXPIRY-001"
+description = "Card-expiry-date pattern in response"
+keywords    = []
+pattern     = "\\b(0[1-9]|1[0-2])\\/([0-9]{2}|[0-9]{4})\\b"
+phase       = "egress"
+action      = "flag"
+
+# ── Trading-account credential egress ────────────────────────────────────────
+
+[[rules]]
+id          = "TRADING-001"
+description = "Trading / brokerage account credentials in response"
+keywords    = ["demat account password", "trading account pin", "broker login credentials"]
+phase       = "egress"
+action      = "deny"
+
+# ── Internal system information ───────────────────────────────────────────────
+
+[[rules]]
+id          = "INTERNAL-001"
+description = "Private (RFC 1918) IP-address range in response — potential infrastructure exposure"
+keywords    = []
+pattern     = "\\b(10\\.\\d{1,3}\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.)\\d+\\.\\d+\\b"
+phase       = "egress"
+action      = "flag"
+
+[[rules]]
+id          = "INTERNAL-002"
+description = "Database connection string in response"
+keywords    = ["postgresql://", "mysql://", "mongodb://", "redis://", "jdbc:postgresql", "jdbc:mysql"]
+phase       = "egress"
+action      = "deny"

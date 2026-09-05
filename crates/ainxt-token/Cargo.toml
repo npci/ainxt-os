@@ -1,0 +1,39 @@
+[package]
+name = "ainxt-token"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — encrypted per-(user, connector) secret store (Phase 2). A VERSIONED AEAD codec (XChaCha20-Poly1305) with key rotation + per-principal AAD binding, a token store seam (in-memory default; Postgres plugs in), and a vault that composes them so the store never sees plaintext. Used by the Connector Runtime to hold OAuth/API tokens."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[features]
+# Compiles the driver-agnostic Postgres binding (`pg`) for the `SqlTokenBackend` seam. It pulls NO
+# database crate: it implements the seam over a caller-supplied synchronous `PgExecutor` port that a
+# deployment backs with rust-postgres / sqlx. Off by default so `cargo build -p ainxt-token` and the
+# offline test suite stay dependency-light; the composition binary turns it on and injects a real
+# executor. Under this feature the binding has OFFLINE tests (the parameterized SQL shape + row
+# mapping + upsert/tenant-scoped-list/delete-returns-existed) against a fake executor — no live DB.
+postgres = []
+
+[dependencies]
+# The verified caller identity (JWT `sub`/`tenant` claims). Used to derive the token key from the
+# AUTHENTICATED principal so a client-supplied `sub`/tenant can never reach the key (confused-deputy
+# defense). `ainxt-types` is a leaf crate (serde only), so this edge is acyclic.
+ainxt-types = { path = "../ainxt-types" }
+# RustCrypto — dual MIT/Apache-2.0, pure Rust (no OpenSSL). Default features give alloc + OsRng
+# (getrandom). Verified permissive by the cargo-deny license gate (deny.toml).
+chacha20poly1305 = "0.10"
+# Wipes key material from memory on drop (MIT/Apache-2.0). Defense-in-depth for secrets at rest.
+zeroize = { version = "1", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+# Durable file-backed store (de)serialization.
+serde_json = "1"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

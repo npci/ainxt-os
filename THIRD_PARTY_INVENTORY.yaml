@@ -1,0 +1,1072 @@
+# AiNxt OS — Third-Party Inventory (machine-readable)
+# Every third-party component in the OSS tree MUST be listed here and pass deny.toml.
+# Policy: permissive-only (Apache-2.0/MIT/BSD/ISC/Unicode/Zlib). Copyleft = disallowed.
+# Generated: 2026-08-09 from THIRD_PARTY_LICENSES.md (170 crates, cargo metadata 2026-07-19).
+# Legal review items: see THIRD_PARTY_LICENSES.md Notes section and OSS_OS_plan/OSS_OS_LEGAL_GATE.md.
+
+crates:
+  - name: aead
+    version: "0.5.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/aead
+    usage: dependency
+    modified: false
+  - name: async-trait
+    version: "0.1.89"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/async-trait
+    usage: dependency
+    modified: false
+  - name: atomic-waker
+    version: "1.1.2"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/atomic-waker
+    usage: dependency
+    modified: false
+  - name: axum
+    version: "0.7.9"
+    license: "MIT"
+    repo: https://crates.io/crates/axum
+    usage: dependency
+    modified: false
+  - name: axum-core
+    version: "0.4.5"
+    license: "MIT"
+    repo: https://crates.io/crates/axum-core
+    usage: dependency
+    modified: false
+  - name: base64
+    version: "0.22.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/base64
+    usage: dependency
+    modified: false
+  - name: bitflags
+    version: "2.13.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/bitflags
+    usage: dependency
+    modified: false
+  - name: block-buffer
+    version: "0.10.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/block-buffer
+    usage: dependency
+    modified: false
+  - name: bumpalo
+    version: "3.20.3"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/bumpalo
+    usage: dependency
+    modified: false
+  - name: bytes
+    version: "1.12.1"
+    license: "MIT"
+    repo: https://crates.io/crates/bytes
+    usage: dependency
+    modified: false
+  - name: cc
+    version: "1.3.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/cc
+    usage: dependency
+    modified: false
+  - name: cfg-if
+    version: "1.0.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/cfg-if
+    usage: dependency
+    modified: false
+  - name: cfg_aliases
+    version: "0.2.2"
+    license: "MIT"
+    repo: https://crates.io/crates/cfg_aliases
+    usage: dependency
+    modified: false
+  - name: chacha20
+    version: "0.10.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/chacha20
+    usage: dependency
+    modified: false
+  - name: chacha20
+    version: "0.9.1"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/chacha20
+    usage: dependency
+    modified: false
+  - name: chacha20poly1305
+    version: "0.10.1"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/chacha20poly1305
+    usage: dependency
+    modified: false
+  - name: cipher
+    version: "0.4.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/cipher
+    usage: dependency
+    modified: false
+  - name: cpufeatures
+    version: "0.2.17"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/cpufeatures
+    usage: dependency
+    modified: false
+  - name: cpufeatures
+    version: "0.3.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/cpufeatures
+    usage: dependency
+    modified: false
+  - name: crypto-common
+    version: "0.1.7"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/crypto-common
+    usage: dependency
+    modified: false
+  - name: digest
+    version: "0.10.7"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/digest
+    usage: dependency
+    modified: false
+  - name: displaydoc
+    version: "0.2.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/displaydoc
+    usage: dependency
+    modified: false
+  - name: equivalent
+    version: "1.0.2"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/equivalent
+    usage: dependency
+    modified: false
+  - name: find-msvc-tools
+    version: "0.1.9"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/find-msvc-tools
+    usage: dependency
+    modified: false
+  - name: form_urlencoded
+    version: "1.2.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/form_urlencoded
+    usage: dependency
+    modified: false
+  - name: futures-channel
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-channel
+    usage: dependency
+    modified: false
+  - name: futures-core
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-core
+    usage: dependency
+    modified: false
+  - name: futures-io
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-io
+    usage: dependency
+    modified: false
+  - name: futures-macro
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-macro
+    usage: dependency
+    modified: false
+  - name: futures-sink
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-sink
+    usage: dependency
+    modified: false
+  - name: futures-task
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-task
+    usage: dependency
+    modified: false
+  - name: futures-util
+    version: "0.3.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/futures-util
+    usage: dependency
+    modified: false
+  - name: generic-array
+    version: "0.14.7"
+    license: "MIT"
+    repo: https://crates.io/crates/generic-array
+    usage: dependency
+    modified: false
+  - name: getrandom
+    version: "0.2.17"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/getrandom
+    usage: dependency
+    modified: false
+  - name: getrandom
+    version: "0.4.3"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/getrandom
+    usage: dependency
+    modified: false
+  - name: hashbrown
+    version: "0.17.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/hashbrown
+    usage: dependency
+    modified: false
+  - name: http
+    version: "1.4.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/http
+    usage: dependency
+    modified: false
+  - name: http-body
+    version: "1.1.0"
+    license: "MIT"
+    repo: https://crates.io/crates/http-body
+    usage: dependency
+    modified: false
+  - name: http-body-util
+    version: "0.1.4"
+    license: "MIT"
+    repo: https://crates.io/crates/http-body-util
+    usage: dependency
+    modified: false
+  - name: httparse
+    version: "1.10.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/httparse
+    usage: dependency
+    modified: false
+  - name: httpdate
+    version: "1.0.3"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/httpdate
+    usage: dependency
+    modified: false
+  - name: hyper
+    version: "1.10.1"
+    license: "MIT"
+    repo: https://crates.io/crates/hyper
+    usage: dependency
+    modified: false
+  - name: hyper-rustls
+    version: "0.27.9"
+    license: "Apache-2.0 OR ISC OR MIT"
+    repo: https://crates.io/crates/hyper-rustls
+    usage: dependency
+    modified: false
+  - name: hyper-util
+    version: "0.1.20"
+    license: "MIT"
+    repo: https://crates.io/crates/hyper-util
+    usage: dependency
+    modified: false
+  - name: icu_collections
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_collections
+    usage: dependency
+    modified: false
+  - name: icu_locale_core
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_locale_core
+    usage: dependency
+    modified: false
+  - name: icu_normalizer
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_normalizer
+    usage: dependency
+    modified: false
+  - name: icu_normalizer_data
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_normalizer_data
+    usage: dependency
+    modified: false
+  - name: icu_properties
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_properties
+    usage: dependency
+    modified: false
+  - name: icu_properties_data
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_properties_data
+    usage: dependency
+    modified: false
+  - name: icu_provider
+    version: "2.2.0"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/icu_provider
+    usage: dependency
+    modified: false
+  - name: idna
+    version: "1.1.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/idna
+    usage: dependency
+    modified: false
+  - name: idna_adapter
+    version: "1.2.2"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/idna_adapter
+    usage: dependency
+    modified: false
+  - name: indexmap
+    version: "2.14.0"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/indexmap
+    usage: dependency
+    modified: false
+  - name: inout
+    version: "0.1.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/inout
+    usage: dependency
+    modified: false
+  - name: ipnet
+    version: "2.12.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/ipnet
+    usage: dependency
+    modified: false
+  - name: itoa
+    version: "1.0.18"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/itoa
+    usage: dependency
+    modified: false
+  - name: js-sys
+    version: "0.3.103"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/js-sys
+    usage: dependency
+    modified: false
+  - name: libc
+    version: "0.2.186"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/libc
+    usage: dependency
+    modified: false
+  - name: litemap
+    version: "0.8.2"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/litemap
+    usage: dependency
+    modified: false
+  - name: log
+    version: "0.4.33"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/log
+    usage: dependency
+    modified: false
+  - name: lru-slab
+    version: "0.1.2"
+    license: "MIT OR Apache-2.0 OR Zlib"
+    repo: https://crates.io/crates/lru-slab
+    usage: dependency
+    modified: false
+  - name: matchit
+    version: "0.7.3"
+    license: "MIT AND BSD-3-Clause"
+    repo: https://crates.io/crates/matchit
+    usage: dependency
+    modified: false
+  - name: memchr
+    version: "2.8.3"
+    license: "Unlicense OR MIT"
+    repo: https://crates.io/crates/memchr
+    usage: dependency
+    modified: false
+  - name: mime
+    version: "0.3.17"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/mime
+    usage: dependency
+    modified: false
+  - name: mio
+    version: "1.2.2"
+    license: "MIT"
+    repo: https://crates.io/crates/mio
+    usage: dependency
+    modified: false
+  - name: once_cell
+    version: "1.21.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/once_cell
+    usage: dependency
+    modified: false
+  - name: opaque-debug
+    version: "0.3.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/opaque-debug
+    usage: dependency
+    modified: false
+  - name: percent-encoding
+    version: "2.3.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/percent-encoding
+    usage: dependency
+    modified: false
+  - name: pin-project-lite
+    version: "0.2.17"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/pin-project-lite
+    usage: dependency
+    modified: false
+  - name: poly1305
+    version: "0.8.0"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/poly1305
+    usage: dependency
+    modified: false
+  - name: potential_utf
+    version: "0.1.5"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/potential_utf
+    usage: dependency
+    modified: false
+  - name: proc-macro2
+    version: "1.0.106"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/proc-macro2
+    usage: dependency
+    modified: false
+  - name: quinn
+    version: "0.11.11"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/quinn
+    usage: dependency
+    modified: false
+  - name: quinn-proto
+    version: "0.11.16"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/quinn-proto
+    usage: dependency
+    modified: false
+  - name: quinn-udp
+    version: "0.5.15"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/quinn-udp
+    usage: dependency
+    modified: false
+  - name: quote
+    version: "1.0.46"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/quote
+    usage: dependency
+    modified: false
+  - name: r-efi
+    version: "6.0.0"
+    license: "MIT OR Apache-2.0 OR LGPL-2.1-or-later"
+    repo: https://crates.io/crates/r-efi
+    usage: dependency
+    modified: false
+    notes: "Triple-licensed MIT OR Apache-2.0 OR LGPL-2.1-or-later. Consumed under MIT or Apache-2.0 only. LGPL-2.1-or-later is NOT elected. Reviewed 2026-08-20."
+  - name: rand
+    version: "0.10.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rand
+    usage: dependency
+    modified: false
+  - name: rand_core
+    version: "0.10.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rand_core
+    usage: dependency
+    modified: false
+  - name: rand_core
+    version: "0.6.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rand_core
+    usage: dependency
+    modified: false
+  - name: rand_pcg
+    version: "0.10.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rand_pcg
+    usage: dependency
+    modified: false
+  - name: reqwest
+    version: "0.12.28"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/reqwest
+    usage: dependency
+    modified: false
+  - name: ring
+    version: "0.17.14"
+    license: "Apache-2.0 AND ISC"
+    repo: https://crates.io/crates/ring
+    usage: dependency
+    modified: false
+  - name: rustc-hash
+    version: "2.1.3"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/rustc-hash
+    usage: dependency
+    modified: false
+  - name: rustls
+    version: "0.23.42"
+    license: "Apache-2.0 OR ISC OR MIT"
+    repo: https://crates.io/crates/rustls
+    usage: dependency
+    modified: false
+  - name: rustls-pki-types
+    version: "1.15.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rustls-pki-types
+    usage: dependency
+    modified: false
+  - name: rustls-webpki
+    version: "0.103.13"
+    license: "ISC"
+    repo: https://crates.io/crates/rustls-webpki
+    usage: dependency
+    modified: false
+  - name: rustversion
+    version: "1.0.23"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/rustversion
+    usage: dependency
+    modified: false
+  - name: ryu
+    version: "1.0.23"
+    license: "Apache-2.0 OR BSL-1.0"
+    repo: https://crates.io/crates/ryu
+    usage: dependency
+    modified: false
+    notes: "Dual-licensed Apache-2.0 OR BSL-1.0. Consumed under Apache-2.0 only. BSL-1.0 (Business Source License, source-available/non-OSI) is NOT elected. Reviewed 2026-08-20."
+  - name: serde
+    version: "1.0.228"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde
+    usage: dependency
+    modified: false
+  - name: serde_core
+    version: "1.0.228"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde_core
+    usage: dependency
+    modified: false
+  - name: serde_derive
+    version: "1.0.228"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde_derive
+    usage: dependency
+    modified: false
+  - name: serde_json
+    version: "1.0.150"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde_json
+    usage: dependency
+    modified: false
+  - name: serde_path_to_error
+    version: "0.1.20"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde_path_to_error
+    usage: dependency
+    modified: false
+  - name: serde_spanned
+    version: "0.6.9"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/serde_spanned
+    usage: dependency
+    modified: false
+  - name: serde_urlencoded
+    version: "0.7.1"
+    license: "MIT/Apache-2.0"
+    repo: https://crates.io/crates/serde_urlencoded
+    usage: dependency
+    modified: false
+  - name: sha2
+    version: "0.10.9"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/sha2
+    usage: dependency
+    modified: false
+  - name: shlex
+    version: "2.0.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/shlex
+    usage: dependency
+    modified: false
+  - name: slab
+    version: "0.4.12"
+    license: "MIT"
+    repo: https://crates.io/crates/slab
+    usage: dependency
+    modified: false
+  - name: smallvec
+    version: "1.15.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/smallvec
+    usage: dependency
+    modified: false
+  - name: socket2
+    version: "0.6.5"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/socket2
+    usage: dependency
+    modified: false
+  - name: stable_deref_trait
+    version: "1.2.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/stable_deref_trait
+    usage: dependency
+    modified: false
+  - name: subtle
+    version: "2.6.1"
+    license: "BSD-3-Clause"
+    repo: https://crates.io/crates/subtle
+    usage: dependency
+    modified: false
+  - name: syn
+    version: "2.0.119"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/syn
+    usage: dependency
+    modified: false
+  - name: sync_wrapper
+    version: "1.0.2"
+    license: "Apache-2.0"
+    repo: https://crates.io/crates/sync_wrapper
+    usage: dependency
+    modified: false
+  - name: synstructure
+    version: "0.13.2"
+    license: "MIT"
+    repo: https://crates.io/crates/synstructure
+    usage: dependency
+    modified: false
+  - name: thiserror
+    version: "2.0.18"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/thiserror
+    usage: dependency
+    modified: false
+  - name: thiserror-impl
+    version: "2.0.18"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/thiserror-impl
+    usage: dependency
+    modified: false
+  - name: tinystr
+    version: "0.8.3"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/tinystr
+    usage: dependency
+    modified: false
+  - name: tinyvec
+    version: "1.12.0"
+    license: "Zlib OR Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/tinyvec
+    usage: dependency
+    modified: false
+  - name: tinyvec_macros
+    version: "0.1.1"
+    license: "MIT OR Apache-2.0 OR Zlib"
+    repo: https://crates.io/crates/tinyvec_macros
+    usage: dependency
+    modified: false
+  - name: tokio
+    version: "1.53.0"
+    license: "MIT"
+    repo: https://crates.io/crates/tokio
+    usage: dependency
+    modified: false
+  - name: tokio-macros
+    version: "2.7.1"
+    license: "MIT"
+    repo: https://crates.io/crates/tokio-macros
+    usage: dependency
+    modified: false
+  - name: tokio-rustls
+    version: "0.26.4"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/tokio-rustls
+    usage: dependency
+    modified: false
+  - name: tokio-stream
+    version: "0.1.18"
+    license: "MIT"
+    repo: https://crates.io/crates/tokio-stream
+    usage: dependency
+    modified: false
+  - name: tokio-util
+    version: "0.7.18"
+    license: "MIT"
+    repo: https://crates.io/crates/tokio-util
+    usage: dependency
+    modified: false
+  - name: toml
+    version: "0.8.23"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/toml
+    usage: dependency
+    modified: false
+  - name: toml_datetime
+    version: "0.6.11"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/toml_datetime
+    usage: dependency
+    modified: false
+  - name: toml_edit
+    version: "0.22.27"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/toml_edit
+    usage: dependency
+    modified: false
+  - name: toml_write
+    version: "0.1.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/toml_write
+    usage: dependency
+    modified: false
+  - name: tower
+    version: "0.5.3"
+    license: "MIT"
+    repo: https://crates.io/crates/tower
+    usage: dependency
+    modified: false
+  - name: tower-http
+    version: "0.6.11"
+    license: "MIT"
+    repo: https://crates.io/crates/tower-http
+    usage: dependency
+    modified: false
+  - name: tower-layer
+    version: "0.3.3"
+    license: "MIT"
+    repo: https://crates.io/crates/tower-layer
+    usage: dependency
+    modified: false
+  - name: tower-service
+    version: "0.3.3"
+    license: "MIT"
+    repo: https://crates.io/crates/tower-service
+    usage: dependency
+    modified: false
+  - name: tracing
+    version: "0.1.44"
+    license: "MIT"
+    repo: https://crates.io/crates/tracing
+    usage: dependency
+    modified: false
+  - name: tracing-core
+    version: "0.1.36"
+    license: "MIT"
+    repo: https://crates.io/crates/tracing-core
+    usage: dependency
+    modified: false
+  - name: try-lock
+    version: "0.2.5"
+    license: "MIT"
+    repo: https://crates.io/crates/try-lock
+    usage: dependency
+    modified: false
+  - name: typenum
+    version: "1.20.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/typenum
+    usage: dependency
+    modified: false
+  - name: unicode-ident
+    version: "1.0.24"
+    license: "(MIT OR Apache-2.0) AND Unicode-3.0"
+    repo: https://crates.io/crates/unicode-ident
+    usage: dependency
+    modified: false
+  - name: universal-hash
+    version: "0.5.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/universal-hash
+    usage: dependency
+    modified: false
+  - name: untrusted
+    version: "0.9.0"
+    license: "ISC"
+    repo: https://crates.io/crates/untrusted
+    usage: dependency
+    modified: false
+  - name: url
+    version: "2.5.8"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/url
+    usage: dependency
+    modified: false
+  - name: utf8_iter
+    version: "1.0.4"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/utf8_iter
+    usage: dependency
+    modified: false
+  - name: version_check
+    version: "0.9.5"
+    license: "MIT/Apache-2.0"
+    repo: https://crates.io/crates/version_check
+    usage: dependency
+    modified: false
+  - name: want
+    version: "0.3.1"
+    license: "MIT"
+    repo: https://crates.io/crates/want
+    usage: dependency
+    modified: false
+  - name: wasi
+    version: "0.11.1+wasi-snapshot-preview1"
+    license: "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/wasi
+    usage: dependency
+    modified: false
+  - name: wasm-bindgen
+    version: "0.2.126"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-bindgen
+    usage: dependency
+    modified: false
+  - name: wasm-bindgen-futures
+    version: "0.4.76"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-bindgen-futures
+    usage: dependency
+    modified: false
+  - name: wasm-bindgen-macro
+    version: "0.2.126"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-bindgen-macro
+    usage: dependency
+    modified: false
+  - name: wasm-bindgen-macro-support
+    version: "0.2.126"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-bindgen-macro-support
+    usage: dependency
+    modified: false
+  - name: wasm-bindgen-shared
+    version: "0.2.126"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-bindgen-shared
+    usage: dependency
+    modified: false
+  - name: wasm-streams
+    version: "0.4.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/wasm-streams
+    usage: dependency
+    modified: false
+  - name: web-sys
+    version: "0.3.103"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/web-sys
+    usage: dependency
+    modified: false
+  - name: web-time
+    version: "1.1.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/web-time
+    usage: dependency
+    modified: false
+  - name: webpki-roots
+    version: "1.0.9"
+    license: "CDLA-Permissive-2.0"
+    repo: https://crates.io/crates/webpki-roots
+    usage: dependency
+    modified: false
+  - name: windows-link
+    version: "0.2.1"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows-link
+    usage: dependency
+    modified: false
+  - name: windows-sys
+    version: "0.52.0"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows-sys
+    usage: dependency
+    modified: false
+  - name: windows-sys
+    version: "0.61.2"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows-sys
+    usage: dependency
+    modified: false
+  - name: windows-targets
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows-targets
+    usage: dependency
+    modified: false
+  - name: windows_aarch64_gnullvm
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_aarch64_gnullvm
+    usage: dependency
+    modified: false
+  - name: windows_aarch64_msvc
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_aarch64_msvc
+    usage: dependency
+    modified: false
+  - name: windows_i686_gnu
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_i686_gnu
+    usage: dependency
+    modified: false
+  - name: windows_i686_gnullvm
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_i686_gnullvm
+    usage: dependency
+    modified: false
+  - name: windows_i686_msvc
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_i686_msvc
+    usage: dependency
+    modified: false
+  - name: windows_x86_64_gnu
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_x86_64_gnu
+    usage: dependency
+    modified: false
+  - name: windows_x86_64_gnullvm
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_x86_64_gnullvm
+    usage: dependency
+    modified: false
+  - name: windows_x86_64_msvc
+    version: "0.52.6"
+    license: "MIT OR Apache-2.0"
+    repo: https://crates.io/crates/windows_x86_64_msvc
+    usage: dependency
+    modified: false
+  - name: winnow
+    version: "0.7.15"
+    license: "MIT"
+    repo: https://crates.io/crates/winnow
+    usage: dependency
+    modified: false
+  - name: writeable
+    version: "0.6.3"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/writeable
+    usage: dependency
+    modified: false
+  - name: yoke
+    version: "0.8.3"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/yoke
+    usage: dependency
+    modified: false
+  - name: yoke-derive
+    version: "0.8.2"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/yoke-derive
+    usage: dependency
+    modified: false
+  - name: zerofrom
+    version: "0.1.8"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/zerofrom
+    usage: dependency
+    modified: false
+  - name: zerofrom-derive
+    version: "0.1.7"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/zerofrom-derive
+    usage: dependency
+    modified: false
+  - name: zeroize
+    version: "1.9.0"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/zeroize
+    usage: dependency
+    modified: false
+  - name: zeroize_derive
+    version: "1.5.0"
+    license: "Apache-2.0 OR MIT"
+    repo: https://crates.io/crates/zeroize_derive
+    usage: dependency
+    modified: false
+  - name: zerotrie
+    version: "0.2.4"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/zerotrie
+    usage: dependency
+    modified: false
+  - name: zerovec
+    version: "0.11.6"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/zerovec
+    usage: dependency
+    modified: false
+  - name: zerovec-derive
+    version: "0.11.3"
+    license: "Unicode-3.0"
+    repo: https://crates.io/crates/zerovec-derive
+    usage: dependency
+    modified: false
+  - name: zmij
+    version: "1.0.23"
+    license: "MIT"
+    repo: https://crates.io/crates/zmij
+    usage: dependency
+    modified: false
+
+# ---------------------------------------------------------------------------------------------
+# Bundled (vendored) non-Rust components. Unlike the crates above - which resolve from crates.io
+# against the committed Cargo.lock - these ship as SOURCE in this repository, so their notices are
+# a redistribution obligation. `cargo deny` audits the Cargo graph only and cannot see JavaScript,
+# so this section is the record for that ecosystem. Full licence texts: THIRD_PARTY_NOTICES.md.
+# ---------------------------------------------------------------------------------------------
+bundled:
+  - name: DOMPurify
+    version: "3.2.6"
+    license: "Apache-2.0 OR MPL-2.0"
+    repo: https://github.com/cure53/DOMPurify
+    path: docs/vendor/purify.min.js
+    usage: documentation-viewer
+    modified: false
+    note: >-
+      Sanitizes all HTML produced by marked before it is written to the DOM, preventing XSS
+      (Checkmarx: Client Potential XSS; OWASP A3 / PCI DSS 6.5.7). Redistributed unmodified.
+  - name: marked
+    version: "11.0.0"
+    license: "MIT"
+    repo: https://github.com/markedjs/marked
+    path: docs/vendor/marked.min.js
+    usage: documentation-viewer
+    modified: false
+  - name: mermaid
+    version: "11.9.0"
+    license: "MIT"
+    repo: https://github.com/mermaid-js/mermaid
+    path: docs/vendor/mermaid.min.js
+    usage: documentation-viewer
+    modified: false
+    note: >-
+      The distributed bundle embeds further MIT-licensed components (DOMPurify (c) Cure53 and
+      others) whose notices are retained inside the file. Redistributed unmodified.
+
+# NOTE ON COMPLETENESS: the crate list above enumerates 170 direct/notable dependencies. The
+# committed Cargo.lock currently resolves 299 external packages in total (364 including this
+# workspace's own 65 crates); the remainder are transitive. `cargo deny check` gates the FULL
+# graph on licences, advisories, bans and sources, so nothing is unreviewed - but this file is
+# not yet a complete SBOM. Generating one (CycloneDX/SPDX) from the lockfile is tracked as
+# release-readiness work.
+# Total: 170 enumerated crates + 2 bundled JavaScript components (Cargo.lock: 299 external)

@@ -1,0 +1,48 @@
+[package]
+name = "ainxt-chat"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the Chat SURFACE assembled end-to-end: ConversationManager (intent cascade + referent resolution + grounded retrieval + prompt engine) over a real Engine (StrongRedactor compliance + RBAC + provider failover), with a scoping-safe response cache in front. This is the depth artifact — the whole chat stack wired together and tested multi-turn, not a per-crate unit."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-convo = { path = "../ainxt-convo" }
+# R16 CRITICAL: the served Chat surface turns the indirect-injection defense ON by default, so it
+# needs the config type. ainxt-convo already depends on ainxt-injection, so this adds no new edge to
+# the graph — it only makes the setting reachable from the surface that must set it.
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-context = { path = "../ainxt-context" }
+ainxt-compliance = { path = "../ainxt-compliance" }
+ainxt-prompt = { path = "../ainxt-prompt" }
+ainxt-cache = { path = "../ainxt-cache" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+# Provider-backed Stage-2 intent classifier (CONV-01/CONV-03): the ModelIntentClassifier drives its
+# LabelModel over a real ConstrainedProvider. Acyclic — ainxt-providers depends on runtime/convo,
+# neither of which depends on ainxt-chat.
+ainxt-providers = { path = "../ainxt-providers" }
+# Serving-Ops cache-isolation partition key {data_class, principal_scope, harness_id} (SRV-06). A
+# leaf crate (ainxt-types + serde only), so this edge cannot form a cycle.
+ainxt-serving = { path = "../ainxt-serving" }
+# Surface Profile schema (Phase 3). Used ONLY to derive the served retrieval-isolation decision from a
+# profile's declared `rbac.department_scoped` (gap: profile department scoping wired into served
+# retrieval isolation). Acyclic — ainxt-profile depends on ainxt-config/ainxt-types, neither of which
+# depends on ainxt-chat.
+ainxt-profile = { path = "../ainxt-profile" }
+# R16 fix (doc_generation dead-ends): `ChatReply::Document` now carries the real
+# `ainxt_artifact::Document` IR `ConversationManager` builds, not just the naked content string.
+ainxt-artifact = { path = "../ainxt-artifact" }
+tokio = { workspace = true }
+
+[dev-dependencies]
+# Deserializing `TurnSummary::document_json` back into a typed `ainxt_artifact::Document` in the
+# GAP-FIX conversation-intelligence "doc-gen artifact IR dead on the streaming path" proving test.
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-synthesis"
+version = "0.0.0"
+publish = false
+description = "AiNxt cross-source synthesis + faithfulness core — near-duplicate source dedup, cross-source conflict detection (numeric/date/negation on a shared subject), claim→source attribution by lexical containment, unsupported-claim (hallucination) flagging with an exact groundedness ratio, and a source-coverage report. Pure, in-process, deterministic; the quality-of-RAG-use gate (gaps BI/Z/AA)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable sources/claims/reports; ainxt-types by
+# path for the shared DataClass model so a synthesis coverage decision reads the SAME data
+# labels as retrieval ACL and model routing (CONTEXT_FABRIC.md §9). NOTHING copyleft; no
+# regex/NLP/ML crate enters the supply-chain surface — every extractor here is hand-written.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

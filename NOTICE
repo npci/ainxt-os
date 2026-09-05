@@ -1,0 +1,113 @@
+AiNxt OS
+Copyright 2026 National Payments Corporation of India
+
+This product includes software developed as an independent, clean-room
+implementation. The Architecture Decision Records (ADRs) and design corpus that
+document that process are NOT published in this repository, so the provenance
+statement cannot be verified from this tree alone. See the Independence statement
+in README.md.
+
+------------------------------------------------------------------------
+ABOUT THIS FILE
+------------------------------------------------------------------------
+This project is licensed under the MIT License (see the sibling LICENSE
+file). MIT does not itself require a NOTICE file - unlike Apache-2.0,
+under which this project was previously released, whose Section 4(d)
+mandated one. This file is retained deliberately because it carries
+material that is still required or still true: third-party attribution
+for the components bundled in this tree, and the trademark reservation
+for the AiNxt name and marks.
+
+------------------------------------------------------------------------
+SCOPE OF THIS LICENSE
+------------------------------------------------------------------------
+The MIT License in the sibling LICENSE file covers ONLY the AiNxt OS
+open-source project in this repository. It does NOT cover, and
+MUST NOT be applied to, any enterprise plugins (compliance rule packs,
+AD/RBAC integration, IP-bearing connectors) that may be developed
+separately. Such plugins are never part of this OSS tree.
+See ADR-007 (Licensing/OSS) and ADR-028 (Legal/OSS Clearance Gate).
+
+------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS
+------------------------------------------------------------------------
+
+Bundled as source in this repository
+------------------------------------
+The documentation viewer redistributes two MIT-licensed JavaScript libraries,
+unmodified, under docs/vendor/. They are vendored rather than loaded from a CDN so
+the documentation works on an air-gapped machine. Each file retains its own licence
+header; both are inventoried in THIRD_PARTY_INVENTORY.yaml and THIRD_PARTY_NOTICES.md.
+
+  * marked 11.0.0 - MIT - Copyright (c) 2011-2023, Christopher Jeffrey
+    https://github.com/markedjs/marked            docs/vendor/marked.min.js
+
+  * mermaid 11.9.0 - MIT - Copyright (c) 2014-2022 Knut Sveidqvist
+    https://github.com/mermaid-js/mermaid         docs/vendor/mermaid.min.js
+    The distributed bundle embeds further MIT-licensed components, including
+    DOMPurify (c) Cure53, whose notices are retained inside the file.
+
+Third-party dependencies and their licenses are inventoried in
+THIRD_PARTY_INVENTORY.yaml and THIRD_PARTY_NOTICES.md. Self-hosted model
+weights (Qwen/GLM/Gemma/Kimi and others) are NOT distributed as part of
+this source tree; their heterogeneous licenses and field-of-use terms are
+tracked in MODEL_WEIGHTS_REGISTER.md and enforced at runtime by the model
+governance gate (ADR-018).
+
+--------------------------------------------------------------------------------
+TRADEMARKS
+
+Third-party trademarks
+----------------------
+
+This software names other companies' products in order to say what it
+interoperates with, is built on, or can be configured to talk to. Depending on the
+repository, that includes marks such as AWS, Amazon, GitHub, GitLab, Google,
+Microsoft, Azure, Slack, Atlassian/Jira/Confluence, Docker, Kubernetes, OpenAI,
+Anthropic, Claude, Gemini, JetBrains, IntelliJ and Visual Studio Code.
+
+All such marks are the property of their respective owners. They are used here
+**nominatively** -- that is, to identify the third party's own product accurately,
+which is what the law permits without a licence. Their appearance does not imply
+that this project is endorsed by, affiliated with, sponsored by or certified by any
+of those owners, and no such claim is made anywhere in this software or its
+documentation.
+
+Directory and file names that happen to contain a third-party mark (for example a
+`.vscode/` or `.claude/` configuration directory that this software must read) are
+filesystem paths defined by those tools, not a use of the mark as branding.
+
+If you are an owner of one of these marks and consider any usage here incorrect,
+the contact route in SECURITY.md reaches the maintainers.
+
+--------------------------------------------------------------------------------
+
+The MIT License is a licence to the copyright in this software. It says nothing
+about trade names, trademarks, service marks or product names, and grants no
+rights in them. Where Apache-2.0 reserved those rights explicitly (its Section 6),
+MIT is simply silent - so this section states the position plainly rather than
+leaving an adopter to infer it from a licence that does not address the subject.
+
+"AiNxt", the AiNxt name, and the AiNxt logos and marks identify the origin of
+this software. This repository DOES ship brand imagery: the approved AiNxt wordmark
+and icon under `AINxt_logo_icon/`, used by the README, the Console and the
+documentation site. Those assets are trademarks of the National Payments
+Corporation of India and are **not** licensed under the MIT License, which grants
+rights in this software's copyright and confers no rights in any mark. The
+copyright grant lets you use and redistribute this software; it does not give you
+the right to use the marks as your own brand.
+
+You MAY:
+  * redistribute the marks unmodified as part of an unmodified distribution of
+    this software; and
+  * use the name nominatively -- to describe accurately what your software is
+    built on, integrates with, or is derived from.
+
+You MAY NOT, without separate written permission:
+  * use the marks in a way that suggests your fork, product or service is the
+    official one, or is endorsed by or affiliated with this project; or
+  * use the marks as, or as part of, your own product or organisation name.
+
+If you fork this project and distribute it under your own name, replace the brand
+assets with your own. The code is yours to use under the MIT License; the marks
+identify whose project it is.
