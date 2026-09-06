@@ -1,0 +1,35 @@
+{
+  "module": "governance",
+  "findings": [],
+  "facts": {
+    "security_contacts": [
+      "private security advisory (repository host)"
+    ],
+    "files_present": {
+      "LICENSE": "LICENSE",
+      "NOTICE": "NOTICE",
+      "README.md": "README.md",
+      "CONTRIBUTING.md": "CONTRIBUTING.md",
+      "SECURITY.md": "SECURITY.md",
+      "CODE_OF_CONDUCT.md": "CODE_OF_CONDUCT.md"
+    },
+    "contributor_agreement": "dco"
+  },
+  "coverage": [
+    {
+      "capability": "governance_review",
+      "state": "COVERED",
+      "detail": "6 required file(s) present",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "required_files_present": 6
+  },
+  "limitations": [],
+  "notes": []
+}

@@ -1,0 +1,25 @@
+[package]
+name = "ainxt-graph"
+version = "0.0.0"
+publish = false
+description = "AiNxt knowledge-graph core — a unified code+docs graph whose RBAC is enforced at TRAVERSAL time. A node above the caller's clearance is never visited, returned, counted, or bridged through: neighbor listing, bounded BFS, shortest-path, and kind/rel queries all operate on the caller's VISIBLE subgraph so a restricted node cannot leak via a path count, a stepping-stone hop, or a reachability answer. Pure, deterministic (BTree-ordered), no clock/rng/I/O."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable nodes/edges/errors; ainxt-types by path
+# for the shared DataClass clearance model + Principal (ADR-012 — one clearance label across
+# retrieval, routing, and the graph). NOTHING copyleft; no graph-DB / query-parser / regex
+# crate enters the supply-chain surface — the traversal and the ACL are hand-rolled and pure.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+
+# Permissive; test-only — asserts the on-the-wire error shape a gateway renders.
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

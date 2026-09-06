@@ -1,0 +1,33 @@
+{
+  "module": "ai_artifacts",
+  "findings": [],
+  "facts": {
+    "weights": [],
+    "tokenizers": [],
+    "datasets": [],
+    "registers": [
+      "MODEL_WEIGHTS_REGISTER.md"
+    ]
+  },
+  "coverage": [
+    {
+      "capability": "ai_artifact_review",
+      "state": "COVERED",
+      "detail": "0 weight, 0 tokenizer, 0 dataset file(s) found",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "weights": 0,
+    "tokenizers": 0,
+    "datasets": 0
+  },
+  "limitations": [
+    "Model artifacts are identified by file extension and name.  Weights stored under an unconventional extension, or fetched at runtime, are not detected here -- runtime downloads are covered by the endpoint inventory instead."
+  ],
+  "notes": []
+}

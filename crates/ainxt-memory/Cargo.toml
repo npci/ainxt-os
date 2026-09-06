@@ -1,0 +1,39 @@
+[package]
+name = "ainxt-memory"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — enterprise memory & learning core (design: ENTERPRISE_MEMORY_LEARNING.md). Typed, governed memory items (Episodic/Semantic/Procedural/UserPreference/OrgKnowledge) each carrying provenance + a governance lifecycle. Org-knowledge is HUMAN-GATED: a Draft org item is never served as authoritative and only an explicit, authorized approve call promotes Draft -> Approved (no auto-promotion, defeating direct/volume poisoning). Ships a MemoryStore trait + an in-memory impl with a keyword/recency relevance query and pre-rank RBAC/data-class filtering."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Row (de)serialization for the durable SqlLike seam — MemoryItem/receipts persist as JSON payloads
+# in the relational rows (dual MIT/Apache-2.0, pure Rust).
+serde_json = "1"
+# Cryptographic hash behind the tamper-evident audit chain's default [`AuditHasher`] (RustCrypto,
+# dual MIT/Apache-2.0, pure Rust, already in this tree via ainxt-eventlog — no new third-party
+# component and no new license class). The hasher is a *seam*: a deployment injects the runtime's
+# own Event-Log hasher (or a keyed HMAC) via `InMemoryStore::with_audit_hasher`.
+sha2 = "0.11"
+# Keyed MAC behind [`HmacSha256AuditHasher`] — the variant that makes the audit chain un-forgeable
+# by its own writer (RustCrypto, dual MIT/Apache-2.0, pure Rust, same family as sha2 above). Using
+# the vetted implementation rather than hand-rolling RFC 2104 inside an audit path.
+hmac = "0.13"
+ainxt-types = { path = "../ainxt-types" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[features]
+# Compiles the driver-agnostic Postgres binding (`durable::pg`) for the SqlLike seam. It pulls NO
+# database crate: it implements SqlLike over a caller-supplied synchronous `PgExecutor` port that a
+# deployment backs with rust-postgres/sqlx. Off by default so `cargo build -p ainxt-memory` and the
+# tests never touch a live database.
+postgres = []
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,201 @@
+# AiNxt OS — continuous integration.
+#
+# This file exists because `.gitignore` used to contain a bare `.github` entry, which made it
+# structurally impossible for the repository to carry any CI at all. Nothing was enforcing the
+# workspace, and five test targets had been referencing library fields and enum variants that no
+# longer existed — so `cargo test --workspace` did not compile and ran zero tests, while the README
+# reported pass/fail numbers that could not be reproduced.
+#
+# The blocking jobs below are the ones that would have caught that class of defect.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ---------------------------------------------------------------------------------------------
+  # BLOCKING. The toolchain comes from rust-toolchain.toml (pinned 1.97.1), so this is also the
+  # gate that proves the pin is installable.
+  # ---------------------------------------------------------------------------------------------
+  build:
+    name: build (locked)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2.8.1
+
+      # `--locked` is the point of this step: it fails if Cargo.lock is missing or stale. The
+      # README states "Cargo.lock is committed ... a reproducible dependency set is part of the
+      # licence and supply-chain posture. Do not remove it." Without this gate that claim was
+      # unenforced, and the lockfile was in fact absent from a release drop.
+      - name: Release binaries build from the locked dependency set
+        run: cargo build --locked --release -p ainxt-runtimed -p ainxt-cli -p ainxt-console
+
+      # The console is what a non-technical operator actually runs, so its own help path is a
+      # release invariant: if `ainxt-os --help` cannot run, the documented quick start is broken.
+      - name: The console binary runs
+        run: ./target/release/ainxt-os --help
+
+      # Every test target must type-check, even when some assertions fail. This is the exact
+      # regression that hid for an unknown period: a renamed field in a library silently broke
+      # test targets in sibling crates and aborted the whole suite.
+      #
+      # `check`, not `build`, deliberately. The five stale targets failed with E0532/E0609/E0618 —
+      # all type errors, none of which needs a linker. `cargo build --tests --workspace` links a
+      # separate binary per crate and takes `target/debug` to ~40 GB, which does not fit on a
+      # standard GitHub runner; `cargo check` reproduces the same failures in ~1 minute and 2 GB.
+      # Negative-tested: reintroducing `ReplayPage::session_id` makes this step fail.
+      - name: All test targets type-check
+        run: cargo check --locked --tests --workspace
+
+      # The console mints the tokens AiNxt OS verifies, so its HMAC must match the daemon's.
+      # These are RFC 4231 vectors — if they drift, every console chat turn would 401.
+      - name: Console token minting matches the daemon's verifier
+        run: cargo test --locked -p ainxt-console
+
+      - name: The daemon validates its own shipped example config
+        run: |
+          cp crates/ainxt-runtimed/config/runtimed.example.toml runtimed.toml
+          AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml --check
+
+      # The first gate in this repo that actually SERVES. Everything above proves the binary
+      # builds and validates a config; this proves a started daemon answers on the socket.
+      # /healthz is used because it needs no credentials, so the smoke test cannot be confused
+      # with an identity problem.
+      - name: A started daemon answers /healthz
+        run: |
+          AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml &
+          daemon=$!
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8080/healthz > /tmp/healthz.json; then break; fi
+            sleep 1
+          done
+          cat /tmp/healthz.json
+          grep -q '"status":"ok"' /tmp/healthz.json
+          # Readiness must be a DIFFERENT answer from liveness, not an alias for it.
+          curl -sf http://127.0.0.1:8080/readyz > /tmp/readyz.json
+          cat /tmp/readyz.json
+          grep -q '"status":"ready"' /tmp/readyz.json
+          # The probe route must not be a hole in the identity gate. Under trusted-gateway a
+          # refusal arrives INSIDE the stream with HTTP 200 (the classic docking trap), so assert
+          # on the frame, not the status code: an uncredentialed turn must be refused, never answered.
+          curl -s -N http://127.0.0.1:8080/v1/chat \
+            -H 'content-type: application/json' \
+            -d '{"session":"ci","turn":"t","input":"hi","data_class":"public"}' > /tmp/turn.sse
+          if ! grep -q '"type":"error"' /tmp/turn.sse; then
+            echo "FAIL: an uncredentialed turn was not refused"; cat /tmp/turn.sse; kill "$daemon"; exit 1
+          fi
+          # And the refusal must be typed as a policy decision, not a retryable provider outage.
+          if ! grep -q '"category":"capability_denied"' /tmp/turn.sse; then
+            echo "FAIL: refusal is not capability_denied"; cat /tmp/turn.sse; kill "$daemon"; exit 1
+          fi
+          echo "ok: uncredentialed turn refused as capability_denied"
+          kill "$daemon"
+
+      # The fail-closed identity posture is the runtime's headline invariant: with no posture
+      # chosen the daemon must refuse to start and exit non-zero.
+      - name: Refuses to start without an identity posture
+        run: |
+          if ./target/release/ainxt-runtimed --config runtimed.toml --check; then
+            echo "FAIL: the daemon started without an identity posture being chosen"
+            exit 1
+          fi
+          echo "ok: refused to start, as designed"
+
+  # ---------------------------------------------------------------------------------------------
+  # BLOCKING. Audit finding H-03: a public repository must not rely on reviewers to notice a
+  # committed credential. The repo currently contains deliberate FIXTURE secrets (AWS's own
+  # documentation key `AKIAIOSFODNN7EXAMPLE`, obviously-fake `sk-abcd...`) used to TEST the
+  # redaction and egress scanners — those are allowlisted in .gitleaks.toml so the gate stays
+  # meaningful rather than being switched off.
+  # ---------------------------------------------------------------------------------------------
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+        with:
+          fetch-depth: 0        # scan history, not just the tip
+      - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  # ---------------------------------------------------------------------------------------------
+  # BLOCKING. deny.toml is advertised in the README as the enforced dependency-licence policy.
+  # ---------------------------------------------------------------------------------------------
+  supply-chain:
+    name: cargo-deny (licences, advisories, bans, sources)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      # taiki-e/install-action uses a per-tool floating tag (here "cargo-deny") rather than a
+      # normal semver release tag; pinning to today's SHA behind that tag is still strictly safer
+      # than a mutable tag, but re-pin periodically (Dependabot tracks the "github-actions"
+      # ecosystem and will propose bumps) rather than assuming this SHA tracks new cargo-deny
+      # installer updates on its own.
+      - uses: taiki-e/install-action@a7f328f5f617d9f65480d92a00ba2cf88ef0b191 # cargo-deny
+      - run: cargo deny check
+
+  # ---------------------------------------------------------------------------------------------
+  # BLOCKING. The README's own Documentation table shipped four links to files that did not exist.
+  # ---------------------------------------------------------------------------------------------
+  docs:
+    name: docs (links + mermaid escaping)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      - run: ./.github/scripts/check-doc-links.sh
+      # Guards the one mistake that breaks a diagram only in the browser: an HTML entity inside a
+      # mermaid block, which `marked` decodes before mermaid sees it. Five documents shipped this
+      # way and neither a Markdown linter nor `mermaid.parse()` on the raw source could see it.
+      - run: ./.github/scripts/check-mermaid.sh
+
+  # ---------------------------------------------------------------------------------------------
+  # NOT YET BLOCKING — 12 known failures, all in the ainxt-runtimed composition-root integration
+  # tests. At least two are genuine behaviour gaps rather than stale assertions (a served route
+  # answers 404 where its test requires 200), so this must not be silenced.
+  #
+  # TODO: delete `continue-on-error` once those 12 are closed. That is the release gate the README
+  # describes; this job exists so the number is visible on every commit instead of being rediscovered.
+  # ---------------------------------------------------------------------------------------------
+  test:
+    name: "test suite (known-red: 12 failures)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      # Linking a test binary per crate needs ~40 GB in target/debug, and an ubuntu-latest runner
+      # starts with about 14 GB free. Without this, the job dies at link time with
+      # `ld: write() failed, errno=28`, which never mentions disk.
+      - name: Reclaim runner disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+          df -h /
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2.8.1
+      - run: cargo test --locked --workspace --no-fail-fast
+
+  # ---------------------------------------------------------------------------------------------
+  # NOT YET BLOCKING — 22 files carry pre-existing rustfmt drift. Reformatting them is a large
+  # diff unrelated to any behaviour change, so it is left as a deliberate, separate commit.
+  #
+  # TODO: run `cargo fmt --all` once, then delete `continue-on-error`.
+  # ---------------------------------------------------------------------------------------------
+  lint:
+    name: "fmt + clippy (known-red: pre-existing drift)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2.8.1
+      - run: cargo fmt --all --check
+      # 11 warnings currently exist in test targets (unused imports, dead test helpers), which
+      # is why `-D warnings` lives here on a non-blocking job rather than globally on the build.
+      - run: cargo clippy --locked --workspace --all-targets -- -D warnings

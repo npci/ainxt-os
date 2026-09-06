@@ -1,0 +1,19 @@
+[package]
+name = "ainxt-canary"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — online canary + auto-rollback (gap AS): deterministic traffic assignment (champion vs candidate), per-arm outcome metrics, and a statistically-guarded promote/rollback/continue decision (min-sample floor + regression margin) so a bad model/prompt change is caught in production and rolled back automatically. Complements the OFFLINE eval gate (ainxt-eval). Deterministic (hash-based assignment, no RNG/clock); std-only."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

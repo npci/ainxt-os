@@ -1,0 +1,54 @@
+{
+  "schema": "ossaudit-gate/1",
+  "generated": "2026-08-27 12:34:06Z",
+  "repository": "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/ainxt-os-main",
+  "commit": "",
+  "policy_fingerprint": "43189e46f04c1e3a8f5a001f56ea050f7d486762a9319c8158a67b1ecf913ffc",
+  "verdict": "YELLOW",
+  "outcome": "warnings",
+  "exit_code": 1,
+  "scan_incomplete": false,
+  "counts": {
+    "total_findings": 201,
+    "open_findings": 98,
+    "cleared_findings": 103,
+    "blockers": 0,
+    "warnings": 52,
+    "legal_review": 98,
+    "stale_triage": 0,
+    "by_severity": {
+      "BLOCK": 0,
+      "HIGH": 0,
+      "REVIEW": 70,
+      "WARN": 30,
+      "INFO": 101
+    },
+    "by_severity_open": {
+      "BLOCK": 0,
+      "HIGH": 0,
+      "REVIEW": 52,
+      "WARN": 0,
+      "INFO": 46
+    },
+    "by_status": {
+      "ACCEPTED": 20,
+      "FALSE_POSITIVE": 83,
+      "OPEN": 98
+    },
+    "required_capabilities_missing": 0,
+    "capabilities_degraded": 2,
+    "degraded_modules": 0,
+    "ledger_problems": 0
+  },
+  "reasons": [
+    "98 findings require human legal review; these are not questions an automated scan can close."
+  ],
+  "blocking_rule_ids": [],
+  "legal_review_rule_ids": [
+    "DEP.LICENSE_REVIEW",
+    "LEGAL.CRYPTO_IMPLEMENTATION",
+    "LEGAL.CRYPTO_LIBRARY_DEPENDENCY"
+  ],
+  "missing_capabilities": [],
+  "statement": "Automated OSS compliance checks were executed according to the configured policy.  This is not a legal opinion and does not establish legal compliance."
+}

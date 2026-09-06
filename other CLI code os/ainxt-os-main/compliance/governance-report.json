@@ -1,0 +1,11 @@
+{
+  "generated": "2026-08-27 12:34:06Z",
+  "view": "governance_report",
+  "rule_prefixes": [
+    "GOVERNANCE.",
+    "LICENSE.NOTICE",
+    "LICENSE.UNREPLACED"
+  ],
+  "count": 0,
+  "findings": []
+}

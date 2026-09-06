@@ -1,0 +1,94 @@
+================================================================
+OSS Compliance Audit — ainxt
+================================================================
+RESULT:        YELLOW (warnings)
+Repository:    /Users/admin/ainxt-oss-suite/ainxt-suite-oss/ainxt-os-main
+Commit:        (not a git repository)
+Scan time:     2026-08-27 12:34:06Z
+Policy:        ainxt-oss-baseline (43189e46f04c)
+Exit code:     1
+
+BLOCKERS
+--------
+  none
+
+WARNINGS
+--------
+  1. [DEP.LICENSE_REVIEW] cranelift-assembler-x64 0.133.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  2. [DEP.LICENSE_REVIEW] zerovec-derive 0.11.6 is review (Unicode-3.0)
+     Cargo.lock
+  3. [DEP.LICENSE_REVIEW] cranelift-frontend 0.133.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  4. [DEP.LICENSE_REVIEW] wasmtime-internal-fiber 46.0.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  5. [DEP.LICENSE_REVIEW] icu_locale_core 2.3.0 is review (Unicode-3.0)
+     Cargo.lock
+  6. [DEP.LICENSE_REVIEW] litemap 0.8.3 is review (Unicode-3.0)
+     Cargo.lock
+  ... and 46 more (see the full report)
+
+LEGAL REVIEW REQUIRED
+---------------------
+  1. [DEP.LICENSE_REVIEW] cranelift-assembler-x64 0.133.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  2. [DEP.LICENSE_REVIEW] zerovec-derive 0.11.6 is review (Unicode-3.0)
+     Cargo.lock
+  3. [DEP.LICENSE_REVIEW] cranelift-frontend 0.133.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  4. [DEP.LICENSE_REVIEW] wasmtime-internal-fiber 46.0.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  5. [DEP.LICENSE_REVIEW] icu_locale_core 2.3.0 is review (Unicode-3.0)
+     Cargo.lock
+  6. [DEP.LICENSE_REVIEW] litemap 0.8.3 is review (Unicode-3.0)
+     Cargo.lock
+  7. [DEP.LICENSE_REVIEW] wasmtime-internal-jit-debug 46.0.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  8. [DEP.LICENSE_REVIEW] wasmtime-environ 46.0.3 is review (Apache-2.0 WITH LLVM-exception)
+     Cargo.lock
+  ... and 90 more (see the full report)
+
+FINDING SUMMARY
+---------------
+  BLOCK    0
+  HIGH     0
+  REVIEW   52
+  WARN     0
+  INFO     46
+  cleared  103
+
+COVERAGE — what was and was not checked
+---------------------------------------
+  [ok  ] ai_artifact_review                 0 weight, 0 tokenizer, 0 dataset file(s) found
+  [ok  ] artifact_inventory                 0 artifact(s) totalling 0.0 MiB inventoried and hashed
+  [ok  ] branding_detection                 10 rule(s) from policy/patterns/branding.yaml applied to 849 files
+  [ok  ] build_reproducibility              verdict: PASS
+  [ok  ] configuration_review               7 rule(s) from policy/patterns/endpoints.yaml applied to 849 files
+  [ok  ] dependency_enumeration             328 components across 1 ecosystem(s) from 1 manifest/lockfile(s)
+  [ok  ] governance_review                  6 required file(s) present
+  [ok  ] header_review                      247 source files checked for SPDX headers
+  [ok  ] internal_data_detection            9 rule(s) from policy/patterns/internal_data.yaml applied to 849 files
+  [ok  ] legal_marker_detection             6 rule(s) from policy/patterns/legal_markers.yaml applied to 849 files
+  [ok  ] license_detection                  2 license file(s) found, 2 identified, 0 unidentified; bundled SPDX sn
+  [ok  ] model_hardcoding_detection         7 rule(s) from policy/patterns/models.yaml applied to 849 files
+  [ok  ] portability_coupling_detection     1 rule(s) from policy/patterns/coupling.yaml applied to 849 files
+  [ok  ] provenance_review                  0 vendored tree(s) covering 0 file(s) assessed
+  [ok  ] provenance_review                  7 rule(s) from policy/patterns/provenance_markers.yaml applied to 849 
+  [ok  ] repository_inventory               849 files across 1 root(s); 6 language(s), 1 ecosystem(s)
+  [ok  ] sbom_generation                    328 component(s) and 0 artifact(s) in: sbom.cdx.json, sbom.spdx.json
+  [ok  ] secret_detection                   15 rule(s) from policy/patterns/secrets.yaml applied to 849 files
+  [ok  ] self_verification                  35 engine source files checked against 10 forbidden literals; policy c
+  [ok  ] supply_chain_review                0 build/install/CI file(s) scanned with 11 supply-chain rule(s)
+  [ok  ] transitive_license_review          lockfiles present for: cargo
+  [ok  ] vendored_tree_review               0 vendored tree(s)
+  [ok  ] vulnerability_scan                 trivy scanned an SBOM of 328 enumerated component(s) using a local dat
+  [GAP ] git_history_secret_scan            gitleaks 8.30.1 is installed but every invocation failed: no git root 
+  [GAP ] history_review                     0 commit(s) across 0 git root(s) examined
+
+REASONS FOR THIS VERDICT
+------------------------
+  - 98 findings require human legal review; these are not questions an automated scan can close.
+
+Automated checks ran according to the configured policy.  This is not a legal
+opinion and does not establish legal compliance; the legal-review items above
+require a human decision.

@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-plugin"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — programmatic plugin isolation (Phase 5). A plugin runs under CAPABILITY-BASED security: it has NO ambient authority — it can only act through a context that exposes exactly its effective capabilities (requested ∩ granted), and any ungranted use is denied. Output is size-limited, a plugin trap/panic is isolated (the host survives), and memory/time limits are declared. The concrete sandbox is a seam: a native host enforces the capability + output + panic contract for tests; the WASM/WASI (wasmtime) host is a deferred impl of the same PluginHost trait (its Apache-2.0-WITH-LLVM-exception license needs a reviewed deny.toml exception — a Gate-#0 legal item)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Cryptographic content hash for the supply-chain lockfile pin + detached-signature payload
+# (§3.4). RustCrypto, MIT/Apache — already in the workspace tree (ainxt-eventlog / ainxt-mcp), so no
+# new license surface. A SipHash/DefaultHasher is neither collision-resistant nor stable across
+# builds and cannot back a tamper-evident hash-pin.
+sha2 = "0.11"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,39 @@
+[package]
+name = "ainxt-eval"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the Eval Platform core (Phase R3, ADR-010): eval-as-continuous-gate. Runs a gold set of quality cases through a system-under-eval + an independent judge seam, aggregates scores, and applies a GATE that can genuinely FAIL — absolute thresholds plus NON-INFERIORITY vs a stored baseline (a regression below baseline−margin blocks). The LLM-judge, online canary/auto-rollback, and drift monitor plug in behind the judge/baseline seams; this core is deterministic + exhaustively testable so the gate is trustworthy."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# sha2 (MIT OR Apache-2.0) — content commitments / Merkle roots / reproduce-from-SHA digests.
+# Already used elsewhere in the workspace (ainxt-eventlog, ainxt-oauth); permissive, pure-Rust.
+sha2 = "0.11"
+# serde_json (MIT OR Apache-2.0) — the on-disk encoding for the durable, file-backed Vault / sealed-
+# corpus stores behind the §11 data-plane seams (durable with no external infra, mirroring
+# ainxt-eventlog's JSONL event log). Permissive, pure-Rust, already used across the workspace.
+serde_json = "1"
+# ainxt-types (path) — canonical DataClass for data-class-aware Judge routing (ADR-012).
+ainxt-types = { path = "../ainxt-types" }
+# ainxt-runtime (path) — the Provider seam (ADR-006) the LIVE Judge backend (`crate::live`) is reached
+# over; ainxt-protocol supplies the normalized Event enum a Provider streams. Neither depends on
+# ainxt-eval (nor on anything that does), so this edge stays acyclic.
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+# tokio (workspace) — bridging the sync `QualityJudge::score` seam into the async `Provider::stream`
+# call for the live backend; a fresh current-thread runtime per call, no shared executor state.
+tokio = { workspace = true }
+
+[dev-dependencies]
+serde_json = "1"
+# The release-gate CI entrypoint test assembles a real ReleaseGateRequest, whose data_class is the
+# canonical ainxt-types DataClass (already a normal dep of this crate).
+ainxt-types = { path = "../ainxt-types" }
+
+[lints.rust]
+unsafe_code = "forbid"

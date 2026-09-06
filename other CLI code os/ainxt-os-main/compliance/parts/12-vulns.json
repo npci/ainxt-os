@@ -1,0 +1,30 @@
+{
+  "module": "vulns",
+  "findings": [],
+  "facts": {
+    "tools_used": [
+      "trivy"
+    ],
+    "findings": 0
+  },
+  "coverage": [
+    {
+      "capability": "vulnerability_scan",
+      "state": "COVERED",
+      "detail": "trivy scanned an SBOM of 328 enumerated component(s) using a local database from 2026-08-26 13:02:19.845522405 +0000 UTC (1.2 days old)",
+      "tool": "trivy",
+      "tool_version": "Version: 0.70.0",
+      "database_version": "",
+      "database_timestamp": "2026-08-26 13:02:19.845522405 +0000 UTC",
+      "database_age_days": 1.21
+    }
+  ],
+  "stats": {
+    "vulnerabilities": 0,
+    "tools": 1
+  },
+  "limitations": [
+    "Vulnerability results are only as current as the advisory database used, and its timestamp is recorded above.  Absence of findings from a stale or missing database is not evidence of absence of vulnerabilities."
+  ],
+  "notes": []
+}

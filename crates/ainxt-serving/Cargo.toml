@@ -1,0 +1,32 @@
+[package]
+name = "ainxt-serving"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Serving-Ops control-plane LOGIC: SLO-aware admission + flow control for the self-hosted inference fleet (SERVING_OPS.md §2, ADR-020). Real, pure, deterministic Rust: an AdmissionController (max in-flight + bounded queue → Admit/Enqueue/Shed, backpressure never unbounded growth); a TokenBucket rate limiter (capacity + refill-per-tick, burst-then-throttle-then-refill); a Batcher (accumulate → flush at max_batch or on an explicit flush tick, whole batches, never a silent drop); a LoadShedder that sheds by PRIORITY lowest-first to protect P0/incident traffic; and a per-tenant FairnessLimiter (weighted quotas so one greedy department cannot starve a sibling). No async runtime, no GPU, no clock, no RNG — every notion of time/tick is a parameter, so the control plane is deterministic and exhaustively testable. Async execution, the GPU fleet, prefill/decode pools and the KV relay are seams owned elsewhere."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Shared domain types (DataClass/Tier/Principal) — required: the attestation gate and cache
+# isolation are defined in terms of data classes. Path dep, permissive (serde-only tree).
+ainxt-types = { path = "../ainxt-types" }
+# The coarse-answer / prompt-prefix cache tiers (SERVING_OPS.md §6). The tiered erasure cascade
+# (erasure.rs) drives PartitionedCache::erase_scope alongside the KV tier's zeroize-before-free, so
+# a DPDP right-to-erasure reaches ALL THREE cache tiers. Acyclic: ainxt-cache depends only on serde.
+ainxt-cache = { path = "../ainxt-cache" }
+# GAP-FIX identity-payments (gap6 audit item 2) — `PreemptionSink`/`PreemptDirective` (ADR-022 §19 (c)
+# / ADR-020 / ADR-027 §7): the seam `ainxt_identity::authority::KillSwitch::signal_preemption` emits
+# through, so this crate's REAL scheduler type (`ServingGate`) can implement it. Acyclic:
+# `ainxt-identity`'s own dependency tree (serde, ainxt-types, sha2, ainxt-payments, ainxt-incident)
+# does not reach back into `ainxt-serving`.
+ainxt-identity = { path = "../ainxt-identity" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,48 @@
+{
+  "module": "git_history",
+  "findings": [],
+  "facts": {
+    "roots_scanned": 0,
+    "commits": 0,
+    "sensitive_paths_in_history": [],
+    "signoff": {
+      "total": 0,
+      "missing": 0
+    },
+    "author_domains": {},
+    "gitleaks_roots_scanned": 0,
+    "gitleaks_findings": 0
+  },
+  "coverage": [
+    {
+      "capability": "history_review",
+      "state": "MISSING",
+      "detail": "0 commit(s) across 0 git root(s) examined",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "git_history_secret_scan",
+      "state": "MISSING",
+      "detail": "gitleaks 8.30.1 is installed but every invocation failed: no git root to scan",
+      "tool": "gitleaks",
+      "tool_version": "8.30.1",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "commits": 0,
+    "sensitive_in_history": 0,
+    "roots": 0,
+    "gitleaks_findings": 0
+  },
+  "limitations": [
+    "History review examines commit metadata and the set of paths that ever existed.  It does NOT read the content of every historical revision: that requires walking every blob in the object database, which is prohibitively slow on a large repository.  A secret committed inside a normal source file and later edited out will therefore NOT be found here.  Install gitleaks to get content-level history scanning."
+  ],
+  "notes": []
+}

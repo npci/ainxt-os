@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-promptopt"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — automated prompt optimization (PROMPT_ENGINEERING.md §5, gap BJ — the biggest quality lever). Treats prompt text as a search space and the quality-eval gold set as the objective function, built ON the eval keystone (ainxt-eval): a PromptVariant is adapted into an EvalSystem and scored via run_eval, variants are ranked into an EvalReport per variant with deterministic tie-breaking, and a winner is chosen. Adds three enterprise disciplines the eval core assumes: A/B promotion with NON-INFERIORITY (a challenger only displaces the champion if it is better beyond a margin, else the champion is kept), a HOLDOUT guard (gap AQ / PE10 — score on a train split, confirm the winner on a disjoint holdout, flag OVERFIT when the winner wins on train but regresses on holdout, reusing the eval gate), and PER-MODEL keying (the best variant for one model is frequently a different string for another — results are never mixed across models). Deterministic + exhaustively testable; the model is an injected seam."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-eval = { path = "../ainxt-eval" }
+ainxt-types = { path = "../ainxt-types" }
+# The optimizer's best candidate must land in the Prompt Registry as a DRAFT artifact (§5.5) — it
+# never auto-promotes. Path dep on the registry; no cycle (ainxt-prompt does not depend on this crate).
+ainxt-prompt = { path = "../ainxt-prompt" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

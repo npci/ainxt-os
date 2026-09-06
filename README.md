@@ -1,0 +1,923 @@
+<p align="center">
+  <!-- Brand-approved lockup (AINxt_CTC-01), the transparent version. PNG rather than SVG
+       because GitHub sanitises inline SVG in Markdown. -->
+  <img src="assets/AINxt_CTC-01.png" alt="AiNxt" width="360">
+</p>
+
+# AiNxt OS
+
+[![OSS Lifecycle](https://img.shields.io/badge/oss_lifecycle-active-brightgreen)](OSSMETADATA)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Contributing](https://img.shields.io/badge/contributing-guidelines-blueviolet)](CONTRIBUTING.md)
+[![Security](https://img.shields.io/badge/security-policy-important)](SECURITY.md)
+
+> **One Intelligence. Works for Everyone.**
+>
+> AiNxt brings intelligence into enterprise work, development environments,
+> command-line workflows, and the foundations used to build new AI experiences.
+> **This repository is AiNxt OS** — the foundation you build your own AI
+> applications, agents and workflows on.
+>
+> An initiative of [NPCI](https://www.npci.org.in/) — National Payments Corporation of India.
+
+<details>
+<summary><b>🆕 New to AiNxt OS? Start here — what it is in plain English</b></summary>
+
+### What is AiNxt OS?
+
+AiNxt OS is a **building block for teams who want to create their own AI-powered tools**. Think of it as the engine underneath — it handles the hard parts of running AI safely (who is allowed to ask what, keeping records of everything, making sure the AI can't do things it shouldn't), so your team can focus on building the product on top.
+
+**It is not an end-user product.** There is no cloud version to sign up for. AiNxt OS is for engineering teams who want to build something — a custom chatbot, an internal tool, an AI-powered workflow — and want the governance and safety infrastructure already built in.
+
+### Who is it for?
+
+| I am… | Is AiNxt OS for me? |
+|---|---|
+| A developer or platform engineer | ✅ Yes — this is your building block |
+| A business analyst or product manager evaluating AI | ⚠️ You probably want [AiNxt Enterprise](https://github.com/npci/ainxt-enterprise) — a ready-to-use web app |
+| Someone who wants to chat with AI | ⚠️ You probably want [AiNxt Enterprise](https://github.com/npci/ainxt-enterprise) — open a browser and log in |
+| A developer who wants AI in their code editor | ⚠️ You probably want [AiNxt Code](https://github.com/npci/ainxt-code) — a VS Code / IntelliJ plugin |
+
+### What do I need before I start?
+
+| What | Why | How to get it |
+|---|---|---|
+| **Rust** | AiNxt OS is written in Rust — you need it to build the code | [rustup.rs](https://rustup.rs) — one command, takes 2 minutes |
+| **A C compiler** | Some parts of the build need one | Mac: `xcode-select --install` · Linux: `sudo apt install build-essential` |
+| **~2 GB disk space** | The compiled output is large | Free up space if needed |
+| **macOS or Linux** | Windows is not yet supported (use WSL2 if on Windows) | [WSL2 setup guide](https://learn.microsoft.com/en-us/windows/wsl/install) |
+
+**What is Rust?** Rust is a programming language — like Python or Java, but focused on speed and safety. You don't need to know how to write Rust to use AiNxt OS; you just need it installed so the build tool (`cargo`) can compile the code.
+
+**What is WSL2?** WSL2 (Windows Subsystem for Linux) lets you run Linux programs on Windows. It's a free feature built into Windows 10/11. [Install it here](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+### Where do I go next?
+
+Jump to [**Try it — one command**](#try-it--one-command) below. The setup script handles everything after Rust is installed.
+
+</details>
+
+<p align="center">
+  <img src="assets/AiNxt_OS_high_level.png"
+       alt="AiNxt OS high-level architecture — four layers: you build, OS primitives, inherited platform, and models"
+       width="860">
+</p>
+<p align="center">
+  <sub>Four layers, read top-down: <b>you build</b> (your interface · domain logic · data) →
+  <b>OS primitives</b> (agents · workflows · tools · memory · eval) →
+  <b>inherited platform</b> (identity &amp; access · guardrails · observability · retrieval) →
+  <b>models — BYOM</b> (hosted providers · self-hosted open weights · offline).</sub>
+</p>
+
+---
+
+## Try it — one command
+
+```sh
+git clone https://github.com/npci/ainxt-os.git && cd ainxt-os && ./setup.sh --run
+```
+
+That builds AiNxt OS and its Console, writes a config, validates it, and opens a
+chat window at **<http://127.0.0.1:8081>**.
+
+**Needs:** Rust 1.94+, a working `cc`, ~2 GB disk. **No database, no message
+broker, no model provider and no API key.** macOS and Linux — on Windows use WSL2.
+
+Your first reply will be `offline mode: no model configured.` That is the point:
+the whole governed path — identity, session, compliance gate, authorisation,
+streaming, audit record — ran end to end without a model attached. Connect one in
+**Settings** when you want real answers.
+
+→ Step-by-step: [**Your first 10 minutes**](#quick-start)
+
+---
+
+## Connect a model
+
+**No model is required to start** — the runtime serves offline by default so the
+entire governed path is exercised first. When you are ready for real answers,
+three ways to connect a provider — pick one:
+
+---
+
+### ① Console Settings — fastest, no file editing
+
+Open the Console at <http://127.0.0.1:8081>, go to **Settings**, and fill in the
+provider and API key. The Console validates the config with `ainxt-runtimed --check`
+before saving — a bad key never leaves a broken config behind.
+
+---
+
+### ② Environment variables — one-liner, nothing to edit
+
+Set the key before starting the runtime. The Console picks it up automatically.
+
+**Anthropic**
+```sh
+export ANTHROPIC_API_KEY=sk-ant-...
+./setup.sh --run
+```
+
+**OpenAI**
+```sh
+export OPENAI_API_KEY=sk-...
+./setup.sh --run
+```
+
+**Ollama (local, no key)**
+```sh
+# Start Ollama first: ollama serve
+./setup.sh --run
+# Then in Settings, set provider to Ollama at http://localhost:11434
+```
+
+---
+
+### ③ `runtimed.toml` — named providers, permanent
+
+Add a `[[models.providers]]` block to your `runtimed.toml`:
+
+**Anthropic / Claude**
+```toml
+[[models.providers]]
+id          = "claude"
+kind        = "anthropic"
+model       = "claude-sonnet-4-6"
+api_key_env = "ANTHROPIC_API_KEY"
+```
+
+**OpenAI / GPT**
+```toml
+[[models.providers]]
+id          = "gpt"
+kind        = "openai_schema"
+model       = "gpt-4o"
+base_url    = "https://api.openai.com/v1"
+api_key_env = "OPENAI_API_KEY"
+```
+
+**Ollama / any OpenAI-compatible endpoint (local, free, no key)**
+```toml
+[[models.providers]]
+id       = "local"
+kind     = "openai_schema"
+model    = "llama3.2:latest"
+base_url = "http://localhost:11434/v1"
+```
+
+Validate before serving:
+```sh
+AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml --check
+```
+
+> **Provider kinds:** `anthropic` → Anthropic Messages API ·
+> `openai_schema` → OpenAI-compatible `/v1/chat/completions` — works with any provider:
+> OpenAI, Ollama, vLLM, LM Studio, Groq, Together AI, Mistral, Azure OpenAI, and any
+> self-hosted or proxy endpoint · `gemini` → Google Gemini · `local` → offline (no model)
+
+---
+
+## Four products, one suite
+
+AiNxt is four products sharing one intelligence layer. **This repository is
+AiNxt OS.**
+
+| | Product | What it provides | Primary users |
+|---|---|---|---|
+| 01 | **[AiNxt Enterprise](https://github.com/npci/ainxt-enterprise)** | The governed enterprise AI environment, across web and desktop | Individuals, teams, organisations |
+| 02 | **AiNxt OS** ← *this repo* | The foundation for building your own applications, agents and workflows | Developers, platform teams |
+| 03 | **[AiNxt Code](https://github.com/npci/ainxt-code)** | AI inside the editor — complete, rewrite, explain, fix | Developers |
+| 04 | **[AiNxt CLI](https://github.com/npci/ainxt-cli)** | AI in the terminal — ask, build, fix, automate, execute | Developers, technical teams |
+
+None of them is a satellite of another: they are peers on a shared foundation.
+
+**Are the four products the same product?** No. AiNxt Suite is the umbrella; each
+product addresses a different way of working with AI.
+
+**Is AiNxt OS the user interface for AiNxt Enterprise?** No — they are distinct
+products. AiNxt OS is a foundation for *building* AI experiences; AiNxt
+Enterprise *is* an enterprise-facing experience across web and desktop. Neither
+requires the other.
+
+**Where do I find the other repositories?** Each product has its own, and each
+README is that product's documentation:
+
+| Product | Source | Documentation |
+|---|---|---|
+| AiNxt Enterprise | [`npci/ainxt-enterprise`](https://github.com/npci/ainxt-enterprise) | [README](https://github.com/npci/ainxt-enterprise#readme) |
+| AiNxt OS | [`npci/ainxt-os`](https://github.com/npci/ainxt-os) | you are reading it |
+| AiNxt Code | [`npci/ainxt-code`](https://github.com/npci/ainxt-code) | [README](https://github.com/npci/ainxt-code#readme) |
+| AiNxt CLI | [`npci/ainxt-cli`](https://github.com/npci/ainxt-cli) | [README](https://github.com/npci/ainxt-cli#readme) |
+
+---
+
+## Contents
+
+**Start here** — [Try it in one command](#try-it--one-command) · [Connect a model](#connect-a-model) · [① Console Settings](#-console-settings--fastest-no-file-editing) · [② Env vars](#-environment-variables--one-liner-nothing-to-edit) · [③ runtimed.toml](#-runtimed.toml--named-providers-permanent) · [What AiNxt OS is](#what-ainxt-os-is) · [Your first 10 minutes](#quick-start) · [Where your code stops](#where-your-code-stops-and-the-platform-starts) · [BYOM](#bring-your-own-model-byom)
+
+**Build on it** — [Architecture](#architecture) · [The wire contract](DOCKING.md) · [The Console](#the-console) · [What is implemented](#what-is-implemented-and-what-is-not)
+
+**Operate it** — [Prerequisites](#prerequisites) · [Build](#build) · [Documentation](#documentation)
+
+**Legal and process** — [Open-source scope](#open-source-scope-read-before-touching-the-license) · [Licensing](#licensing-and-third-party-material) · [Contributing](#contributing-governance-and-security)
+
+**Other repos** — [How AiNxt fits together](#how-this-fits-with-the-other-ainxt-repositories)
+
+---
+
+## What AiNxt OS is
+
+**AiNxt OS** is the open-source **governed AI runtime** for enterprises. Every question
+it answers passes through the same path: who are you, what are you allowed to see, what did the model
+actually do — and each of those gates **fails closed**. Provider-agnostic, data-residency-aware,
+agentic, and governed by default rather than by configuration.
+
+**For an individual** — build and customise AI experiences for the way you work,
+from specialised assistants and agents to workflows that automate recurring
+tasks.
+
+**For an organisation** — give teams a common foundation for creating AI
+capabilities tailored to their domains, processes and business needs.
+
+AiNxt OS is **the only product in the suite you build *on* rather than use.**
+
+There are two ways in, and you do not have to choose up front:
+
+| | Who it is for | How you start |
+|---|---|---|
+| **The Console** | Anyone who wants to *use* AiNxt OS — try it, connect a model, change settings. No terminal knowledge needed beyond the first command. | `./setup.sh --run` opens a chat window in your browser |
+| **The wire contract** | Teams building a product *on* AiNxt OS — a gateway, a UI, a CLI, an IDE plugin. | POST a turn, read a Server-Sent-Events stream — see **[DOCKING.md](DOCKING.md)** |
+
+The Console is a real front end, not a demo: it is the reference implementation of the
+authenticating-gateway contract in [DOCKING.md](DOCKING.md), which is exactly what AiNxt OS requires
+of anything a browser can reach. Use it to evaluate AiNxt OS on day one, and keep using it as an
+operator's window after you have built your own product on top.
+
+### What ships
+
+AiNxt OS ships as two binaries:
+
+* **`ainxt-runtimed`** — the runtime itself. A single Rust binary that answers a governed AI turn
+  over HTTP: you POST a chat turn and read a Server-Sent-Events stream back. This is the component
+  every client docks into, and the thing you deploy.
+* **`ainxt-os`** — the **Console**. Starts the runtime for you, serves a chat window, and turns the
+  configuration into a settings page. This is the thing a person runs.
+
+The point of the runtime is the part between the request and the stream. A turn does not go
+straight to a model: it passes through an authenticator, a session manager, a
+compliance gate, an authorizer, a model router and an audit sink, and each of
+those **fails closed**. AiNxt OS refuses to start if you have not chosen how
+identity is established. It refuses a turn whose caller lacks the capability. It
+records what it did whether or not the model answered.
+
+That is the whole design: the governance is not middleware you can forget to
+install, it is the only path a turn can take.
+
+**It runs on its own.** No database, no message broker, no model provider and no
+API key are needed to start. With no provider configured it serves an offline
+provider, so the socket always answers and you can exercise the entire path
+before you commit to any infrastructure. A model is something you connect when
+you are ready — from the Console's Settings page, or in a config file.
+
+## Where your code stops and the platform starts
+
+The dashed layer is yours. Everything below it you inherit — you do not implement
+identity, guardrails, observability or retrieval yourself.
+
+```mermaid
+flowchart TD
+    subgraph YOURS["01 · You build"]
+        UI["Your interface<br/>web · desktop · mobile · headless — it does not have to look like AiNxt"]
+        DL["Your domain logic<br/>the rules and vocabulary of your business"]
+        DATA["Your data<br/>your systems of record stay yours"]
+    end
+    subgraph PRIM["02 · OS primitives — you compose these"]
+        AG["Agents<br/>specialised intelligence, defined tools, defined limits"]
+        WF["Workflows<br/>repeatable multi-step work you can review"]
+        TC["Tools and connectors<br/>governed access to enterprise systems"]
+        MEM["Memory and context<br/>what an agent knows, and for how long"]
+        EV["Eval<br/>measure behaviour instead of assuming it"]
+    end
+    subgraph INH["03 · Inherited platform — governed by default"]
+        ID["Identity and access<br/>SSO and role-based scoping"]
+        GR["Guardrails<br/>injection defence and compliance you do not implement"]
+        OB["Observability<br/>traces, quality signals, latency, cost"]
+        RT["Retrieval<br/>hybrid search over enterprise knowledge and code"]
+    end
+    MOD["04 · Models — BYOM<br/>model router · hosted providers · self-hosted open weights"]
+
+    YOURS --> PRIM --> INH --> MOD
+
+    classDef yours fill:#ffffff,stroke:#1b3281,stroke-width:2px,stroke-dasharray:6 4,color:#1b3281;
+    classDef prim fill:#1b3281,stroke:#0f1f52,color:#ffffff;
+    classDef inh fill:#f27b21,stroke:#c25d10,color:#ffffff;
+    class UI,DL,DATA yours;
+    class AG,WF,TC,MEM,EV prim;
+    class ID,GR,OB,RT inh;
+```
+
+The experience does not have to look like AiNxt Enterprise. The same foundation
+can power purpose-built products for different domains and users.
+
+---
+
+## Bring your own model (BYOM)
+
+AiNxt OS is provider-agnostic by construction: the runtime holds a `Provider`
+trait and the model is a configuration entry, not a code path.
+
+| Route | How |
+|---|---|
+| **Hosted providers** | Anthropic, OpenAI, Google — declare a `[[models.providers]]` entry with the key |
+| **Self-hosted, open weights** | Any OpenAI-schema endpoint — Ollama, vLLM — on your own hardware |
+| **Offline** | No provider at all. The runtime still serves, so the whole governed path is exercised without a model attached |
+
+Choose per use case and swap without rewriting. Configuration reference:
+`runtimed.example.toml`, validated by `ainxt-runtimed --check`.
+
+> **Scope, stated plainly:** the provider enum is closed —
+> `openai_schema`, `anthropic`, `gemini`, `local`. There is no AWS Bedrock or
+> Vertex AI adapter; both need an OpenAI-schema proxy in front.
+
+---
+
+## Architecture
+
+65 crates. This is the path a single `/v1/chat` turn takes:
+
+```mermaid
+flowchart TB
+    C["<b>The Console</b> (ainxt-os :8081)<br/>or your own front end<br/><i>gateway, UI, CLI, IDE</i>"]
+
+    subgraph D["ainxt-runtimed  ·  one process  ·  :8080"]
+        direction TB
+        A["<b>Authenticator</b><br/>trusted-gateway or jwt-sso<br/><i>refuses to start unless you choose</i>"]
+        S["<b>Session manager</b><br/>concurrency, backpressure, turn timeouts"]
+        G["<b>Mandatory gates</b><br/>compliance · authz · audit<br/><i>selectable, never 'none'</i>"]
+        SU["<b>Chat surface</b><br/>intent, referent resolution, retrieval, prompt assembly"]
+        R["<b>Model router</b><br/>tier routing, eligibility, circuit breaker"]
+        T["<b>Tool runtime</b><br/>one capability registry<br/>native · MCP · plugin · connector"]
+        P["<b>Provider chain</b><br/><i>offline by default</i>"]
+    end
+
+    L[("Ledger · Event log<br/>Incident register<br/>Retention store")]
+    M["Model provider<br/><i>Ollama, vLLM, OpenAI, …</i>"]
+    X["Connectors<br/><i>GitLab, Jira, Graph</i>"]
+
+    C -->|"POST /v1/chat"| A --> S --> G --> SU
+    SU --> R --> P --> M
+    SU --> T --> X
+    G -.->|"every decision"| L
+    T -.->|"exactly-once"| L
+    P -->|"SSE stream"| C
+
+    classDef gate fill:#fde,stroke:#b46
+    class A,G gate
+```
+
+A refusal arrives **inside** the SSE stream as an `error` frame, with HTTP 200.
+The transport succeeded; the turn was declined. Treating HTTP 200 as success is
+the most common mistake when docking a new client — see
+[`DOCKING.md`](DOCKING.md) for the full wire contract.
+
+### What each surface is for
+
+| Route | What it does | Docs |
+|---|---|---|
+| `/healthz` | Liveness. Unauthenticated — a load balancer or kubelet has no token. Returns `{"status":"ok"}` and nothing else. | [server serving](docs/pipeline_runtime/server_serving.md) |
+| `/readyz` | Readiness. Unauthenticated. `200` normally; **`503`** when the mandatory audit sink cannot write, because every turn would then fail closed. | [server serving](docs/pipeline_runtime/server_serving.md) |
+| `/v1/chat` | A governed conversation turn. The main path. | [core engine](docs/pipeline_runtime/core_engine.md) · [surface conversation](docs/core_infrastructure/surface_conversation.md) |
+| `/v1/command` · `/v1/edit` | Structured operations and the semantic code-review pipeline | [edit turn execution](docs/pipeline_runtime/edit_turn_execution.md) · [edit semantic](docs/pipeline_runtime/edit_semantic.md) |
+| `/v1/replay` · `/v1/replay/step` | Re-execute or step through a recorded session | [replay](docs/ai_engine/replay.md) |
+| `/v1/events` · `/v1/observe` | The typed event stream and serving telemetry | [server serving](docs/pipeline_runtime/server_serving.md) |
+| `/graph` · `/v1/query_ledger` | The knowledge graph and the exactly-once dispatch ledger | [knowledge retrieval](docs/ai_engine/knowledge_retrieval.md) |
+| `/v1/harness/*` · `/v1/capability/saga` | Capability invocation and multi-step composite actions | [skill execution](docs/core_infrastructure/skill_execution.md) |
+| `/connectors/*` | OAuth surface for third-party connectors | [connectors](docs/core_infrastructure/connectors.md) |
+| `/memory/*` · `/feedback` | Durable memory, consent and export, and the improvement loop | [memory management](docs/ai_engine/memory_management.md) |
+
+## Quick start
+
+**Your first 10 minutes.** Three commands to a running runtime with a chat
+window — no database, no model provider, no API key.
+
+### Step 1 — clone and build
+
+```sh
+git clone https://github.com/npci/ainxt-os.git
+cd ainxt-os
+./setup.sh
+```
+
+**You need:** Rust 1.94+, a working `cc`, ~2 GB disk, and network for the first
+build (299 crates from crates.io). **macOS and Linux** — Windows is not
+supported today; use WSL2. Full detail in [Prerequisites](#prerequisites).
+
+`./setup.sh` verifies Rust, a C toolchain and free disk, builds AiNxt OS and its Console,
+creates `runtimed.toml` from the shipped example, validates the configuration,
+and prints exactly what to run next.
+It is safe to re-run, and `./setup.sh --check` inspects prerequisites without
+changing anything.
+
+### Step 2 — open the Console
+
+```sh
+./setup.sh --run            # or, once built:  ./target/release/ainxt-os
+```
+
+That starts AiNxt OS, opens <http://127.0.0.1:8081> in your browser, and gives you a chat window,
+a settings page, and the runtime's startup report. **Nothing else to install** — no Node, no npm,
+no database, no model provider, no API key.
+
+### Step 3 — read the first reply carefully
+
+Your first reply will be `offline mode: no model configured.` That is correct, and it is not a
+failure: it means the whole path — identity, session, compliance gate, authorisation, streaming and
+the audit record — ran end to end without a model attached. Connect one in **Settings** when you
+want real answers.
+
+### Step 4 — connect a model, or start integrating
+
+Connect a provider in **Settings** for real answers — see
+[BYOM](#bring-your-own-model-byom).
+
+If you are integrating instead of evaluating, run the runtime directly:
+
+```sh
+AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml
+```
+
+The rest of this section explains each step, for when you need to change one.
+
+### The same thing, step by step
+
+
+### Prerequisites
+
+| | |
+|---|---|
+| Rust | **1.94 or newer** (the workspace sets `rust-version = "1.94"`). Install via [rustup](https://rustup.rs). |
+| C toolchain | A working `cc` — several dependencies (`ring`, `wasmtime`, `tree-sitter`) build native code. On macOS: Xcode command-line tools. On Debian/Ubuntu: `build-essential`. |
+| Network | The first build fetches **299 external crates** from crates.io (364 packages including this workspace's own 65). No Rust dependency is vendored. |
+| Platforms | **macOS** and **Linux** are supported and tested (this audit ran on macOS 14 / arm64). **Windows is not supported today**: `setup.sh` is a POSIX shell script and there is no PowerShell equivalent. The code itself is portable — the Console opens a browser via `cmd /C start` on Windows — so building with `cargo build --release -p ainxt-runtimed -p ainxt-console` and running the binaries directly is expected to work, but it is **unverified**. Use WSL2 for the documented path. |
+| Disk | **~2 GB** for the release build you need to run AiNxt OS (`target/release` measures 1.7 GB). **~45 GB** if you also run `cargo test --workspace`, which links a separate test binary per crate and takes `target/debug` to about 40 GB. Running out mid-link fails with `ld: write() failed, errno=28`, which does not mention disk — check free space first. `cargo clean -p <crate>` or removing `target/debug` reclaims it. |
+
+No database, message broker, model provider or API key is required to start. With no provider
+configured the runtime serves an **offline** provider so the socket always answers.
+
+### Build
+
+```sh
+cargo build --release -p ainxt-runtimed
+```
+
+### Configure
+
+A commented example configuration ships in the repository:
+
+```sh
+cp crates/ainxt-runtimed/config/runtimed.example.toml runtimed.toml
+```
+
+Configuration is **layered**: pass `--config` more than once and each later file is deep-merged over
+the earlier ones (defaults → deployment → tenant). `[server]` and `[session]` are consumed by the
+daemon; everything else is the runtime configuration.
+
+### Connecting a cloud model — the outsourcing register gate
+
+**Read this before you conclude a provider is broken.** Declaring a cloud provider is not
+sufficient to make it routable. AiNxt OS installs an **RBI outsourcing register** as a
+non-overridable, fail-closed eligibility input: only routes with a **board-approved outsourcing
+arrangement** on record — plus signed on-prem/offline exemptions — may receive a turn. Everything
+else is excluded, and a turn refused this way reports:
+
+```
+"category":"provider_unavailable","message":"no eligible route: NoEligible(Public)"
+```
+
+This is deliberate. A regulated financial entity may not send data to an external service provider
+without a recorded arrangement, and the runtime enforces that rather than trusting configuration.
+Register one before routing to a cloud provider:
+
+```sh
+curl -X POST http://127.0.0.1:8080/admin/outsourcing/register \
+  -H 'content-type: application/json' \
+  -H 'X-AInxt-User: dpo' -H 'X-AInxt-Role: admin' \
+  -H 'X-AInxt-Department: compliance' -H 'X-AInxt-Clearance: confidential' \
+  -d '{"id":"outsourcing.cloud.<provider-id>","provider_legal_entity":"…",
+       "permitted_data_class":"public","data_residency":"in","exit_plan_ref":"…",
+       "concentration_tag":"…","contract_ref":"…","board_approval_ref":"…",
+       "right_to_audit_clause":"…"}'
+```
+
+The route id is `"outsourcing.cloud." + <the provider's configured id>`. The register is held in
+memory, so it must be re-registered after a restart — persist it in your deployment automation.
+Full model: [`docs/governance_compliance/responsible_ai_outsourcing.md`](docs/governance_compliance/responsible_ai_outsourcing.md).
+
+**Adopters outside India**: `residency` defaults to `'in'` and the exemption list is India-shaped.
+Like the settlement perimeter described below, these are behaviour-affecting jurisdictional
+defaults you will want to change — not branding.
+
+**`data_residency` must satisfy the router's residency requirement.** The shipped router runs with
+`residency='in'`; an arrangement registered with a different residency stays ineligible, and the turn
+is refused with the message above rather than routed. Register with the residency your deployment's
+register actually requires.
+
+### Decide how identity is established — the daemon will not boot until you do
+
+The default authenticator is `trusted-gateway`, which derives role, capabilities and clearance from
+client-supplied `X-AInxt-*` headers. That is only safe when the runtime is unreachable except through
+a gateway that has already validated the caller's token, so the daemon **refuses to start** rather
+than silently trusting whatever the client asserts. Pick one:
+
+```sh
+# (a) You front the runtime with your own authenticating gateway.
+#     Only use this when the listener is NOT reachable directly by a browser.
+export AINXT_TRUSTED_GATEWAY=1
+```
+
+```toml
+# (b) The runtime verifies identity itself. In your config:
+[server]
+authenticator = "jwt-sso"
+jwt_hs256_secret = "…"        # required and non-empty, or assembly fails closed
+```
+
+### Health checks
+
+```sh
+curl -i http://127.0.0.1:8080/healthz     # → 200  {"status":"ok"}
+curl -i http://127.0.0.1:8080/readyz      # → 200  {"status":"ready"}
+```
+
+These are the only two routes that do not pass through the identity gate — deliberately, because a
+load balancer, a Kubernetes kubelet or a supervising process has no token and cannot be given one.
+Both are safe to leave open because they are inert: they return a fixed body from a closed
+vocabulary, so an unauthenticated caller learns nothing beyond whether to route here. `HEAD` works.
+
+**They are not interchangeable, and the difference is the remedy:**
+
+| | Question | On failure |
+|---|---|---|
+| `/healthz` | Is this process alive? | **Restart it.** |
+| `/readyz` | Should it receive traffic *right now*? | **Take it out of rotation, leave it running.** |
+
+Wiring `/healthz` to a dependency check is a classic outage amplifier: if AiNxt OS reported itself
+*unhealthy* because its audit disk filled, Kubernetes would kill and restart it — which cannot fix a
+full disk, so a recoverable condition becomes a crash loop.
+
+`/healthz` is liveness. A `200` is worth more than a TCP connect: the route exists only on a fully
+**assembled** router, so it distinguishes "composed and able to serve" from "a socket is bound",
+which is all a port probe tells you.
+
+`/readyz` is readiness, and it checks exactly one thing — whether the durable audit sink accepted its
+last real write. That is chosen because it is the one condition that makes **every** turn fail: audit
+is a mandatory, fail-closed gate, so a sink that cannot write means every governed turn is refused.
+The signal comes from real appends, never a synthetic probe write, because appending to a
+tamper-evident audit chain on every load-balancer poll would corrupt the artefact it protects.
+
+It deliberately does **not** check:
+
+* **The model provider** — no outbound call. Probes run every few seconds forever; dialling a paid
+  API on each is a cost and rate-limit incident waiting to happen. It is also the wrong signal:
+  AiNxt OS is *designed* to serve an offline provider, so "no model" is a supported posture.
+* **Session capacity** — the session manager already sheds load with a `503` on a full inbox, which
+  is the correct immediate backpressure. Reporting saturation here too would drop every instance out
+  of rotation at once under a spike, turning a slowdown into an outage.
+
+### Validate the configuration without serving
+
+```sh
+AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml --check
+```
+
+`--check` assembles everything, prints a report of what was wired (and what was deliberately left
+unwired), and exits. Expect `config OK (--check) — not serving` and exit status `0`. **Read the
+report** — it names each subsystem that is live versus deployment-owned.
+
+### Run
+
+```sh
+AINXT_TRUSTED_GATEWAY=1 ./target/release/ainxt-runtimed --config runtimed.toml
+# → ainxt-runtimed: listening on http://127.0.0.1:8080 (fully-wired: /v1/chat /v1/command
+#   /v1/replay /v1/events /v1/observe /graph /v1/query_ledger /v1/infer /v1/harness/*
+#   /connectors/* /v1/artifact /v1/replay/step)
+```
+
+Useful flags: `--config <file>` (repeatable), `--port <n>`, `--surface chat|engine`, `--check`.
+`chat` serves the full conversation intelligence (intent cascade, referent resolution, prompt
+engine) behind the compliance gate; `engine` serves a bare model turn behind the same mandatory
+gates.
+
+### Verify it works
+
+Under `trusted-gateway` the runtime takes identity from the `X-AInxt-*` headers —
+that is what the mode means — so the request has to carry them. In a real
+deployment your gateway sets these after validating the caller's token; here you
+are standing in for that gateway:
+
+```sh
+curl -N http://127.0.0.1:8080/v1/chat \
+  -H 'content-type: application/json' \
+  -H 'X-AInxt-User: alice' \
+  -H 'X-AInxt-Role: engineer' \
+  -H 'X-AInxt-Department: engineering' \
+  -H 'X-AInxt-Caps: chat.send' \
+  -H 'X-AInxt-Clearance: public' \
+  -d '{"session":"c1","turn":"t1","input":"hello","data_class":"public"}'
+```
+
+You should get `HTTP 200` and an SSE stream whose frames carry a `type` discriminator:
+
+```
+id: 1
+data: {"v":"1.0","session_id":"c1","turn_id":"t1","seq":1,…,"type":"turn.started",…}
+
+id: 2
+data: {"v":"1.0",…,"type":"text.delta","text":"offline mode: no model configured."}
+
+id: 4
+data: {"v":"1.0",…,"type":"turn.completed","outcome":"complete"}
+```
+
+`offline mode: no model configured` is the **expected** first-run output — it proves the whole
+transport, session, gate and streaming path works without any provider credential. To use a real
+model, set `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`, or add a `[[models.providers]]` config layer.
+
+Full request/response contract, the event vocabulary, and worked examples for docking a Python
+gateway or a React UI: **[DOCKING.md](DOCKING.md)**.
+
+### Run the tests
+
+```sh
+cargo test --workspace
+```
+
+### Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `error: config error: authenticator = trusted-gateway derives role/caps/clearance from client-supplied X-AInxt-* headers…` | Working as designed — you have not chosen an identity posture. Set `AINXT_TRUSTED_GATEWAY=1` or configure `jwt-sso`. See above. |
+| `cannot bind 127.0.0.1:8080: Address already in use` | Another daemon (often one you started earlier) holds the port. `pkill -f ainxt-runtimed`, or pass `--port`. **This line is the last of roughly eighty lines of startup output**, so it is easy to miss and the daemon looks like it started. If requests behave oddly, check the tail of the log and `lsof -nP -iTCP:8080 -sTCP:LISTEN` before anything else. |
+| `401 missing Authorization: Bearer <jwt>` | You selected `authenticator = "jwt-sso"`; every governed route now needs a signed HS256 token. Send `Authorization: Bearer <jwt>`. |
+| `422 … missing field 'session'` | The request body uses `session`, `turn`, `input` — not `session_id` or `message`. See [DOCKING.md](DOCKING.md) §2. |
+| `"type":"error"` … `surface is department-scoped but the principal has no department` | Under `trusted-gateway` you are the gateway: send the `X-AInxt-*` headers shown in "Verify it works". The default profile is department-scoped, so `X-AInxt-Department` is required alongside `X-AInxt-User` and `X-AInxt-Role`. HTTP is still 200 — the refusal arrives inside the SSE stream as an `error` frame, not as a status code. |
+| `"type":"error"` … `principal lacks required capability 'chat.send'` | Same cause, next gate. Add `X-AInxt-Caps: chat.send`. |
+| Replies say `offline mode: no model configured` | Expected with no provider configured. Set a provider key or a `[[models.providers]]` layer. |
+| A `cargo test` failure in `ainxt-runtimed` or `ainxt-payments` | Likely one of the known stale assertions above, not your change. Confirm against a clean checkout before investigating. |
+| Build fails compiling `ring`, `wasmtime` or a `tree-sitter-*` crate | Missing C toolchain. Install Xcode command-line tools or `build-essential`. |
+| `ainxt-os: could not find the ainxt-runtimed binary` | The Console looks next to itself, then in `target/release` and `target/debug`. Run `cargo build --release -p ainxt-runtimed`, or pass `--runtimed <path>`. |
+| `cannot bind the console to 127.0.0.1:8081` | Something already holds the Console's port — often a Console you started earlier. `pkill -f 'ainxt-os'`, or pass `--port`. |
+| Console says `AiNxt OS did not start listening on port 8080` | The runtime failed to boot. The Console prints the last lines of its log; the full log is `.ainxt-console/ainxt-os.log`, and the Activity tab shows it. |
+| Console Settings says `AiNxt OS rejected this configuration` | The daemon's own `--check` refused the change, and the message shown is its own. Nothing was written — your `runtimed.toml` is untouched. |
+| Every Console chat turn returns `401` | The Console and the runtime disagree on the signing secret, which happens if a stale `ainxt-runtimed` from an earlier run still holds port 8080. Stop it (`pkill -f ainxt-runtimed`) and restart the Console. |
+
+---
+
+## The Console
+
+`ainxt-os` is the thin layer over AiNxt OS: one binary, one command, a chat window in a browser.
+It exists so that evaluating AiNxt OS, connecting a model, and changing a setting do not require
+reading TOML or holding a `curl` invocation in your head.
+
+```sh
+./target/release/ainxt-os
+```
+
+It starts AiNxt OS as a child process, waits for `GET /healthz` to answer, and serves the Console on
+<http://127.0.0.1:8081>. Stopping the Console stops AiNxt OS with it — Ctrl-C (`SIGINT`) and
+`pkill ainxt-os` (`SIGTERM`) are both handled, and the child is reaped before the Console exits — so
+you never leave an orphaned daemon holding port 8080.
+
+| Tab | What it is for | Docs |
+|---|---|---|
+| **Chat** | Ask a question and watch the governed turn. Shows the model used, timing, token usage, and any compliance notice. A refusal is rendered as a refusal — in plain language, with whether retrying could ever help. | [surface conversation](docs/core_infrastructure/surface_conversation.md) · [core engine](docs/pipeline_runtime/core_engine.md) |
+| **Settings** | Choose where answers come from, turn behaviour and safety checks on or off, set the port. Written to your `runtimed.toml`, validated before it is saved. | [runtime configuration](docs/pipeline_runtime/runtime_configuration.md) |
+| **Activity** | The runtime's own startup report — every subsystem it wired, and every one it deliberately left for a deployment to own. | [server serving](docs/pipeline_runtime/server_serving.md) |
+
+### Why the Console is a separate process, and not a page served on :8080
+
+This is the important part, and it is a security property rather than an implementation detail.
+
+AiNxt OS's default identity posture, `trusted-gateway`, derives role, capabilities and clearance
+from client-supplied `X-AInxt-*` headers. That is safe **only** behind something that has already
+authenticated the caller — which is why the daemon refuses to start until you assert the posture
+deliberately. A web page served on `:8080` under that posture could simply send
+`X-AInxt-Role: admin` and be believed.
+
+So the Console does the job the architecture already requires of a front end: it **is** the
+authenticating gateway. It decides who the operator is, runs AiNxt OS in **`jwt-sso`** mode with a
+secret generated fresh at every start, and signs a short-lived token per request. The browser never
+holds the secret and never asserts an identity.
+
+```text
+  browser  ──►  ainxt-os (Console, :8081)  ──►  ainxt-runtimed (AiNxt OS, :8080)
+  no identity     mints a signed token           jwt-sso: believes only the token
+```
+
+Both listeners bind `127.0.0.1` only. With the Console running, the four obvious attacks on the
+runtime are all rejected with `401`: self-asserted `X-AInxt-Role: admin`, no credentials at all, an
+`alg:none` signature-strip, and a correctly-shaped token signed with the wrong secret.
+
+### What Settings can and cannot change
+
+**Can:** the model provider and its endpoint or API key; whether answers are grounded in your
+documents (RAG); whether conversations survive a restart; the five guardrail rails and the
+prompt-injection mode (`off` / `audit` / `enforce`); the port.
+
+**Cannot:** the mandatory gates. `[gates] compliance`, `authz` and `audit` are the guarantee AiNxt OS
+exists to provide and can never be set to `none`; the Console shows them read-only. Changing them is
+a deployment decision made in a config file with a review, not from a chat window.
+
+Every save is checked by the daemon itself — the Console writes a staged copy, runs
+`ainxt-runtimed --check` against it, and only replaces your `runtimed.toml` if that passes. A
+rejected change never leaves a broken config behind, and the daemon's own error message is what you
+see. Your file's comments are preserved: the Console edits the document in place rather than
+regenerating it.
+
+### Where the Console keeps its state
+
+`.ainxt-console/` next to your config (gitignored):
+
+| File | Contents |
+|---|---|
+| `console.toml` | The operator identity the gateway asserts, and provider API keys. `0600`. |
+| `auth.overlay.toml` | The generated `jwt-sso` config layer, including the signing secret. `0600`, rewritten every start. |
+| `ainxt-os.log` | The runtime's stdout/stderr — what the Activity tab reads. |
+
+**Credentials never enter `runtimed.toml`.** AiNxt OS reads provider keys from the environment, so
+the Console holds them in its own `0600` file and injects them when it starts the daemon. That keeps
+secrets out of the file you are most likely to paste into a support ticket.
+
+### Flags
+
+| Flag | Meaning |
+|---|---|
+| `--port <n>` | Port for the Console itself (default `8081`) |
+| `--config <file>` | AiNxt OS config to use or create (default `runtimed.toml`) |
+| `--runtimed <file>` | Path to the `ainxt-runtimed` binary, if it is not alongside the Console |
+| `--no-open` | Do not open a browser automatically |
+
+### What the Console is not
+
+It is not a multi-user application. It asserts a single local operator identity and binds loopback,
+which is right for evaluation, local use and operations — and wrong for serving a team. For that,
+build your own front end against [DOCKING.md](DOCKING.md), or put AiNxt OS behind a gateway that
+performs real authentication. The Console is the reference for how such a gateway should behave, and
+deliberately small enough to read in one sitting.
+
+---
+
+## How this fits with the other AiNxt repositories
+
+AiNxt is published as four separate repositories. They are **not** a monorepo
+and you do not need all of them — but they do have a required order, and
+picking the wrong starting point is the most common way to get stuck.
+
+**You are here: `ainxt-os`** — the Runtime. It is the one component that also runs perfectly well on its own.
+
+```mermaid
+flowchart TB
+    CODE["<b>ainxt-code</b><br/>IDE plugins<br/><i>VS Code · IntelliJ</i>"]
+    CLI["<b>ainxt-cli</b><br/>terminal agent<br/><i>TUI and headless</i>"]
+
+    PLAT["<b>ainxt-enterprise</b>  —  AiNxt Platform<br/>FastAPI · :8000 · React UI :5173<br/><i>/ainxt/v1/api/* · /v1/chat/completions</i>"]
+
+    RT["<b>ainxt-os</b>  —  AiNxt OS<br/>ainxt-runtimed · :8080<br/><i>optional sidecar</i>"]
+
+    DB[("PostgreSQL + Redis<br/>and one model provider<br/><i>Ollama · vLLM · OpenAI · …</i>")]
+
+    CODE -->|"requires"| PLAT
+    CLI -->|"or any OpenAI-compatible endpoint"| PLAT
+    PLAT --> DB
+    PLAT -.->|"RUNTIME_URL"| RT
+
+    classDef opt stroke-dasharray: 4 3
+    class RT opt
+```
+
+| Repository                              | What it is | Port | Do you need it? |
+|-----------------------------------------|---|---|---|
+| **`ainxt-enterprise`** — AiNxt Platform | The gateway. Python/FastAPI. Serves `/ainxt/v1/api/*` (auth, budgets, skills, admin) and an OpenAI-compatible `/v1/chat/completions`. Ships a React UI. | `8000` (API), `5173` (UI) | **Start here.** The CLI's `login` and the IDE plugins both depend on it. |
+| **`ainxt-cli`** — terminal agent        | A TUI coding agent, also runs headless for CI. | — | Optional. Works against the Platform, or against any OpenAI-compatible endpoint if you only want raw model access and no accounts. |
+| **`ainxt-code`** — IDE plugins          | VS Code extension and IntelliJ plugin. | — | Optional. **Requires the Platform** — it calls `/ainxt/v1/api/*`, so an OpenAI-compatible server such as vLLM is not a substitute. |
+| **`ainxt-os`** — AiNxt OS               | A Rust network service (`ainxt-runtimed`) for governed turns: compliance gates, replay, ledger, graph. Ships its own Console (`ainxt-os`) — a browser chat window and settings page. | `8080` (runtime), `8081` (Console) | Optional as a Platform sidecar (`RUNTIME_URL`) — but **the only component in the suite that is useful entirely on its own**: the Console needs no database, no Platform and no API key. |
+
+**The dependency you cannot skip:** PostgreSQL and Redis for the Platform, and at
+least one model provider somewhere. Nothing in this suite bundles a model.
+
+**A note on ports.** The Platform binds **`8000`** by default and
+`ainxt-runtimed` binds `8080`. If a client reports "gateway not reachable",
+check the port first.
+
+---
+
+
+## Documentation
+
+Everything is in this repository; there is no external docs site.
+
+**📚 Full documentation — 251 pages across 7 subject areas.**
+Best read in the browser: open [`docs/index.html`](docs/index.html) — it works offline, no server needed.
+
+| Start here | What it covers |
+|---|---|
+| [`docs/overview.md`](docs/overview.md) | Repository map — module topology, request flow, where to start reading |
+| [`docs/README.md`](docs/README.md) | Index of all 251 pages, grouped by subject |
+| [`docs/index.html`](docs/index.html) | Rendered navigable viewer — open in a browser |
+| [`DOCKING.md`](DOCKING.md) | Wiring the runtime behind a front end — the authenticating gateway contract |
+
+| Subject area | Pages | What it covers |
+|---|---|---|
+| [`docs/ai_engine/`](docs/ai_engine/) | 81 | Prompts, retrieval, memory, guardrails, quality verification, eval, LLM providers |
+| [`docs/pipeline_runtime/`](docs/pipeline_runtime/) | 80 | Edit pipeline, planner, program execution, serving, supervision |
+| [`docs/governance_compliance/`](docs/governance_compliance/) | 49 | Identity, admission, incident, lifecycle, payments, responsible AI, outsourcing |
+| [`docs/core_infrastructure/`](docs/core_infrastructure/) | 24 | Connectors, plugins, security config, skill execution, surface conversation |
+| [`docs/tools_cli/`](docs/tools_cli/) | 6 | CLI, client SDK, tool runtime, surface profiles, integration tests |
+| [`docs/injection_service/`](docs/injection_service/) | 5 | Prompt-injection sidecar — config, HTTP service, judge pipeline, policy engine |
+| [`docs/scenario_service/`](docs/scenario_service/) | 5 | DoD scenario runner — core, breaker, pairwise, soak |
+
+| Other documents | What it covers |
+|---|---|
+| [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) · [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) | Dependency attribution |
+| [`SECURITY.md`](SECURITY.md) | Reporting a vulnerability |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`GOVERNANCE.md`](GOVERNANCE.md) · [`MAINTAINERS.md`](MAINTAINERS.md) | Project process. **Note: contributions are not open yet** |
+
+Configuration reference lives with the code: run `ainxt-runtimed --check` to
+validate a config file without serving, and see `crates/ainxt-surface/profiles/`
+for the surface presets.
+
+## What is implemented, and what is not
+
+Stated plainly, because building on a placeholder is worse than knowing it is one.
+
+**Implemented and exercised by tests:** the turn engine and its mandatory gates; the tool runtime;
+the session manager; connectors; surface profiles; the Rust client SDK and headless CLI; the
+extensibility seams; the `ainxt-runtimed` composition binary; a durable file-backed token store; and
+a SHA-256 hash-chained, tamper-evident event log; and the Console (`ainxt-os`) — the shipped
+authenticating-gateway front end. 65 crates in the workspace, 6 binaries.
+
+**Design-only or placeholder — do not rely on these yet:** the eval platform; durable
+Postgres/Redis backing for most seams; the real PCI/DSS detector (the OSS default is a labelled
+placeholder); RAG / context fabric; memory and learning; agent teams; serving-ops; MCP; the WASM
+sandbox; and the Python and TypeScript SDKs.
+
+**The shipped settlement perimeter is India-centric by default.** `SettlementPerimeter::default_reserved()`
+reserves national payment-rail destination patterns (`upi-settlement.`, `neft.rbi`, `rtgs.rbi`,
+`nach.npci`, and the 2026 agent-payment-protocol networks). These are behaviour-affecting domain
+data for a settlement guardrail, not branding, and they are overridable — see
+`SettlementPerimeter::empty()`, `reserve()`, and `SettlementPolicy.perimeter_patterns`. **An adopter
+outside India must supply their own patterns**; the shipped list will not recognise their rails.
+
+---
+## Open-source scope (read before touching the license)
+
+The MIT License (see [`LICENSE`](LICENSE)) covers this runtime project. It does **not** cover enterprise plugins (compliance rule packs, directory/RBAC integration, IP-bearing connectors), which may be developed separately and are never part of this OSS tree.
+
+## Licensing and third-party material
+
+- License — [`LICENSE`](LICENSE) (MIT). [`NOTICE`](NOTICE) is retained for third-party
+  attribution and the trademark reservation; MIT does not itself require a NOTICE file
+- Dependency-license policy, enforced by `cargo-deny` — [`deny.toml`](deny.toml)
+- Third-party inventory — [`THIRD_PARTY_INVENTORY.yaml`](THIRD_PARTY_INVENTORY.yaml),
+  [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md)
+- Model weights — **none are distributed in this tree**, so there is no weight-licensing register
+- Software Bill of Materials — **not yet published.** `THIRD_PARTY_INVENTORY.yaml` is the
+  dependency inventory this tree actually ships; a machine-readable SBOM (CycloneDX/SPDX) is
+  still outstanding.
+
+`Cargo.lock` is committed: this is an application workspace, and a reproducible dependency set is
+part of the licence and supply-chain posture. Do not remove it.
+
+## Contributing, governance and security
+
+**Contributions are not open yet.** Published under the MIT License as source-available;
+external pull requests and issues are not currently accepted or triaged. Security
+vulnerabilities are the exception and may be reported privately at any time.
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — the posture, and the workflow the maintaining team follows (including DCO sign-off)
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+- [`GOVERNANCE.md`](GOVERNANCE.md), [`MAINTAINERS.md`](MAINTAINERS.md), [`CODEOWNERS`](CODEOWNERS)
+- [`SECURITY.md`](SECURITY.md) — **report vulnerabilities privately, never as a public issue**
+
+## Independence statement
+
+AiNxt is an independently engineered platform. External open-source projects were studied as references only; no source code, identifiers, prompts, comments, file layouts, or terminology were copied.
+
+The architecture corpus and decision records (ADRs) that document this design process are **not published in this repository**. Statements about clean-room provenance therefore cannot be verified from this tree alone.
+
+## Disclaimer
+
+Licensed under the MIT License. The full text is in [`LICENSE`](LICENSE).
+
+The software is provided **"AS IS", WITHOUT WARRANTY OF ANY KIND**, express or
+implied, including but not limited to the warranties of merchantability, fitness
+for a particular purpose and noninfringement. In no event shall the authors or
+copyright holders be liable for any claim, damages or other liability arising
+from, out of or in connection with the software or its use. See [`LICENSE`](LICENSE)
+for the governing text.
+
+<!-- Worded from the MIT License's own text on purpose. The more familiar
+     "free software / redistribute / no warranty" disclaimer paragraph that many
+     projects use is the GPL's own "How to Apply These Terms" boilerplate. Pasting
+     it into an MIT project reads as a GPL notice and a licence scanner will
+     classify it as one, so it is avoided here rather than reproduced. -->

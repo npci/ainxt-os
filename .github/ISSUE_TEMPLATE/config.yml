@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/npci/ainxt-os/security/advisories/new
+    about: Do NOT open a public issue. Report privately via a GitHub security advisory, or email opensource@npci.org.in.
+  - name: Contribution status
+    url: https://github.com/npci/ainxt-os/blob/main/CONTRIBUTING.md
+    about: External pull requests and issues are not currently accepted or triaged. Read this first.

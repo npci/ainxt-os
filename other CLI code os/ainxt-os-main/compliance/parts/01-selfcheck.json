@@ -1,0 +1,159 @@
+{
+  "module": "selfcheck",
+  "findings": [
+    {
+      "finding_id": "e0002d199f9f3690",
+      "rule_id": "SELFCHECK.HARDCODED_LITERAL",
+      "module": "selfcheck",
+      "severity": "INFO",
+      "status": "OPEN",
+      "title": "The auditor's own source contains a literal that belongs in policy",
+      "reason": "'AKIA' appears in the engine source.  Brand names, model identifiers, provider hostnames and credential prefixes must live in policy/ so that the same auditor works for a different organisation by changing configuration.  A tool that embeds them is not reusable and cannot be trusted to report on them neutrally.",
+      "path": "skills/oss-compliance-auditor/ossaudit/evidence.py",
+      "line": 60,
+      "evidence": "(``sk-a``, ``ghp_``, ``AKIA``) and reports the length plus digest so the real",
+      "evidence_sha": "54e3a6273496b79f",
+      "classification": "SELF_AUDIT",
+      "recommendation": "Move the value into policy/patterns/ or policy/policy.yaml and read it through Config.",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "41",
+        "52"
+      ],
+      "detail": {
+        "literal": "AKIA",
+        "in_prose": true
+      },
+      "triage": {}
+    },
+    {
+      "finding_id": "431d99a76b7b51d4",
+      "rule_id": "SELFCHECK.HARDCODED_LITERAL",
+      "module": "selfcheck",
+      "severity": "INFO",
+      "status": "OPEN",
+      "title": "The auditor's own source contains a literal that belongs in policy",
+      "reason": "'gpt-5' appears in the engine source.  Brand names, model identifiers, provider hostnames and credential prefixes must live in policy/ so that the same auditor works for a different organisation by changing configuration.  A tool that embeds them is not reusable and cannot be trusted to report on them neutrally.",
+      "path": "skills/oss-compliance-auditor/ossaudit/scanpass.py",
+      "line": 656,
+      "evidence": "\"OpenAI Responses API -- routes gpt-5.4 and deep-research models.\"",
+      "evidence_sha": "c2a3e2747ec8ead1",
+      "classification": "SELF_AUDIT",
+      "recommendation": "Move the value into policy/patterns/ or policy/policy.yaml and read it through Config.",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "41",
+        "52"
+      ],
+      "detail": {
+        "literal": "gpt-5",
+        "in_prose": true
+      },
+      "triage": {}
+    },
+    {
+      "finding_id": "435fe10400c35b3b",
+      "rule_id": "SELFCHECK.HARDCODED_LITERAL",
+      "module": "selfcheck",
+      "severity": "INFO",
+      "status": "OPEN",
+      "title": "The auditor's own source contains a literal that belongs in policy",
+      "reason": "'gemini-' appears in the engine source.  Brand names, model identifiers, provider hostnames and credential prefixes must live in policy/ so that the same auditor works for a different organisation by changing configuration.  A tool that embeds them is not reusable and cannot be trusted to report on them neutrally.",
+      "path": "skills/oss-compliance-auditor/ossaudit/scanpass.py",
+      "line": 657,
+      "evidence": "\"defaults to gemini-3.5-flash; env-overridable via GEMINI_VISION_MODEL\"",
+      "evidence_sha": "69b4171a1f3458f9",
+      "classification": "SELF_AUDIT",
+      "recommendation": "Move the value into policy/patterns/ or policy/policy.yaml and read it through Config.",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "41",
+        "52"
+      ],
+      "detail": {
+        "literal": "gemini-",
+        "in_prose": true
+      },
+      "triage": {}
+    },
+    {
+      "finding_id": "8ee33d85999914b4",
+      "rule_id": "SELFCHECK.HARDCODED_LITERAL",
+      "module": "selfcheck",
+      "severity": "INFO",
+      "status": "OPEN",
+      "title": "The auditor's own source contains a literal that belongs in policy",
+      "reason": "'claude-' appears in the engine source.  Brand names, model identifiers, provider hostnames and credential prefixes must live in policy/ so that the same auditor works for a different organisation by changing configuration.  A tool that embeds them is not reusable and cannot be trusted to report on them neutrally.",
+      "path": "skills/oss-compliance-auditor/ossaudit/scanpass.py",
+      "line": 1032,
+      "evidence": "#     MODEL = 'claude-sonnet-4-6'",
+      "evidence_sha": "9e10da41522dcc14",
+      "classification": "SELF_AUDIT",
+      "recommendation": "Move the value into policy/patterns/ or policy/policy.yaml and read it through Config.",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "41",
+        "52"
+      ],
+      "detail": {
+        "literal": "claude-",
+        "in_prose": true
+      },
+      "triage": {}
+    }
+  ],
+  "facts": {
+    "engine_files_scanned": 35,
+    "forbidden_literals": [
+      "NPCI",
+      "npci",
+      "claude-",
+      "gpt-5",
+      "gpt-4",
+      "gemini-",
+      "anthropic.com",
+      "openai.com",
+      "sk-ant-",
+      "AKIA"
+    ],
+    "policy_sources": [
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/policy.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/branding.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/coupling.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/endpoints.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/internal_data.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/legal_markers.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/models.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/provenance_markers.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/secrets.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/patterns/supply_chain.yaml",
+      "/Users/admin/ainxt-oss-suite/ainxt-suite-oss/oss-compliance-auditor/policy/logging.yaml"
+    ],
+    "policy_fingerprint": "43189e46f04c1e3a8f5a001f56ea050f7d486762a9319c8158a67b1ecf913ffc",
+    "spdx_snapshot_date": "2026-08-14",
+    "spdx_identifier_count": 116,
+    "yaml_parser": "bundled subset parser"
+  },
+  "coverage": [
+    {
+      "capability": "self_verification",
+      "state": "COVERED",
+      "detail": "35 engine source files checked against 10 forbidden literals; policy coherence validated",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "engine_files_scanned": 35,
+    "policy_checks": 4
+  },
+  "limitations": [],
+  "notes": []
+}

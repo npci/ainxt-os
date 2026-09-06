@@ -1,0 +1,51 @@
+[package]
+name = "ainxt-mcp"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — MCP (Model Context Protocol) runtime core: transport-agnostic server registry, lazy+parallel discovery, retrieval-based tool ranking, per-(user,server) auth seam (design §2). Implements the MCP spec by Anthropic (https://modelcontextprotocol.io, MIT License); AiNxt implementation is Apache-2.0."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# The canonical data-sensitivity class (ADR-012). A server-declared class is one of the three
+# §4.2 tri-signals; carried on the manifest and folded into the TOFU content hash so a stealth
+# downgrade is a reconnect diff. ainxt-types is a leaf (serde only) — the edge ainxt-mcp→ainxt-types
+# is ACYCLIC.
+ainxt-types = { path = "../ainxt-types" }
+# Cryptographic content hash for the TOFU manifest pin (§2.5). RustCrypto, MIT/Apache — already in
+# the workspace tree (ainxt-eventlog), so no new license surface. A SipHash/DefaultHasher would be
+# neither collision-resistant nor stable across builds and cannot back a tamper-evident pin.
+sha2 = "0.11"
+# Real wire encoding for the §2.1/§2.2 stdio JSON-RPC transport (`JsonRpcStdioTransport`) — the MCP
+# stdio wire format IS JSON-RPC 2.0, one message per line. Already a workspace dependency
+# (ainxt-tools); promoted here from dev-only because the transport itself (not just its tests) needs
+# it to serialize/deserialize real MCP protocol messages.
+serde_json = "1"
+
+[features]
+# Exposes `RawIoStdioTransport`/`JsonRpcStdioTransport::from_raw_io` to callers outside this crate —
+# real code, gated so it isn't part of the default public surface, only needed by an integration
+# test that proves the JSON-RPC wire framing over a real duplex socket independent of process
+# spawning (see tests/r16_stdio_transport.rs).
+test-util = []
+
+[dev-dependencies]
+# Self-dependency so `cargo test`'s integration-test binaries (a separate compilation unit from the
+# lib's own `#[cfg(test)]` unit tests) also get `test-util` enabled.
+ainxt-mcp = { path = ".", features = ["test-util"] }
+
+[[bin]]
+# Test-only fixture: a minimal, protocol-correct MCP stdio peer, spawned as a REAL child process by
+# `tests/r16_stdio_transport.rs` to prove `McpTransportConfig::Stdio::spawn` end-to-end — not a mock
+# in-process double, an actual separate OS process speaking the wire.
+name = "mcp_fixture_server"
+path = "tests/fixtures/mcp_fixture_server.rs"
+test = false
+doc = false
+
+[lints.rust]
+unsafe_code = "forbid"

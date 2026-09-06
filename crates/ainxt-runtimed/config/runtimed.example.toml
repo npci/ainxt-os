@@ -1,0 +1,118 @@
+# ainxt-runtimed — example configuration.
+#
+# Run:   ainxt-runtimed --config runtimed.example.toml
+# Check: ainxt-runtimed --config runtimed.example.toml --check
+#
+# Config is layered: pass --config multiple times (defaults → deployment → tenant …); a later
+# layer overrides an earlier one, merged deeply. The [server] and [session] sections are consumed by
+# the daemon; everything else is the RuntimeConfig.
+
+version = 1
+
+# ---- where the daemon binds ----
+[server]
+host = "127.0.0.1"
+port = 8080
+
+# ---- session manager (concurrency / backpressure spine) ----
+[session]
+max_sessions = 4096
+inbox_capacity = 8
+idle_ttl_ms = 300000
+turn_timeout_ms = 300000
+
+# ---- mandatory gates: SELECT an implementation; you can never select "none" ----
+# The OSS build ships: compliance="default", authz="rbac", audit="memory".
+# Selecting an enterprise gate this binary was not built with (pci-dss / ad-rbac / event-log) makes
+# the daemon REFUSE TO START — never a silent downgrade to a weaker gate.
+[gates]
+compliance = "default"
+authz = "rbac"
+audit = "memory"
+
+# ---- limits (defense in depth) ----
+[limits]
+max_agent_iters = 4
+stream_channel_bound = 64
+max_input_bytes = 1000000
+provider_max_retries = 2
+provider_backoff_base_ms = 20
+
+# ---- guardrails (SHIPPED DEFAULT: ON in audit/flag-and-proceed mode) ----
+# The shipped daemon prepends a base-defaults layer that turns these to "audit" (flag-and-proceed —
+# the redact-don't-block spirit; a flag is recorded to the audit trail and the turn PROCEEDS). Set a
+# rail to "off" to disable it, or "enforce" to hard-block (enforce CAN stop a turn — use deliberately).
+[guardrails]
+jailbreak = "audit"
+groundedness = "audit"
+toxicity = "audit"
+system_prompt_leak = "audit"
+citation = "audit"
+
+# ---- prompt-injection defense (SHIPPED DEFAULT: ON in enforce mode) ----
+# "enforce" is the real ADR-009 defense: untrusted RAG/connector content is scanned + fenced and a
+# tainted turn gates side-effecting tools. It never blocks a plain chat answer (a turn with no
+# untrusted input is never tainted). Set "audit" to detect+record only, or "off" to disable.
+[injection]
+mode = "enforce"
+
+# ---- providers ----
+# With no providers (or none that have a key), the daemon registers an OFFLINE provider so it runs
+# air-gapped. Real adapters wire in when an API key is present in the environment:
+#   ANTHROPIC_API_KEY  for kind = "anthropic"
+#   OPENAI_API_KEY     for kind = "open-ai-schema"
+#   GOOGLE_API_KEY     for kind = "gemini"
+# A "local" provider (vLLM/Ollama, usually keyless) is wired whenever it has a base_url.
+#
+# IMPORTANT — declaring a CLOUD provider is not enough to make it routable. An RBI outsourcing
+# register is installed as a NON-OVERRIDABLE, FAIL-CLOSED eligibility input: a cloud route is
+# excluded until a board-approved outsourcing arrangement is recorded for it via
+# POST /admin/outsourcing/register (route id = "outsourcing.cloud." + this provider's `id`).
+# Until then a turn is refused with `no eligible route: NoEligible(...)`. Signed on-prem/offline
+# routes are exempt. See the README section "Connecting a cloud model" and
+# docs/responsible_ai_outsourcing.md. `residency` defaults to 'in' — adopters outside India will
+# want to change it.
+#
+# [[models.providers]]
+# id = "claude-sonnet-4-6"
+# kind = "anthropic"
+# eligible = ["public", "internal", "confidential"]
+#
+# [[models.providers]]
+# id = "gpt-5.4"
+# kind = "open-ai-schema"
+# base_url = "https://api.openai.com/v1"
+# eligible = ["public", "internal"]
+#
+# [[models.providers]]
+# id = "gemini-2.5-flash"
+# kind = "gemini"
+# eligible = ["public", "internal"]
+#
+# [[models.providers]]
+# id = "qwen-in-house"
+# kind = "local"
+# base_url = "http://localhost:8000/v1"
+# eligible = ["public", "internal", "confidential", "regulated-payment", "pii"]  # in-house → all classes
+
+# ---- observability + cost attribution (GAP6 telemetry-cost-rollup) ----
+# `sink` selects the per-turn telemetry sink: "null" (unset default — the shipped daemon still maps
+# this to an in-process collector so it never serves blind), "memory" (same, explicit), or "otlp" (a
+# real OTLP/OpenTelemetry exporter — see [telemetry] otlp_endpoint/service_name below).
+# `pricing` is a per-model-id (== a [[models.providers]] `id`, since a provider adapter's cost-table key
+# is its configured model/id string) price table, in micro-currency PER MILLION TOKENS (integer money;
+# 1 unit = 1e-6 of the currency). Declaring ANY entry here overrides the daemon's shipped reference
+# price table for every model (a deployment's real negotiated/list rate always wins); an undeclared
+# model id still falls back to the shipped reference table (`ainxt-runtimed`'s `default_price_table`),
+# never a panic, never a silent hardcoded override of a rate you DID configure.
+#
+# [telemetry]
+# sink = "memory"
+#
+# [telemetry.pricing.claude-sonnet-4-6]
+# input_micros_per_million = 3000000
+# output_micros_per_million = 15000000
+#
+# [telemetry.pricing."gpt-5.4"]
+# input_micros_per_million = 2500000
+# output_micros_per_million = 10000000

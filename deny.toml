@@ -1,0 +1,84 @@
+# cargo-deny configuration — the dependency-license CI gate (ADR-028).
+# The build FAILS on any disallowed or unknown license, any copyleft dep,
+# any known security advisory, or any source outside the allowed registries.
+# CI: `cargo deny check` must pass before merge. This is Gate #0 enforcement in code.
+
+[licenses]
+version = 2
+# Permissive-only. Anything not in this list is denied (unknown license => deny).
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "Zlib",
+    # CDLA-Permissive-2.0: a permissive *data* license (Linux Foundation), NOT copyleft.
+    # Reviewed & allowed for `webpki-roots` (the Mozilla CA-root bundle rustls uses for TLS).
+    # Applies to certificate DATA only, not code. Legal to confirm at sign-off (Gate 1).
+    "CDLA-Permissive-2.0",
+    # Apache-2.0 WITH LLVM-exception: PERMISSIVE — Apache-2.0 plus an additional linking/patent
+    # grant, strictly MORE permissive than Apache-2.0 (never copyleft). Used by wasmtime + cranelift
+    # (the WASM plugin sandbox, ADR-024) and by some tree-sitter tooling. Reviewed & green-lit by the
+    # project owner 2026-07-20; legal to confirm the exception at Gate #0 sign-off.
+    "Apache-2.0 WITH LLVM-exception",
+    # CC0-1.0: public-domain-equivalent dedication (Creative Commons Zero v1.0). Strictly MORE
+    # permissive than MIT (no attribution/notice obligation at all) but grants no express patent
+    # rights, unlike Apache-2.0 -- that's the one tradeoff some orgs disallow it for. Used by
+    # `notify` (crates/ainxt-injection-svc's file-watcher dependency), a normal redistributed
+    # runtime dependency, not dev-only. Legal-reviewed and approved 2026-09-05 (see
+    # final_audit_response_os.md F-05) -- this addition closes that finding.
+    "CC0-1.0",
+]
+# No allow-osi/copyleft fallback. Confidence threshold high so fuzzy matches don't slip through.
+confidence-threshold = 0.93
+# NOTE: cargo-deny v0.20+ removed [licenses].deny — the allow-list above is EXHAUSTIVE, so any
+# license not listed (GPL/LGPL/AGPL/MPL/EPL/CDDL/BUSL/SSPL, or unknown) is DENIED by default.
+# Per-crate license clarifications require an explicit, reviewed exception (none by default).
+#
+# ── Dual/multi-license election record ──────────────────────────────────────────────────────────
+# The crates below carry multiple license options. We explicitly elect the permissive option only.
+# cargo-deny's allow-list above mechanically enforces this (BSL-1.0/LGPL not in the allow-list
+# so they are denied; cargo-deny picks the first allowed option from the SPDX OR expression).
+#
+# ryu v1.0.x — "Apache-2.0 OR BSL-1.0"
+#   Election: Apache-2.0 only. BSL-1.0 (Business Source License) is source-available / non-OSI
+#   and is NOT elected. The Apache-2.0 allow-list entry above enforces this mechanically.
+#   Reviewed: 2026-08-20. See THIRD_PARTY_INVENTORY.yaml entry for ryu.
+#
+# r-efi v6.x — "MIT OR Apache-2.0 OR LGPL-2.1-or-later"
+#   Election: MIT or Apache-2.0 only. LGPL-2.1-or-later is NOT elected.
+#   The MIT and Apache-2.0 allow-list entries above enforce this mechanically.
+#   Reviewed: 2026-08-20. See THIRD_PARTY_INVENTORY.yaml entry for r-efi.
+#
+# wasi v0.11.x — "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+#   Election: Apache-2.0 (with or without LLVM-exception) or MIT. All options are permissive.
+#   Reviewed: 2026-08-20.
+# ────────────────────────────────────────────────────────────────────────────────────────────────
+exceptions = []
+
+[bans]
+# Deny wildcard/unpinned deps; multiple-version drift is a warning to keep the tree lean.
+multiple-versions = "warn"
+wildcards = "deny"
+# ...but internal workspace path crates (ainxt-*) are legitimately version-less path deps.
+allow-wildcard-paths = true
+# Copyleft or source-available crates that must be shell-out-only, never a code dependency.
+deny = [
+    # { name = "openssl-src" },   # example: prefer rustls; add real bans as the tree grows
+]
+
+[advisories]
+version = 2
+# Fail on any known vulnerability (RUSTSEC) or unmaintained/yanked crate.
+yanked = "deny"
+ignore = []   # no advisory may be silently ignored without a reviewed, dated entry
+
+[sources]
+# Only crates.io (and explicitly-approved mirrors). No git/unknown sources by default.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

@@ -1,0 +1,18 @@
+[package]
+name = "ainxt-refresh"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — OAuth token refresh coordinator (Phase 2). Refreshes near-expiry access tokens under a DOUBLE-CHECKED distributed lock so 2,000 concurrent requests for the same (user, connector) trigger exactly ONE token-endpoint call (no thundering herd, no refresh-token race). Lock is a seam (in-memory default; Redis plugs in); the network refresh is a seam too (the connector transport executes it)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-token = { path = "../ainxt-token" }
+ainxt-oauth = { path = "../ainxt-oauth" }
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

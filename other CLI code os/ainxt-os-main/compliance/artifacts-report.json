@@ -1,0 +1,10 @@
+{
+  "generated": "2026-08-27 12:34:06Z",
+  "view": "artifacts_report",
+  "rule_prefixes": [
+    "ARTIFACT.",
+    "AIARTIFACT."
+  ],
+  "count": 0,
+  "findings": []
+}

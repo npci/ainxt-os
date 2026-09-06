@@ -1,0 +1,37 @@
+[package]
+name = "ainxt-cli"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the HEADLESS CLI (Phase 4). A thin, static, clean-room binary (`ainxt`) over the Rust SDK that embeds the runtime in-process — for SSH/air-gapped boxes and CI/CD, NOT an interactive TUI. One-shot `run` with stdin support, --print (final text) and --json (NDJSON event stream) output, --continue (session resume), --data-class, and deterministic exit codes. Ships an offline provider so it runs with no network; production wires real providers from RuntimeConfig."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "ainxt"
+path = "src/main.rs"
+
+[lib]
+name = "ainxt_cli"
+path = "src/lib.rs"
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-session = { path = "../ainxt-session" }
+ainxt-client = { path = "../ainxt-client" }
+ainxt-admission = { path = "../ainxt-admission" }
+ainxt-governance = { path = "../ainxt-governance" }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "sync"] }
+serde_json = "1"
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
+futures-util = { version = "0.3.7", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+ainxt-scenario = { path = "../ainxt-scenario" }
+
+[lints.rust]
+unsafe_code = "forbid"

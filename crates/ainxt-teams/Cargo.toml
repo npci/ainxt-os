@@ -1,0 +1,32 @@
+[package]
+name = "ainxt-teams"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — hierarchical agent teams + long-horizon program scheduling (LOOP_AND_AGENT_TEAMS.md, LONG_HORIZON_PROGRAMS.md/ADR-027). Real, pure-Rust core: a Role (id, capabilities, model-tier); a typed HandoffContract validated at each handoff (a missing required input is REFUSED, never silently assumed); a TaskGraph with deterministic Kahn topological ordering + cycle/self-dep/dangling-dep detection; recursive sub-agent cost roll-up (child costs sum into the parent Run's aggregate — closing the per-agent-budget-bypass loophole) with a hard hierarchy depth cap; and bulkhead failure isolation (a failed task blocks only its transitive dependents, never the whole graph or independent branches). Execution is driven through an injected step seam, so the scheduler is deterministic and exhaustively testable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+# The tier-3 "three non-substitutable proofs" gate (LOOP §7) reuses the SAME deterministic combinator
+# and the already-real, non-fabricated offline adversarial Breaker ainxt-planner built for the program
+# altitude (ADR-027 §6) — LONG_HORIZON_PROGRAMS.md §6 discipline: "no new verification code, just new
+# scopes". ainxt-planner does not depend on ainxt-teams, so this edge is acyclic.
+ainxt-planner = { path = "../ainxt-planner" }
+# GAP-AUDIT loop-teams-longhorizon (adaptive-depth-team): role→model-tier routing reuses the SAME
+# adaptive-depth mechanism the served prompt path already closed a gap on (ComplexityClassifier /
+# HeuristicComplexity / ReasoningDepth::tier() — see `ainxt-prompt`'s `compile_turn_adaptive` and its
+# served call sites) rather than inventing a second heuristic. ainxt-prompt depends only on
+# ainxt-types + ainxt-eval (which itself depends on ainxt-runtime/ainxt-protocol/ainxt-types, none of
+# which depend on ainxt-teams or ainxt-planner), so this edge is acyclic.
+ainxt-prompt = { path = "../ainxt-prompt" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

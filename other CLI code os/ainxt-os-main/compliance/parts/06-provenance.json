@@ -1,0 +1,39 @@
+{
+  "module": "provenance",
+  "findings": [],
+  "facts": {
+    "vendored_trees": [],
+    "vendored_file_count": 0,
+    "upstream_matches": []
+  },
+  "coverage": [
+    {
+      "capability": "provenance_review",
+      "state": "COVERED",
+      "detail": "0 vendored tree(s) covering 0 file(s) assessed",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "vendored_tree_review",
+      "state": "COVERED",
+      "detail": "0 vendored tree(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "vendored_trees": 0,
+    "vendored_files": 0
+  },
+  "limitations": [
+    "Provenance is established from what is in the tree: license files, copyright headers, derivation comments and byte-identical matches against other copies in the same repository.  Without network access the auditor cannot compare against real upstream releases, so a file copied from a project that is not also vendored here will only be caught if it carries a marker or a foreign copyright line."
+  ],
+  "notes": []
+}

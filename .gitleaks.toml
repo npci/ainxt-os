@@ -1,0 +1,31 @@
+# gitleaks configuration for AiNxt OS.
+#
+# This repository deliberately contains fake credentials as TEST FIXTURES: they are the inputs
+# that prove the redaction (`ainxt-compliance`) and egress-scanning (`ainxt-injection`) code
+# actually catches secrets. Allowlisting them precisely keeps the gate on; deleting the gate, or
+# deleting the fixtures, would both be worse.
+title = "AiNxt OS"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Deliberate test fixtures and generated build output"
+
+paths = [
+  '''^target/''',
+  '''^docs/vendor/''',          # vendored minified JS (mermaid, marked) - upstream, unmodified
+]
+
+regexes = [
+  # AWS's own publicly-documented example access key, used in redaction tests.
+  '''AKIAIOSFODNN7EXAMPLE''',
+  # Obviously-fake OpenAI-shaped keys used as scanner input in tests.
+  '''sk-abcd[0-9a-zA-Z]*''',
+  '''sk-abcdef1234567890ABCDEFghij''',
+  # Test-only HS256 secrets in ainxt-server / ainxt-console unit tests.
+  '''super-secret-hs256-key''',
+  '''s3cr3t''',
+  '''test-secret-for-control''',
+  '''deadbeef''',
+]
