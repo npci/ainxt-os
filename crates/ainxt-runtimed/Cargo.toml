@@ -187,7 +187,7 @@ ainxt-governance = { path = "../ainxt-governance" }
 # GAP-AUDIT tooling-mcp-plugins-routing — also binds a real HTTP server directly over
 # `ainxt_server::saga_router` so the saga-served proving test can drive a real HTTP request, mirroring
 # the `serve_router(harness_router(...))` pattern `ainxt-server`'s own tests use.
-axum = "0.7"
+axum = "0.8"
 # GAP-FIX context-fabric proving test — a raw, hand-rolled mock OpenAI-schema upstream (no axum dep
 # needed) that captures the exact outbound prompt a served turn sends to the model, so the test can
 # prove fabric-grounded content actually reached the model-call boundary through the REAL --surface

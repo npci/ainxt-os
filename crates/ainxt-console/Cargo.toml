@@ -15,7 +15,7 @@ path = "src/main.rs"
 
 [dependencies]
 # Same HTTP stack the daemon already uses, so the console adds no new transport dependency.
-axum = "0.7"
+axum = "0.8"
 tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "net", "process", "io-util", "fs", "time", "sync", "signal"] }
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
 serde = { version = "1", features = ["derive"] }
