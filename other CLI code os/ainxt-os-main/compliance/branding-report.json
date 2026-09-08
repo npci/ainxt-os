@@ -1,0 +1,236 @@
+{
+  "generated": "2026-08-27 12:34:06Z",
+  "view": "branding_report",
+  "rule_prefixes": [
+    "BRAND."
+  ],
+  "count": 6,
+  "findings": [
+    {
+      "finding_id": "5cffefd5c5cc2ef7",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "REVIEW",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-payments/src/boundary.rs",
+      "line": 72,
+      "evidence": "\"nach.npci\",",
+      "evidence_sha": "1caec13bb83aa610",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    },
+    {
+      "finding_id": "d6fe4825b76bbb74",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "REVIEW",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-payments/src/boundary.rs",
+      "line": 75,
+      "evidence": "\"settlement.npci\",",
+      "evidence_sha": "bf940c12762be7fb",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    },
+    {
+      "finding_id": "8828c4db81bbf23b",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "REVIEW",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-payments/src/boundary.rs",
+      "line": 76,
+      "evidence": "\"netting.npci\",",
+      "evidence_sha": "b40005b3c0d39511",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    },
+    {
+      "finding_id": "a2d81e3a3d6e50fd",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "REVIEW",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-runtimed/src/lib.rs",
+      "line": 1474,
+      "evidence": "/// inside the reserved settlement perimeter (e.g. `\"x402.pay\"`, `\"nach.npci.execute\"`) matches",
+      "evidence_sha": "341abd5c81cd39de",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    },
+    {
+      "finding_id": "efc82e8206f28184",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "WARN",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-payments/src/boundary.rs",
+      "line": 1196,
+      "evidence": "// The shipped NACH pattern is `\"nach.npci\"` (see `default_reserved`), so the host has to",
+      "evidence_sha": "7a7223acfdc9bb8a",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "severity_class_used": "test_fixture",
+        "severity_class_reason": "line falls inside an inline #[cfg(test)] region; severity resolved as test_fixture while the file itself remains first_party",
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    },
+    {
+      "finding_id": "56294eef8c5b050f",
+      "rule_id": "BRAND.ORG_ACRONYM",
+      "module": "textscan",
+      "severity": "WARN",
+      "status": "ACCEPTED",
+      "title": "Organisation acronym appears in source",
+      "reason": "The open-source distribution must be organisation-neutral.  A brand acronym in shipped source either leaks an internal deployment assumption or asserts a trademark the OSS project cannot license to downstream users.",
+      "path": "crates/ainxt-payments/src/boundary.rs",
+      "line": 1200,
+      "evidence": "assert!(p.contains(\"https://nach.npci.example.internal/mandate\"));",
+      "evidence_sha": "0555a0385a14acb0",
+      "classification": "TRADEMARK_BRAND",
+      "recommendation": "Replace with a generic product or configuration name.  Where the reference is legitimate legal attribution (LICENSE, NOTICE, copyright headers), classify it PUBLIC_ATTRIBUTION and keep it -- do not strip attribution required by law or by an upstream license.  Suggested: use the configured product name, or a neutral term such as \"enterprise\"",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "10",
+        "21",
+        "28"
+      ],
+      "detail": {
+        "group": "branding",
+        "path_class": "first_party",
+        "matched_value_length": 4,
+        "severity_class_used": "test_fixture",
+        "severity_class_reason": "line falls inside an inline #[cfg(test)] region; severity resolved as test_fixture while the file itself remains first_party",
+        "suggested_replacement": "use the configured product name, or a neutral term such as \"enterprise\""
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+      }
+    }
+  ]
+}

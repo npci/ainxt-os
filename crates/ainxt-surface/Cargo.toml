@@ -1,0 +1,36 @@
+[package]
+name = "ainxt-surface"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — profile → runtime binding (Phase 3). Turns a resolved Surface Profile + a Principal + a user turn into a TurnPlan the engine can execute: RBAC admission (role floor + required caps), data-class ceiling (ADR-012), effective capabilities = profile ∩ principal (never escalates), autonomy → side-effect/approval policy, model routing inputs, reasoning depth (BE, adaptive or fixed) → tier, numeric/format policy, retrieval scope, and the assembled system prompt (persona → behavioral skills → guard prompts) + ## Context. Pure + testable; the composition binary applies the plan to the engine."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-profile = { path = "../ainxt-profile" }
+ainxt-skill = { path = "../ainxt-skill" }
+ainxt-prompt = { path = "../ainxt-prompt" }
+# The engine's request/event wire types — so the binding can produce the concrete `Request` the
+# composition binary feeds the engine (the profile→runtime consumption seam). `ainxt-protocol` is a
+# leaf wire crate (types + serde only), so this is not a runtime/engine dependency.
+ainxt-protocol = { path = "../ainxt-protocol" }
+# The Phase-3 artifact (document-generation) runtime. The surface layer assembles ONE
+# `ArtifactRuntime` at startup (built-in renderers + the deployment PCI scanner) and routes every
+# Chat/Buddy/SDLC document-output through it — audit-and-proceed, incl. the binary-renderer byte path
+# (gap SURF-13/14). `ainxt-artifact` is a pure IR+renderer crate (no engine/network), so this stays a
+# leaf, `Send + Sync`-shareable dependency.
+ainxt-artifact = { path = "../ainxt-artifact" }
+
+# Dev-only: the P3 DoD acceptance matrix drives every P3 subsystem, so it pulls them in as test deps
+# (they are NOT production dependencies of the binding).
+[dev-dependencies]
+ainxt-scenario = { path = "../ainxt-scenario" }
+ainxt-edit = { path = "../ainxt-edit" }
+ainxt-judge = { path = "../ainxt-judge" }
+
+[lints.rust]
+unsafe_code = "forbid"

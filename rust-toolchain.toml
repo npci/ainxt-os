@@ -1,0 +1,12 @@
+[toolchain]
+# Pinned so every contributor and CI runner compiles with the same toolchain.
+# Without this file the build used whatever `rustc` happened to be installed, which
+# is what `BUILD.NOT_REPRODUCIBLE` was reporting.
+#
+# 1.97.1 is the toolchain this workspace has actually been built and tested with:
+# `cargo check -p ainxt-runtimed` clean, and `cargo test --workspace` at 634 suites.
+# The workspace's own floor is `rust-version = "1.94"` in Cargo.toml; this pin sits
+# above it. Bump one point release at a time and re-run the full suite.
+channel = "1.97.1"
+components = ["rustfmt", "clippy"]
+profile = "default"

@@ -1,0 +1,27 @@
+[package]
+name = "ainxt-eventlog"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — durable append-only, tamper-evident event log (JSONL). Data-plane persistence for sessions + audit (two-tier per ADR-001; hash-chain per ADR-023)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Cryptographic hash for the tamper-evident chain (RustCrypto, MIT/Apache; already in the tree).
+sha2 = "0.11"
+# FI-10: the chain hash is computed through the crypto-agility policy (GovernedHasher), not a direct
+# sha2/fnv call — so a Forbidden/expired hash primitive is un-usable by construction (ADR-023).
+# Acyclic: ainxt-cryptoagility has no ainxt-* deps.
+ainxt-cryptoagility = { path = "../ainxt-cryptoagility" }
+# LOOP-06: back the planner's durable-persistence EventSink seam with this hash-chained log so a
+# Program's ProgramEvents survive restart/model-swap (ADR-027 §4). Acyclic: ainxt-planner depends
+# only on ainxt-types (optional, leaf) — it never reaches back to ainxt-eventlog.
+ainxt-planner = { path = "../ainxt-planner" }
+
+[lints.rust]
+unsafe_code = "forbid"

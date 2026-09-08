@@ -1,0 +1,32 @@
+{
+  "module": "artifacts",
+  "findings": [],
+  "facts": {
+    "artifacts": [],
+    "total_bytes": 0,
+    "counts": {
+      "binaries": 0,
+      "archives": 0
+    }
+  },
+  "coverage": [
+    {
+      "capability": "artifact_inventory",
+      "state": "COVERED",
+      "detail": "0 artifact(s) totalling 0.0 MiB inventoried and hashed",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "artifacts": 0,
+    "total_mib": 0.0
+  },
+  "limitations": [
+    "Binary contents are assessed from magic bytes and embedded strings only.  The auditor does not disassemble, and cannot enumerate the libraries statically linked into a binary.  A committed binary's true third-party composition can only be established from its build."
+  ],
+  "notes": []
+}

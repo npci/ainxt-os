@@ -1,0 +1,38 @@
+[package]
+name = "ainxt-identity"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — agent workload identity + on-behalf-of delegation with confused-deputy defense (AGENT_IDENTITY_AND_PAYMENT_BOUNDARY.md, ADR-022 §12/§15, Pass-5 [AI]). Real, pure, deterministic core: a per-Run AgentId (workload identity) and an Actor (Human root of authority | Agent workload); a Delegation hop {delegator, delegate, scope: capability set, not_after: logical time}; a DelegationChain user->agent->sub-agent; verify(chain, now) that is valid IFF the root is an accountable human, the chain is connected (each delegate is the next delegator), acyclic, every hop's scope narrows (subset of its delegator's — widening is REJECTED naming the offending hop and capabilities), every hop's authority window narrows, and no hop is expired at `now`; an effective_scope that is the intersection of all hops (capped by the root); and can(chain, capability, now) that authorizes only a capability inside the effective scope of a fully-valid chain. No clock, no rng — the caller passes logical time — so authority decisions are reproducible and exhaustively testable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable delegation credentials; ainxt-types by
+# path for the shared Principal (the human root of a delegation chain is the JWT principal).
+# NOTHING copyleft. No clock/rand crate enters the supply-chain surface — logical time is a
+# caller-supplied parameter and the authority/delegation core is pure so decisions are
+# deterministic. `sha2` (RustCrypto, MIT/Apache — the same vetted primitive already used by
+# ainxt-eventlog/ainxt-eval/ainxt-cryptoagility/ainxt-server) backs the §13 transparency-log
+# Merkle hash + Signed Tree Head HMAC with real cryptographic strength (ADR-022 §13/§16) — no
+# new dependency *category* enters the tree, just the one hash primitive already governed by
+# the workspace's `cargo deny` license gate.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+sha2 = "0.11"
+# The §4.6 graduated-tripwire remediation seam (pure directives) this crate binds to the REAL
+# identity control-plane + incident register. Acyclic: neither ainxt-payments nor ainxt-incident
+# depends on ainxt-identity (payments depends on serde only; incident does not depend on identity).
+ainxt-payments = { path = "../ainxt-payments" }
+ainxt-incident = { path = "../ainxt-incident" }
+
+[dev-dependencies]
+serde_json = "1"
+# Cross-crate integration proof only (§14 actor-of-record lands on the execution Event Log). A
+# dev-dependency, so the production dep graph stays acyclic and identity does not depend on eventlog.
+ainxt-eventlog = { path = "../ainxt-eventlog" }
+
+[lints.rust]
+unsafe_code = "forbid"

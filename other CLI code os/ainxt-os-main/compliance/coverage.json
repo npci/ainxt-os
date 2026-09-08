@@ -1,0 +1,292 @@
+{
+  "generated": "2026-08-27 12:34:06Z",
+  "required_for_release": [
+    "license_detection",
+    "dependency_enumeration",
+    "secret_detection",
+    "branding_detection",
+    "provenance_review",
+    "artifact_inventory",
+    "sbom_generation"
+  ],
+  "desired": [
+    "vulnerability_scan",
+    "git_history_secret_scan",
+    "container_scan"
+  ],
+  "observed": [
+    {
+      "capability": "ai_artifact_review",
+      "state": "COVERED",
+      "detail": "0 weight, 0 tokenizer, 0 dataset file(s) found",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "artifact_inventory",
+      "state": "COVERED",
+      "detail": "0 artifact(s) totalling 0.0 MiB inventoried and hashed",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "supply_chain_review",
+      "state": "COVERED",
+      "detail": "0 build/install/CI file(s) scanned with 11 supply-chain rule(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "build_reproducibility",
+      "state": "COVERED",
+      "detail": "verdict: PASS",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "dependency_enumeration",
+      "state": "COVERED",
+      "detail": "328 components across 1 ecosystem(s) from 1 manifest/lockfile(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "transitive_license_review",
+      "state": "COVERED",
+      "detail": "lockfiles present for: cargo",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "repository_inventory",
+      "state": "COVERED",
+      "detail": "849 files across 1 root(s); 6 language(s), 1 ecosystem(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "history_review",
+      "state": "MISSING",
+      "detail": "0 commit(s) across 0 git root(s) examined",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "git_history_secret_scan",
+      "state": "MISSING",
+      "detail": "gitleaks 8.30.1 is installed but every invocation failed: no git root to scan",
+      "tool": "gitleaks",
+      "tool_version": "8.30.1",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "governance_review",
+      "state": "COVERED",
+      "detail": "6 required file(s) present",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "license_detection",
+      "state": "COVERED",
+      "detail": "2 license file(s) found, 2 identified, 0 unidentified; bundled SPDX snapshot 2026-08-14",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "spdx-snapshot 2026-08-14",
+      "database_timestamp": "2026-08-14",
+      "database_age_days": null
+    },
+    {
+      "capability": "header_review",
+      "state": "COVERED",
+      "detail": "247 source files checked for SPDX headers",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "provenance_review",
+      "state": "COVERED",
+      "detail": "0 vendored tree(s) covering 0 file(s) assessed",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "vendored_tree_review",
+      "state": "COVERED",
+      "detail": "0 vendored tree(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "self_verification",
+      "state": "COVERED",
+      "detail": "35 engine source files checked against 10 forbidden literals; policy coherence validated",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "branding_detection",
+      "state": "COVERED",
+      "detail": "10 rule(s) from policy/patterns/branding.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "portability_coupling_detection",
+      "state": "COVERED",
+      "detail": "1 rule(s) from policy/patterns/coupling.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "configuration_review",
+      "state": "COVERED",
+      "detail": "7 rule(s) from policy/patterns/endpoints.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "internal_data_detection",
+      "state": "COVERED",
+      "detail": "9 rule(s) from policy/patterns/internal_data.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "legal_marker_detection",
+      "state": "COVERED",
+      "detail": "6 rule(s) from policy/patterns/legal_markers.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "model_hardcoding_detection",
+      "state": "COVERED",
+      "detail": "7 rule(s) from policy/patterns/models.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "provenance_review",
+      "state": "COVERED",
+      "detail": "7 rule(s) from policy/patterns/provenance_markers.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "secret_detection",
+      "state": "COVERED",
+      "detail": "15 rule(s) from policy/patterns/secrets.yaml applied to 849 files",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "vulnerability_scan",
+      "state": "COVERED",
+      "detail": "trivy scanned an SBOM of 328 enumerated component(s) using a local database from 2026-08-26 13:02:19.845522405 +0000 UTC (1.2 days old)",
+      "tool": "trivy",
+      "tool_version": "Version: 0.70.0",
+      "database_version": "",
+      "database_timestamp": "2026-08-26 13:02:19.845522405 +0000 UTC",
+      "database_age_days": 1.21
+    },
+    {
+      "capability": "sbom_generation",
+      "state": "COVERED",
+      "detail": "328 component(s) and 0 artifact(s) in: sbom.cdx.json, sbom.spdx.json",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "missing_required": [],
+  "degraded": [
+    {
+      "capability": "container_scan",
+      "state": "MISSING",
+      "detail": "not exercised in this run; policy treats it as desirable, not required",
+      "tool": "",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "git_history_secret_scan",
+      "state": "MISSING",
+      "detail": "gitleaks 8.30.1 is installed but every invocation failed: no git root to scan",
+      "tool": "gitleaks",
+      "tool_version": "8.30.1",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ]
+}

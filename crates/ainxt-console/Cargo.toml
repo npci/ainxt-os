@@ -1,0 +1,29 @@
+[package]
+name = "ainxt-console"
+version = "0.0.0"
+publish = false
+description = "AiNxt OS Console — the thin, self-service layer over AiNxt OS. A single binary (`ainxt-os`) that supervises ainxt-runtimed, serves a built-in chat window for quick testing, and lets a non-technical operator configure a provider and toggles without editing TOML. It is the reference implementation of DOCKING.md's authenticating-gateway contract: the browser NEVER asserts its own identity — the console mints a short-lived HS256 token and runs AiNxt OS in jwt-sso mode."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "ainxt-os"
+path = "src/main.rs"
+
+[dependencies]
+# Same HTTP stack the daemon already uses, so the console adds no new transport dependency.
+axum = "0.7"
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "net", "process", "io-util", "fs", "time", "sync", "signal"] }
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+# Format-PRESERVING edits: Settings must not strip the shipped example config's comments,
+# which are the most useful documentation in the repo. Already in the tree via `toml`.
+toml_edit = "0.22"
+# HMAC-SHA256 for minting the gateway's own JWT. sha2 is already used by eight crates in this
+# workspace; HMAC is implemented locally (25 lines, RFC 2104) rather than adding a new dependency.
+sha2 = "0.11"

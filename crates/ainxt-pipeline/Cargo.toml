@@ -1,0 +1,33 @@
+[package]
+name = "ainxt-pipeline"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the Code-Review Pipeline (Phase 3, Code/SDLC profiles). The ONE gate every code edit passes through: a typed PipelineOutcome (Complete/Capped/Blocked) a renderer has NO path to bypass (the commit affordance is only constructible from a Complete), risk-scaled 12-stage selection (Tier 0-3), a deterministic SAST stage whose critical/high findings HARD-BLOCK regardless of the Confidence Score, a fully-broken-down Confidence Score, a Commit Gate that forces HITL on critical-path edits, a bounded self-heal loop with a thrash/stuck detector and content-hash re-entry, and a SHA-256 hash-chained per-edit Event-Log journal for regulator replay. Deterministic pure core; real tools/LSP/LLM-judge are trait seams. Clean-room throughout."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Cryptographic hash for the per-edit tamper-evident pipeline journal (RustCrypto, MIT/Apache;
+# already in the workspace tree via ainxt-eventlog).
+sha2 = "0.11"
+# Edit-ladder rung (confidence rung-penalty) + code-derived blast radius, cross-file semantic ops,
+# multi-file atomic apply, architecture-boundary + regression graph checks.
+ainxt-semantic = { path = "../ainxt-semantic" }
+# Judge panel / LLM-Review split / stuck detector, generalized here into the pipeline gate.
+ainxt-judge = { path = "../ainxt-judge" }
+# The structured-patch rung (rung 3) + full-file import-restore / field-rename guards, wired into the
+# edit ladder and the guarded semantic-apply path (the pipeline is where these compose — the design's
+# "the pipeline wires them together").
+ainxt-edit = { path = "../ainxt-edit" }
+# The shared capability-based Principal (ADR-012) for the route-ready `EditEngine::run_turn_for`
+# entrypoint (`POST /v1/edit`): one authenticated Principal gates every non-chat route exactly like
+# the artifact / nl2sql / graph surfaces. Leaf types crate (serde only) — acyclic, permissive-only.
+ainxt-types = { path = "../ainxt-types" }
+
+[lints.rust]
+unsafe_code = "forbid"

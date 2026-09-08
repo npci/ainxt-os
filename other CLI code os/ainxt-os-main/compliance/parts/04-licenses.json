@@ -1,0 +1,82 @@
+{
+  "module": "licenses",
+  "findings": [],
+  "facts": {
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "basename": "LICENSE",
+        "path_class": "first_party",
+        "bytes": 11368,
+        "spdx_id": "Apache-2.0",
+        "identification": "matched marker phrase 'apache license'",
+        "root": "(root)",
+        "is_notice": false,
+        "at_root": true
+      },
+      {
+        "path": "NOTICE",
+        "basename": "NOTICE",
+        "path_class": "first_party",
+        "bytes": 4115,
+        "spdx_id": "",
+        "identification": "no bundled fingerprint matched this text",
+        "root": "(root)",
+        "is_notice": true,
+        "at_root": true
+      }
+    ],
+    "root_license": {
+      "path": "LICENSE",
+      "basename": "LICENSE",
+      "path_class": "first_party",
+      "bytes": 11368,
+      "spdx_id": "Apache-2.0",
+      "identification": "matched marker phrase 'apache license'",
+      "root": "(root)",
+      "is_notice": false,
+      "at_root": true
+    },
+    "fingerprint_snapshot_date": "2026-08-14",
+    "spdx_snapshot_date": "2026-08-14",
+    "header_coverage": {
+      "checked": 247,
+      "with_correct_header": 247,
+      "missing": 0,
+      "declaring_other": 0
+    }
+  },
+  "coverage": [
+    {
+      "capability": "license_detection",
+      "state": "COVERED",
+      "detail": "2 license file(s) found, 2 identified, 0 unidentified; bundled SPDX snapshot 2026-08-14",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "spdx-snapshot 2026-08-14",
+      "database_timestamp": "2026-08-14",
+      "database_age_days": null
+    },
+    {
+      "capability": "header_review",
+      "state": "COVERED",
+      "detail": "247 source files checked for SPDX headers",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "license_files": 2,
+    "unidentified": 0,
+    "headers_checked": 247,
+    "headers_missing": 0
+  },
+  "limitations": [
+    "License identification uses distinctive marker phrases from a bundled snapshot, not full text comparison.  A license text modified in a region not covered by a marker phrase will still be identified as the base license; the length check above is a partial mitigation, not a guarantee.",
+    "The bundled SPDX snapshot (2026-08-14) covers 116 identifiers, not the complete SPDX list.  An identifier outside it is treated as unrecognised."
+  ],
+  "notes": []
+}

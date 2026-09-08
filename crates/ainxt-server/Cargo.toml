@@ -1,0 +1,140 @@
+[package]
+name = "ainxt-server"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — network transport (axum): exposes the protocol over HTTP + SSE (ADR-005)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-session = { path = "../ainxt-session" }
+# GAP-FIX tooling-mcp-plugins-routing — the served MCP TOFU re-approval admin routes
+# (`GET /admin/mcp/reapproval`, `POST /admin/mcp/approve`) act on the SAME live
+# `ainxt_mcp::McpRegistry`/`PinStore` the daemon's boot-time MCP registration consulted. ainxt-mcp's
+# deps are ainxt-types + serde + sha2 + serde_json (none depend on ainxt-server) — ACYCLIC.
+ainxt-mcp = { path = "../ainxt-mcp" }
+# Surface wiring (built-but-not-wired capabilities mounted onto the live transport):
+ainxt-graph = { path = "../ainxt-graph" }               # SURF-10: RBAC-scoped /graph traversal
+ainxt-memory = { path = "../ainxt-memory" }             # MEM-10: governed memory (consent/export/delete)
+ainxt-admission = { path = "../ainxt-admission" }           # HARN-01: invoke a published harness by id
+ainxt-token = { path = "../ainxt-token" }               # CONN-01: SqlTokenBackend seam behind the TokenVault
+ainxt-connector-http = { path = "../ainxt-connector-http" } # CONN-03: connector OAuth routes
+ainxt-serving = { path = "../ainxt-serving" }           # SRV-01: model.infer node-level admission gate (acyclic — ainxt-serving deps = serde + ainxt-types)
+ainxt-eventlog = { path = "../ainxt-eventlog" }         # R3 TRANSP: tamper-evident hash-chain event log = daemon audit trail + resume backing (acyclic)
+# GAP-FIX misc-decisions — `GET /admin/crypto/status` resolves the SAME `default_hash_policy()` the
+# event log's `GovernedChainHasher` is built from (ainxt-cryptoagility has zero internal-crate deps —
+# ACYCLIC; already a transitive dep via ainxt-eventlog, declared directly here so this crate's code
+# can name its types).
+ainxt-cryptoagility = { path = "../ainxt-cryptoagility" }
+ainxt-nl2sql = { path = "../ainxt-nl2sql" }             # R3 DATA: safe NL→SQL validate_and_compile on /v1/query_ledger (acyclic — deps = ainxt-types)
+ainxt-replay = { path = "../ainxt-replay" }             # R3 DATA: LinearRecord/EventKind/TurnRole to drive SessionManager::apply_interaction (acyclic — deps = ainxt-types)
+ainxt-artifact = { path = "../ainxt-artifact" }         # R6 DATA: RBAC-scoped document-generation surface on /v1/artifact (acyclic — deps = ainxt-types)
+ainxt-client = { path = "../ainxt-client" }             # HARN-02: run a published harness via the SDK bridge (acyclic — ainxt-client does NOT depend on ainxt-server)
+ainxt-tools = { path = "../ainxt-tools" }               # HARN-02: the engine tool path a CapabilityInvoker dispatches through (acyclic)
+ainxt-telemetry = { path = "../ainxt-telemetry" }       # R7 OBS: per-turn telemetry + cost attribution on the shipped path (acyclic — deps = ainxt-types + serde)
+# R8 EDIT — the semantic Code-Review Pipeline gate. The daemon mounts the RBAC-scoped edit surface at
+# POST /v1/edit over EditEngine::run_turn_for (fail-closed on CAP_EDIT_APPLY). ainxt-pipeline's deps are
+# ainxt-semantic + ainxt-judge + ainxt-edit + ainxt-types (none depend on ainxt-server), so depending on
+# it from the transport crate is ACYCLIC.
+ainxt-pipeline = { path = "../ainxt-pipeline" }
+# The WorkspaceSink seam + the offline MemorySink the /v1/edit route hands the pipeline per turn.
+# ainxt-semantic is LOWER-level than ainxt-pipeline (which already depends on it) — acyclic.
+ainxt-semantic = { path = "../ainxt-semantic" }
+# R7 HARN — the git-native pre-receive gate primitives (publish/gate_push/PublishRequest). ainxt-admission
+# (already a dep) implements ComplianceBackedPrereceiveGate over this trait; depending on ainxt-governance
+# directly is ACYCLIC (it does NOT depend on ainxt-server).
+ainxt-governance = { path = "../ainxt-governance" }
+# GAP-CLOSE os-workforce (gap6-workforce-governance-gate) — the served POST /v1/workforce/roles route
+# holds the composition root's real WorkforceSurface as `Arc<dyn ainxt_workforce::studio::GovernedWorkforce>`
+# (a minimal cross-crate seam, the SAME "type-adapter at the crate boundary" pattern this crate already
+# uses for ainxt-admission::StepExecutor / ainxt-client::CapabilityInvoker / ainxt-mcp::AuthProvider /
+# ainxt-mcp::PinStore). ainxt-workforce depends only on ainxt-types + ainxt-governance (the latter
+# already a dep, above) — it does NOT depend on ainxt-server, so this is ACYCLIC.
+ainxt-workforce = { path = "../ainxt-workforce" }
+# R9 REGFI — the regulated-FI control organs the shipped daemon mounts as HTTP routes:
+#  * ainxt-lifecycle — the §6 legal-hold-aware retention RecordStore driving the redact-with-attestation
+#    right-to-erasure (deps = ainxt-types + ainxt-memory + ainxt-eventlog + ainxt-incident — none depend on
+#    ainxt-server, so this is ACYCLIC).
+#  * ainxt-incident — the tamper-evident IncidentRegister driving the BSA §63 evidentiary export + the
+#    §8.3 read-only supervisory auditor listing (deps = ainxt-types + serde — ACYCLIC).
+ainxt-lifecycle = { path = "../ainxt-lifecycle" }
+ainxt-incident = { path = "../ainxt-incident" }
+# GAP-FIX eval-tester-scenarios — the online release-controller's read-only status accessor
+# (`AssembledFull::release_controller_status`) was built specifically "for a status route/telemetry
+# consumer" (its own doc comment) but no such route existed anywhere. ainxt-quality's deps are serde +
+# ainxt-types + ainxt-eval + ainxt-canary (none depend on ainxt-server), so this is ACYCLIC.
+# GAP-FIX regulated-fi-responsible-lifecycle — the FI-03 outsourcing register the admin route
+# (`POST /admin/outsourcing/register`) mutates through the SAME shared handle
+# `ModelRouter::outsourcing_register_handle` hands out. ainxt-responsibleai's deps are ainxt-types +
+# serde + sha2 (none depend on ainxt-server), so this is ACYCLIC.
+ainxt-responsibleai = { path = "../ainxt-responsibleai" }
+ainxt-quality = { path = "../ainxt-quality" }
+# GAP-FIX identity-payments — the served admin kill-switch/revocation routes
+# (POST /admin/killswitch/{pull,release}, POST /admin/revoke/{run,user}) mutate the SAME
+# `Arc<Mutex<ControlPlane>>` every dispatch admission on the composition root already consults.
+# ainxt-identity's deps are ainxt-types + serde + sha2 + ainxt-payments + ainxt-incident (none depend
+# on ainxt-server), so this is ACYCLIC.
+ainxt-identity = { path = "../ainxt-identity" }
+# GAP-FIX ainxt-retrieval (gap6-retrieval-maintenance, item 3) — the served admin break-glass RLS
+# override route (`POST /admin/rls/break-glass`) queries the SAME `Arc<ainxt_retrieval::Corpus>` the
+# composition root's served governed Context-Fabric compile path builds
+# (`ainxt_runtimed::governed::retrieval_corpus_for_scope`), via `rls::RowFilter::break_glass_override`.
+# ainxt-retrieval's deps are ainxt-types + serde + serde_json + ainxt-nl2sql + ainxt-synthesis +
+# ainxt-prompt (none depend on ainxt-server), so this is ACYCLIC.
+ainxt-retrieval = { path = "../ainxt-retrieval" }
+# GAP-FIX surfaces-profiles-skills-config (ADR-026 §6.2 hot-reload) — the served skill-runtime hot-
+# reload admin route (`POST /admin/reload`) calls `SkillRuntime::reload`/`ainxt_skill::control::
+# merged_registry_from_dir` directly on the SAME shared handle the composition root hands out.
+# ainxt-skill's deps are serde + ainxt-wasm (neither depends on ainxt-server) — ACYCLIC.
+ainxt-skill = { path = "../ainxt-skill" }
+tokio = { workspace = true, features = ["net"] }
+tokio-stream = "0.1"
+# GAP-FIX turn-pipeline #2 — the "ws" feature turns on `axum::extract::ws` (WebSocket upgrade), the
+# first real network transport binding the protocol-agnostic `WireDuplex` core (ADR seam: axum is
+# already this crate's entire transport dependency, so reusing it avoids pulling tonic/gRPC's
+# separate prost/h2 stack for a first binding). Pulls in `tokio-tungstenite` (MIT) transitively —
+# already covered by the same axum/hyper/tower tree `cargo deny` clears today.
+axum = { version = "0.7", features = ["ws"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# HS256 JWT/SSO signature verification for the selectable JwtSsoAuth authenticator (RustCrypto,
+# MIT/Apache-2.0 — the same vetted dep ainxt-oauth uses for PKCE S256; no new tree license).
+sha2 = "0.11"
+# GAP-AUDIT transport-daemon #2 — `stream::unfold` turns `WireSubQueue::recv`'s bounded, lag-aware
+# queue into a `Stream` for `GET /v1/observe`'s SSE body (the flow-control replacement for the plain
+# `mpsc::unbounded_channel` fan-out). Adds ZERO new crates to the tree: `axum` and `ainxt-session`
+# already depend on `futures-util` as a normal (non-dev) dependency (same version/feature set as
+# `ainxt-session`'s own `Cargo.toml`) — this only makes an already-resolved, already-`cargo-deny`-
+# cleared dependency explicit. `sink` is additionally needed by the r17 WebSocket test's
+# `SinkExt::send` (dev-only use, unified here rather than duplicated in `[dev-dependencies]`).
+futures-util = { version = "0.3.7", default-features = false, features = ["std", "sink"] }
+
+[dev-dependencies]
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
+# GAP-FIX conversation-intelligence "stage1 UI-affordance no producer" — proves the new
+# `compose_ui_affordance_input` producer emits the exact sentinel `ainxt_convo::stage1_signal`
+# (the pre-existing consumer) recognizes. Test-only: ainxt-server does not depend on ainxt-convo
+# at runtime (the sentinel is a plain string, no shared type needed in the production path).
+ainxt-convo = { path = "../ainxt-convo" }
+# Real assembled objects for the connector-surface integration tests (no live DB / no mocks of the SUT):
+ainxt-connector = { path = "../ainxt-connector" }
+ainxt-oauth = { path = "../ainxt-oauth" }
+# R7 REGFI — CacheConfig to construct a real TieredCacheErasure for the DSAR/erasure route test.
+ainxt-cache = { path = "../ainxt-cache" }
+# GAP-FIX semantic-editing-codereview — Reviewer/JudgePanel/JudgeCriteria to construct a real
+# `EditEngine::with_review` seam for the served `/v1/edit/review` regression test. ainxt-judge is
+# already a transitive dep via ainxt-pipeline and does NOT depend on ainxt-server — acyclic, test-only.
+ainxt-judge = { path = "../ainxt-judge" }
+# GAP-FIX turn-pipeline #2 — a REAL WebSocket client (independent implementation from axum's
+# server-side "ws" feature above) to prove the `/v1/ws` transport end-to-end over an actual TCP
+# socket + WebSocket handshake, not an in-process mock. MIT-licensed, test-only.
+tokio-tungstenite = "0.24"
+
+[lints.rust]
+unsafe_code = "forbid"

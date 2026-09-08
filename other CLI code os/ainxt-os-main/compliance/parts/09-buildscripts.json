@@ -1,0 +1,60 @@
+{
+  "module": "buildscripts",
+  "findings": [],
+  "facts": {
+    "scripts_scanned": [],
+    "reproducibility": {
+      "verdict": "PASS",
+      "reasons": [],
+      "toolchain_files_present": [
+        "rust-toolchain.toml"
+      ],
+      "ecosystems_without_lockfile": []
+    },
+    "scan": {
+      "files_considered": 0,
+      "files_read": 0,
+      "files_binary_skipped": 0,
+      "files_too_large_skipped": 0,
+      "files_unreadable": 0,
+      "files_truncated": 0,
+      "lines_scanned": 0,
+      "lines_truncated": 0,
+      "bytes_read": 0,
+      "raw_matches": 0,
+      "findings_kept": 0,
+      "suppressed_by_reason": {},
+      "rules_hitting_cap": []
+    }
+  },
+  "coverage": [
+    {
+      "capability": "supply_chain_review",
+      "state": "COVERED",
+      "detail": "0 build/install/CI file(s) scanned with 11 supply-chain rule(s)",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    },
+    {
+      "capability": "build_reproducibility",
+      "state": "COVERED",
+      "detail": "verdict: PASS",
+      "tool": "ossaudit (builtin)",
+      "tool_version": "",
+      "database_version": "",
+      "database_timestamp": "",
+      "database_age_days": null
+    }
+  ],
+  "stats": {
+    "scripts_scanned": 0,
+    "reproducibility": "PASS"
+  },
+  "limitations": [
+    "Reproducibility is assessed from configuration -- lockfiles, pinned toolchains, pinned images -- not by performing two builds and comparing them.  A genuine bit-for-bit reproducibility claim requires actually building twice."
+  ],
+  "notes": []
+}

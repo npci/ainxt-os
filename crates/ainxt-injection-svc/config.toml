@@ -1,0 +1,164 @@
+# config.toml — ainxt-injection-svc configuration. Env vars override these values.
+# Layers:
+#   L1  Compliance          — StrongRedactor for PAN/card/CVV (input+output)
+#   L2  Guardrails+Policy   — ainxt-guardrails ML + TOML deny/allow rules
+#   L3  Keyword Scan        — regex + keyword scoring (~1ms)
+#   L4/5 LLM Judges         — parallel judges + cross-validation via LiteLLM
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [server] — HTTP listener and global service settings
+# ─────────────────────────────────────────────────────────────────────────────
+[server]
+
+# Bind address. Use "0.0.0.0" to accept connections from other hosts.
+host = "127.0.0.1"
+
+# Bind port.
+port = 8007
+
+# Enforcement mode: "enforce" (block, default),
+# "audit" (log only), "off" (disabled).
+mode = "enforce"
+
+# Maximum number of chunks accepted per /scan request.
+max_chunks = 256
+
+# Log level: trace | debug | info | warn | error
+log_level = "info"
+
+# Directory for log files. Creates hourly rotating files: ainxt-injection-svc-YYYY-MM-DD-HH.log
+# Comment out to log to stderr only.
+log_dir = "logs"
+
+# Safety net when ALL layers are disabled: "block" (fail-closed, default)
+# or "allow" (fail-open).
+all_layers_disabled = "block"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [config] — External tuning files (edit without recompiling, restart to apply)
+# ─────────────────────────────────────────────────────────────────────────────
+[config]
+
+# L2 — Guardrails + Policy rules (deny/allow patterns).
+# Env var: GUARDRAILS_POLICY_RULES_PATH
+guardrails_policy_rules_path = "guardrails-policy-rules.toml"
+
+# L4/L5 — LLM judge classification rules (SAFE vs UNSAFE definitions and examples).
+# Env var: LLM_JUDGE_RULES_PATH
+llm_judge_rules_path = "llm-judge-rules.toml"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [layers] — Per-layer enable/disable toggles
+# ─────────────────────────────────────────────────────────────────────────────
+[layers]
+
+# L1 — Compliance: StrongRedactor scrubs secret VALUES (PAN/Aadhaar/card/tokens)
+# from input + tool-result egress before they reach the LLM judges or logs.
+# Filenames and paths are preserved.
+compliance_layer = true
+
+# L2 — Guardrails + Policy: ainxt-guardrails ML classifier + TOML deny/allow rules
+guardrails_policy_layer = false
+
+# L3 — Keyword Scan Detector: regex + keyword scoring
+keyword_scan_layer = false
+
+# L4/L5 — LLM Judge Pipeline: parallel judges + cross-validation
+llm_judges_layer = true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [guardrails] — L2 Guardrails + Policy settings (active when guardrails_policy_layer = true)
+# ─────────────────────────────────────────────────────────────────────────────
+[guardrails]
+
+# Guardrail modes: "enforce" (block on fire) / "audit" (log, pass on).
+# jailbreak = audit — LLM judges (L4/L5) are the primary gate; the ML
+#   classifier is too aggressive (score ≥ 0.5 false-positives on benign text).
+# toxicity  = enforce — abusive/hateful content is clear-cut, block immediately.
+guardrail_jailbreak_mode = "audit"
+guardrail_toxicity_mode  = "enforce"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [keyword_scan] — L3 Keyword Scan Detector settings (active when keyword_scan_layer = true)
+# ─────────────────────────────────────────────────────────────────────────────
+[keyword_scan]
+
+# Score thresholds — L3 → L4/L5 handoff (judges always run when layer=false).
+#   score ≤ safe_score   → allow immediately
+#   score ≥ block_score  → block immediately
+#   between              → pass to L4/L5 judges
+safe_score  = 0.1
+block_score = 0.8
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [judges] — L4/L5 LLM judge pipeline settings (active when llm_judges_layer = true)
+# ─────────────────────────────────────────────────────────────────────────────
+[judges]
+
+# LiteLLM proxy base URL and API key.
+litellm_url     = "https://your-litellm-proxy.example.com/v1"
+litellm_api_key = "REPLACE_WITH_YOUR_API_KEY"
+
+# Primary judge models (run in parallel at Stage 1).
+judge1_model = "gemma-4-31B-it"
+judge2_model = "deepseek-v4-flash"
+
+# Fallback model pool — tried in order if a primary model times out or errors.
+fallback_models = ["gpt-oss-120b", "kimi-k2.7-code", "glm-5.2-fp8"]
+
+# Maximum models to try per judge call (primary + fallbacks).
+max_fallback_attempts = 3
+
+# ── Verdict thresholds ───────────────────────────────────────────────────────
+
+# Minimum confidence [0.0–1.0] for a verdict to count in the majority vote.
+# Verdicts below this are treated as abstentions.
+confidence_threshold = 0.8
+
+# Skip Stage 2 cross-validation when Stage 1 judges agree.
+skip_cross_on_consensus = true
+
+# Tie-breaking on a 50/50 majority vote: "block" (fail-closed, recommended)
+# or "allow" (fail-open).
+tie_behaviour = "block"
+
+# ── LLM Availability ─────────────────────────────────────────────────────────────
+
+# Per-judge HTTP request timeout in milliseconds.
+timeout_ms = 30000
+
+# Behaviour when all judge models are unavailable: "block" (fail-closed,
+# recommended) or "allow" (fail-open).
+llm_unavailable = "block"
+
+# Circuit breaker — opens after N consecutive failures, resets after timeout_s.
+circuit_breaker_failures  = 5
+circuit_breaker_timeout_s = 60
+
+# HTTP connection pool — warm idle connections per host and idle timeout (seconds).
+pool_max_idle_per_host = 32
+pool_idle_timeout_secs = 60
+
+# ── LLM settings ─────────────────────────────────────────────────────────────
+
+# Sampling temperature. 0.0 = fully deterministic.
+temperature = 0.0
+
+# Accept self-signed TLS certificates on the internal LiteLLM proxy.
+accept_invalid_certs = true
+
+# ── LLM tokens ─────────────────────────────────────────────────────────────
+
+# Default max tokens for Stage 1 — overridden per model in [judges.model_max_tokens].
+max_tokens = 1024
+
+# Default max tokens for Stage 2 cross_check — overridden per model in [judges.model_max_tokens].
+cross_check_max_tokens = 2048
+
+# Per-model token budget. Falls back to max_tokens / cross_check_max_tokens if not listed.
+[judges.model_max_tokens]
+"gemma-4-31B-it"    = 1024
+"kimi-k2.7-code"    = 2048
+"deepseek-v4-flash" = 2048
+"gpt-oss-120b"      = 1024
+"glm-5.2-fp8"       = 1024

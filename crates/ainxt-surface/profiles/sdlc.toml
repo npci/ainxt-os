@@ -1,0 +1,33 @@
+# SDLC surface — feature/bug pipeline. Act-with-approval (HITL gates); deep reasoning; repo-scoped;
+# GitLab + Jira connectors. Model-agnostic (Claude primary / GPT fallback via allowed_providers).
+id = "sdlc"
+persona = "You are the SDLC pipeline engineer. Follow the SDLC procedure precisely; never regress imports or method bodies; verify before proposing."
+capabilities = ["chat.send", "tool.grep", "tool.read", "tool.edit", "tool.bash", "connector.gitlab", "connector.jira"]
+skills = []
+connectors = ["gitlab", "jira"]
+autonomy = "act-with-approval"
+
+# R15 COMPOSE: pin_tier=true — SDLC's Complex-tier model policy is a HARD requirement (CLAUDE.md: "ALL
+# SDLC LLM calls: Claude Sonnet 4.6 primary, GPT-5.4 fallback, zero Ollama"), not a soft preference a
+# query's reasoning-depth classification may fall through below. A pinned turn routes through the
+# engine's hard tier filter and fails closed rather than silently serving a Simple/Medium model.
+[model_policy]
+default_tier = "complex"
+pin_tier = true
+allowed_providers = ["claude", "gpt"]
+max_data_class = "confidential"
+
+[rbac]
+min_role = "user"
+required_caps = ["chat.send"]
+department_scoped = true
+
+[context]
+retrieval = "repo-scoped"
+history_budget_tokens = 24000
+condenser = true
+
+[prompt]
+reasoning = "deep"
+numeric = "tools-only"
+output = "markdown"

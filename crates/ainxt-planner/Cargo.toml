@@ -1,0 +1,25 @@
+[package]
+name = "ainxt-planner"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — long-horizon PLAN LIFECYCLE core (LONG_HORIZON_PROGRAMS.md / ADR-027). Distinct from ainxt-teams (which schedules a role/handoff DAG for a single Run): this owns decomposing a Goal into an adaptable Plan and surviving step failures without thrashing. Real, pure, deterministic: a Decomposer seam (goal -> steps) with a template decomposer; ready_steps() topological readiness; bulkhead failure isolation (a failed step Blocks only its transitive dependents, never the whole plan); bounded replanning with a per-step replan cap; a plan-thrash detector (gap AR) that ESCALATES after the cap instead of looping; and a step budget cap. No clock/rng/I/O in the core — every decision is a property a unit test can assert."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types", optional = true }
+
+[features]
+# Off by default. When enabled, a Goal can carry an ADR-012 data classification so the
+# downstream compliance-aware model router can pick an eligible model for the program's Runs.
+ainxt-types = ["dep:ainxt-types"]
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

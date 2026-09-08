@@ -1,0 +1,22 @@
+[package]
+name = "ainxt-config"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — layered, schema-validated configuration (ADR-004, Part A1). Config-first, safety-invariant: everything declarative EXCEPT the mandatory gates, which the type system makes selectable-but-not-removable."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-guardrails = { path = "../ainxt-guardrails" }
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-telemetry = { path = "../ainxt-telemetry" }
+ainxt-prompt = { path = "../ainxt-prompt" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+[lints.rust]
+unsafe_code = "forbid"

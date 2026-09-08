@@ -1,0 +1,30 @@
+[package]
+name = "ainxt-skill"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Skill Runtime (Phase 3). Two skill types injected at different points of context assembly: BEHAVIORAL (plain-text SOP → system prompt, no code) and EXECUTION (run() executes before the LLM → output injected into a ## Context block). Selection by a profile's skill refs; execution is a seam (the sandbox runs it). Enforces the canonical injection order: persona → behavioral skills → guard prompts → ## Context → history → user turn."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# The capability-confined WASM sandbox (ADR-024) — the isolation host for the EXECUTION-skill
+# sandboxing seam (gap SURF-05): zero ambient authority (no WASI / network / clock / fs), fuel-metered
+# (an infinite loop traps, never hangs), and memory/output capped. Permissive (wasmtime is Apache-2.0
+# WITH LLVM-exception; the deny.toml exception is already reviewed).
+ainxt-wasm = { path = "../ainxt-wasm" }
+# GAP-FIX surfaces-profiles-skills-config (ADR-026 §6.2 hot-reload) — lock-free atomic swap for the
+# skill registry: `SkillRuntime::reload` publishes a freshly-loaded registry without ever taking a
+# lock a concurrent `prepare()` could block on, and a turn already in flight keeps the snapshot it
+# loaded at the start of `prepare()` (in-flight-turn-pinning) even if a reload lands mid-turn.
+# Permissive (MIT/Apache-2.0 dual), single small dependency, no transitive tree of its own.
+arc-swap = "1.1.0"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

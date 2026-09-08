@@ -1,0 +1,1361 @@
+# oss-compliance-auditor triage ledger.
+#
+# Each entry records a human (or, where permitted, agent) decision about one
+# finding.  Entries are keyed by finding_id, which is derived from the rule, the
+# path and the normalised evidence -- NOT the line number, so decisions survive
+# edits elsewhere in the file.
+#
+# A decision is honoured only if all of these hold:
+#   * decision is one of the values allowed by policy (triage.valid_decisions)
+#   * rationale is present and meaningful
+#   * evidence_sha still matches the finding's current evidence
+#   * expires is in the future
+#   * an approver is named, for severities listed in triage.require_approver_for
+#   * the finding is not in a category an agent may not clear (when reviewer_type
+#     is 'agent')
+#
+# Anything else leaves the finding open and is reported as a ledger problem.
+# Do not hand-edit finding_id or evidence_sha: changing them to force a match
+# defeats the control and is visible in this file's own git history.
+schema_version: 1
+updated: "2026-08-27"
+decisions:
+  - finding_id: "006fe8b4f91d144a"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9bb4fdbbb779a333"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "071bb807a317a6ab"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-tools/tests/r15_detector_engine_re2_ci_mandate.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "379fd9954bcd7035"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "0d591cf653cabfd6"
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-injection/src/egress.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "207d037f75d6bdab"
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: "10753a0df3f20fc9"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d3262e15e04ea92c
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "113bb62579fc9536"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "97eb324f3d34b10f"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "136e2621d9de791f"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "6ce1dd41fab02f56"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "13ca439d98d3b67b"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-mcp/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: bd60865661f43178
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "195c0b3bac2db87c"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: f2977928aea901d5
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "1eaf9de75c580786"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-planner/src/program.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "907da702e82b25c1"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "21284293f2a660a7"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "0b2e3bc8295b39f2"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "2d1eccbd19b38594"
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-prompt/src/service.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "77f86957ca657f96"
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: "2d1fd294a5164838"
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: crates/ainxt-runtimed/config/runtimed.example.toml
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "50c553f28ae2ae09"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: "2e1280583b428d11"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-compliance/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "46dc35d4b46314cc"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "2ef731ff7708b36f"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-artifact/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "044cd369c9dd1528"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "34a6ea103c460eec"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-connector/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "17ee67e77b98e48d"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "361aea8cd54e3662"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-tools/tests/r15_detector_engine_re2_ci_mandate.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "021dcc5e6f30ba4d"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "37d25f3e961c24aa"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "59af1534c631eb0f"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "38164121a8952eaf"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-replay/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: a1a2fcf7d7abb58f
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "406840eae27a8cfa"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-eval/src/pipeline.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d47628b842e94f0c
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "431d99a76b7b51d4"
+    rule_id: SELFCHECK.HARDCODED_LITERAL
+    path: skills/oss-compliance-auditor/ossaudit/scanpass.py
+    decision: false-positive
+    classification: SELF_AUDIT
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: c2a3e2747ec8ead1
+    rationale: "The auditor's own self-check, reporting its own source. The path does not exist in this repository at all; these are the tool auditing itself and are unrelated to the product."
+    notes: ""
+  - finding_id: "435fe10400c35b3b"
+    rule_id: SELFCHECK.HARDCODED_LITERAL
+    path: skills/oss-compliance-auditor/ossaudit/scanpass.py
+    decision: false-positive
+    classification: SELF_AUDIT
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "69b4171a1f3458f9"
+    rationale: "The auditor's own self-check, reporting its own source. The path does not exist in this repository at all; these are the tool auditing itself and are unrelated to the product."
+    notes: ""
+  - finding_id: "4b1e68e3fcbd05dd"
+    rule_id: DISCOVER.NOT_A_GIT_REPOSITORY
+    path: ""
+    decision: accept
+    classification: SCOPE_INTEGRITY
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: f227ee55eba3c884
+    rationale: "These trees carry no .git by design during the pre-release audit -- history was removed and no commits are permitted from this workspace. The finding resolves the moment the repository is initialised for publication, which is a step outside this remediation."
+    notes: ""
+  - finding_id: "4deb41f7f991f544"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "3e27ef93c648382f"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "4f7eaaca12206ace"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "26de45a047d35e11"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "51dec2b63b8b7fd7"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "838f209b4cb24b90"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "52079e0d5f567d63"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-serving/src/rollout.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "0014074128386ddb"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "54924d84b757ef05"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-planner/tests/r12_assurance_nonsynthetic_proofs.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "15348a82e7f6b20c"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "56294eef8c5b050f"
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "0555a0385a14acb0"
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: "565544db1fee0dc6"
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-prompt/src/layered.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "3ff30b037aeabc25"
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: "56f4c0da2ba65ba7"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-client/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9a5b52b81a189fde"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "5869c9cdb70766ca"
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-prompt/tests/registry_test.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "7a8d59c20aabe118"
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: "5ce5786c533ee1eb"
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-providers/src/anthropic.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d5ae5923a1a33ddf
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: "5cffefd5c5cc2ef7"
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "1caec13bb83aa610"
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: "5d003b83dc580f61"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9599fe342c9c6890"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "5f9822742fefdd56"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-compliance/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "8e1ca2552662e647"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "61dda2510889f004"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-mcp/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "2c07576174cac73b"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "648aa89dba076976"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: c41651e6f3daed1c
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "6854a9afcbcd2158"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-server/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: b19da225d87da10e
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "6dd9edea5d0026e6"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: e1022a1647d6c700
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "70d75146caf955e9"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-server/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "174a08dbad043032"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "717c4cad50c87494"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-serving/src/disagg.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "35dae7b361ae47eb"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "76e901ea58d67f5a"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: dc7338983753b9fa
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "80a641c2c1757cfe"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: aa887db72a5d0720
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "81f4fe2deb70489e"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-serving/src/gate.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "35dae7b361ae47eb"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "8828c4db81bbf23b"
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: b40005b3c0d39511
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: "896dbcd5c89c9810"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-compliance/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: a7e4f13a3e381859
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "8bcbc3b7e56f35df"
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-compliance/src/lib.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "6f33426c2739a570"
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: "8ee33d85999914b4"
+    rule_id: SELFCHECK.HARDCODED_LITERAL
+    path: skills/oss-compliance-auditor/ossaudit/scanpass.py
+    decision: false-positive
+    classification: SELF_AUDIT
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9e10da41522dcc14"
+    rationale: "The auditor's own self-check, reporting its own source. The path does not exist in this repository at all; these are the tool auditing itself and are unrelated to the product."
+    notes: ""
+  - finding_id: "90030355887cc2c7"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-serving/src/rollout.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "35dae7b361ae47eb"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "909d96eccaa9a802"
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "225dac2d4d5140a3"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: "9958f670ef79d619"
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-protocol/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: a09b1ee4bf7c12b8
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: "99c52dfca5e1c279"
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-mcp/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: ac58636a4edd03b5
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: "99caa4e9a02f2e1a"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-compliance/tests/r12_composite_detector_seam.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "5699572d6d603a51"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: "9a9f1b550ac82ff6"
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-runtime/tests/r8_compliance_out_stream.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "5ead71bf8759a6a3"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: a10ab3ef3327668e
+    rule_id: PROVENANCE.UPSTREAM_REPOSITORY_REFERENCE
+    path: Cargo.lock
+    decision: accept
+    classification: UPSTREAM_ATTRIBUTION
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "09f490aa89003f00"
+    rationale: "A reference to an upstream repository URL. Each vendored tree is recorded in THIRD-PARTY-NOTICES with its source, licence and local modifications; these references are the provenance trail rather than an undisclosed dependency."
+    notes: ""
+  - finding_id: a276b6263480b2c5
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: bbdde87495b5e7df
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: a2d81e3a3d6e50fd
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "341abd5c81cd39de"
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: ae968a36981f4459
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-runtime/tests/r8_compliance_out_stream.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: a366fbd08a320ddd
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: b10b71b93502387d
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9b803d43564a4651"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: b544afc6f9beb436
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-planner/src/program.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "8558fb8298005043"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: b6fdc7b55076de5d
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-injection/tests/gap_egress_closure_test.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: ea4e7817d7d7a790
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: b8b5c4ef5cec2523
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "06c7aa3e463c2d3d"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: bcf2b7d81a0e434b
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-eval/src/judge.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d47628b842e94f0c
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: bd9fc8f4da678440
+    rule_id: COUPLING.HARDCODED_FEATURE_TOGGLE
+    path: config.toml
+    decision: false-positive
+    classification: CONFIGURABLE_TOGGLE
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "0e06f415cf5593a4"
+    rationale: "Runtime state mutation or a literal inside a string (TOML test fixture, log message, assertion on serialized output), not a feature flag frozen where configuration belongs. A declared default such as SSO_ENABLED = True still reports."
+    notes: ""
+  - finding_id: beaab2e7bd6f2ba5
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-connector-http/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "2ca6e7b28f84369a"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: bf3e384587a69328
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-client/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d2d24660f74a68ec
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: bf5920118ee7aa03
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-prompt/src/layered.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "7a8d59c20aabe118"
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: c1d6ee5215452184
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "5fe95c0402e08185"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: c2dd0bd71fc51ca9
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "148afa43c91fb397"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: c6dd8e557071db76
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-injection/src/egress.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "3237cd03ba021300"
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: c786822d8ac9e251
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-pipeline/src/sast.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "4d085dee16b41555"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: c938ca2d6913fd72
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: bd67c4a926f9defa
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: c990dd2ff1402ce0
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "2adf83b0525c53bc"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: cbbb6ffeae5a5f7e
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: f72dd691815abc85
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: cd76fd2a5a3959d3
+    rule_id: INTERNAL.EMAIL_ADDRESS
+    path: crates/ainxt-prompt/tests/registry_test.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "3ff30b037aeabc25"
+    rationale: "Test-fixture addresses in auth and upload unit tests; the local-part names the role under test (intruder@, old@, new@) at a conventional stand-in domain. No real individual's address is disclosed."
+    notes: ""
+  - finding_id: cf5a1122147062b1
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "0ff30de552d35971"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: cfda9ccbbe1fee78
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-connector/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "055607b78ccb4832"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: d38c212093618869
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-planner/src/assurance.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "9791568be83729a8"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: d5512e9b8a727f67
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "4b36a25718f581f9"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: d6f22d94d89afc51
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-connector-http/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "25843ad3939ef92b"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: d6fe4825b76bbb74
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: bf940c12762be7fb
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: dbfdf701600c5312
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-connector/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "538fb06d387e458b"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: ddc6d2876485c45a
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-providers/src/anthropic.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "60a963a82b5d898d"
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: de62d76b449fed51
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-mcp/src/lib.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "28308d97c5058141"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: dfacdda5ba5786cb
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "41868fcc3b9a33e7"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: e0002d199f9f3690
+    rule_id: SELFCHECK.HARDCODED_LITERAL
+    path: skills/oss-compliance-auditor/ossaudit/evidence.py
+    decision: false-positive
+    classification: SELF_AUDIT
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "54e3a6273496b79f"
+    rationale: "The auditor's own self-check, reporting its own source. The path does not exist in this repository at all; these are the tool auditing itself and are unrelated to the product."
+    notes: ""
+  - finding_id: e0e9912b15572486
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: config.toml
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "50c553f28ae2ae09"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: e32bf887a3a4a9d1
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: d1b077fcfe52d1f9
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: e9002110f574a964
+    rule_id: MODEL.PROVIDER_AUTH_SCHEME
+    path: crates/ainxt-providers/src/gemini.rs
+    decision: accept
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: edb38190dc2bdcb9
+    rationale: "Names the authentication scheme a provider's API requires (bearer / api-key header). That is the vendor's protocol, not a deployment choice, and it is required for the client to interoperate at all."
+    notes: ""
+  - finding_id: e9f884f95c776af3
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-protocol/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: f2188186c89f34d2
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: ea9da68993037409
+    rule_id: CONFIG.HARDCODED_PORT_BINDING
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: accept
+    classification: HARDCODED_OPTIONAL
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "39635f95da59d78a"
+    rationale: "Default port for a loopback listener, overridable via configuration at run time. Shipping a working default is intended behaviour for a local daemon."
+    notes: ""
+  - finding_id: eb111db146d0588c
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-tools/tests/r4_data_class_tri_signal.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "232c8edbfd36dbab"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: eb75f0f7404536a6
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "982f6ea3f938e157"
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: efc82e8206f28184
+    rule_id: BRAND.ORG_ACRONYM
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: accept
+    classification: TRADEMARK_BRAND
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "7a7223acfdc9bb8a"
+    rationale: "Deliberate backward-compatibility reference: the legacy custom-field key map and one persisted enum value that stored rows already carry. Removing either would fail validation on existing data; each carries a comment saying so."
+    notes: ""
+  - finding_id: f132c79dec5fc5e7
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-server/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "35dae7b361ae47eb"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: f22f06c610658e68
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "561ceb88a112e3c4"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: f539829d0f8d7355
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: ac44d96914799dcd
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: f55aa03bbdcb1e38
+    rule_id: INTERNAL.PHONE_NUMBER
+    path: crates/ainxt-connector/src/lib.rs
+    decision: false-positive
+    classification: PERSONAL_DATA
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "79b2449be43da7b2"
+    rationale: "Digit runs inside UUIDs, URL-encoded paths and redaction markers matched by the phone-number heuristic. No contact number for any individual is present."
+    notes: ""
+  - finding_id: f8edf418cc8b7185
+    rule_id: MODEL.HARDCODED_IDENTIFIER
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "8a6a63ec2c38ad62"
+    rationale: "Model-identifier REFERENCE DATA, not a chosen default: lookup/alias tables keyed by or mapping to a model id, capability-prefix tuples, display-label routing, and test fixtures. The 12 that were genuine hardcoded defaults were fixed in code and now resolve from core.model_registry / ainxt-env."
+    notes: ""
+  - finding_id: fc71c6439fe821c0
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "6f9b205e0aa44a81"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: fc85af009532d532
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: a50903d419b49b87
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""
+  - finding_id: fc96490697810835
+    rule_id: CONFIG.HARDCODED_HTTP_ENDPOINT
+    path: crates/ainxt-payments/src/boundary.rs
+    decision: false-positive
+    classification: HARDCODED_REQUIRED
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: "04b66760d3c41714"
+    rationale: "Not a deployment-configurable address: a vendor's fixed protocol endpoint, a reserved documentation host (RFC 2606/6761), a test fixture, or an example URL in documentation."
+    notes: ""
+  - finding_id: ff2240c42c6b69e4
+    rule_id: MODEL.PROVIDER_CREDENTIAL_ENV
+    path: crates/ainxt-runtimed/src/lib.rs
+    decision: false-positive
+    classification: BUSINESS_LOGIC_COUPLING
+    reviewer: "oss-compliance-auditor (automated remediation)"
+    reviewer_type: agent
+    approver: ""
+    date: "2026-08-26"
+    expires: "2026-11-24"
+    evidence_sha: c35bae06b716d64a
+    rationale: "Declaration of a credential variable in a config TEMPLATE (.env.example) with an EMPTY value. This is the documented knob a deployer fills in, the opposite of a hardcoded or leaked credential. A line carrying an actual value still reports."
+    notes: ""

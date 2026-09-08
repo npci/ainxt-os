@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-scenario"
+version = "0.0.0"
+publish = false
+description = "AiNxt scenario-matrix runner — the Definition-of-Done engine (design-phase skeleton, zero external deps)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# ZERO external dependencies by design: keeps the legal/supply-chain surface empty for
+# Gate #0. Any future dependency must be permissive-licensed and pass `deny.toml`.
+#
+# NOTE: the `scenario-runner` CI binary used to live here, but this crate is zero-dependency by
+# design and therefore cannot reach the real `ainxt_runtime::Engine`. It moved to
+# `ainxt-conformance` (which already depends on both `ainxt-scenario` and `ainxt-runtime`), so the
+# named "scenario-matrix" CI gate drives the real, fully-assembled runtime instead of a hand-coded
+# `ReferenceTarget`. `sample_suite()`/`ReferenceTarget` remain here and are still exercised by
+# `tests/runner_test.rs` (a genuine unit test of the Runner/oracle mechanics, not a CI DoD claim).
+[dependencies]
+
+[lints.rust]
+unsafe_code = "forbid"

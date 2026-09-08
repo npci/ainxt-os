@@ -1,0 +1,31 @@
+[package]
+name = "ainxt-retrieval"
+version = "0.0.0"
+publish = false
+description = "AiNxt hybrid retrieval core — in-process BM25 + dense-vector + RRF fusion with pre-rank chunk-level ACL and position-aware budget fit"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable corpus/results; ainxt-types by path for
+# the shared DataClass clearance model. NOTHING copyleft; embedding generation is a seam,
+# so no ML/vector-DB crates enter the supply-chain surface here.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ainxt-types = { path = "../ainxt-types" }
+# The structured NL-to-SQL Stage-B compiler (closed-vocabulary, parameterized) and the numeric
+# re-derivation contract. Both are permissive-only, path-only, and depend on nothing in this crate
+# (they depend only on ainxt-types), so the dependency graph stays acyclic.
+ainxt-nl2sql = { path = "../ainxt-nl2sql" }
+ainxt-synthesis = { path = "../ainxt-synthesis" }
+# The grammar-constrained-decoding JSON-schema builder (PE3/§4) for the Stage-A metric-catalog
+# proposal (round-15 `context-fabric`: "Stage-A constrained decoding from the catalog"). Permissive
+# (ainxt-types + ainxt-eval + serde/serde_json only); ainxt-eval does not depend on ainxt-prompt, so
+# this edge is acyclic.
+ainxt-prompt = { path = "../ainxt-prompt" }
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,48 @@
+{
+  "generated": "2026-08-27 12:34:06Z",
+  "view": "provenance_report",
+  "rule_prefixes": [
+    "PROVENANCE.",
+    "LICENSE.HEADER_DECLARES",
+    "DISCOVER.UNDECLARED"
+  ],
+  "count": 1,
+  "findings": [
+    {
+      "finding_id": "a10ab3ef3327668e",
+      "rule_id": "PROVENANCE.UPSTREAM_REPOSITORY_REFERENCE",
+      "module": "textscan",
+      "severity": "REVIEW",
+      "status": "ACCEPTED",
+      "title": "Upstream repository URL referenced in source",
+      "reason": "A repository URL in a source comment is frequently the only surviving record of where a snippet came from, and is worth resolving into a documented provenance entry while the trail is still warm.",
+      "path": "Cargo.lock",
+      "line": 8,
+      "evidence": "source = \"registry+https://github.com/rust-lang/crates.io-index\"",
+      "evidence_sha": "09f490aa89003f00",
+      "classification": "UPSTREAM_ATTRIBUTION",
+      "recommendation": "Determine whether code was actually incorporated from this repository.  If it was, record the license and version; if it is only a reference, classify it as such so it stops being flagged.",
+      "legal_review": false,
+      "auto_fixable": false,
+      "spec_refs": [
+        "2",
+        "50"
+      ],
+      "detail": {
+        "group": "provenance_markers",
+        "path_class": "generated",
+        "matched_value_length": 44,
+        "also_reported_by": []
+      },
+      "triage": {
+        "decision": "accept",
+        "reviewer": "oss-compliance-auditor (automated remediation)",
+        "reviewer_type": "agent",
+        "approver": "",
+        "date": "2026-08-26",
+        "expires": "2026-11-24",
+        "rationale": "A reference to an upstream repository URL. Each vendored tree is recorded in THIRD-PARTY-NOTICES with its source, licence and local modifications; these references are the provenance trail rather than an undisclosed dependency."
+      }
+    }
+  ]
+}
