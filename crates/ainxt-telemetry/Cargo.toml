@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-telemetry"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — observability seam: per-turn metrics + cost attribution (gap J/V). A pluggable TelemetrySink (Null/InMemory defaults; an OTLP/OTel exporter is an adapter kept out of the core dep tree). Integer-money cost (no floats)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+serde = { version = "1", features = ["derive"] }
+# OTLP/HTTP log-record encoding for the config-selected OtlpExporter sink. serde_json is already
+# ubiquitous across the workspace (no new tree license); the heavy OTel/gRPC deps stay out of the core
+# — only the (infra) network transport carries them, behind the OtlpTransport seam.
+serde_json = "1"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

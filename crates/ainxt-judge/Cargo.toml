@@ -1,0 +1,19 @@
+[package]
+name = "ainxt-judge"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the SDLC judge loop (Phase 3). A generate → deterministic-verify → independent-judge-panel → iterate loop, bounded by a hard cap. Judges score a candidate INDEPENDENTLY (never seeing each other's verdicts); a deterministic verifier gates before judging (a candidate that doesn't compile/test never reaches the panel). The loop reports HONEST `capped`: hitting the iteration cap without consensus is never reported as success. HITL commit gating is the P1 Approval seam, driven by the SDLC profile's act-with-approval autonomy."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

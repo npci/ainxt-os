@@ -1,0 +1,22 @@
+[package]
+name = "ainxt-profile"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Surface Profile schema + layered loader (Phase 3). A product surface (Chat/Buddy/Code/SDLC) = a Renderer + a declarative Surface Profile over the one runtime: persona, capabilities, skills, connectors, model policy, autonomy, RBAC, context strategy, prompt policy. Config-first: resolved by a layered merge (defaults→deployment→tenant→profile→request) reusing ainxt-config's Loader. The effective authority is always the profile INTERSECTED with the principal's RBAC — enforced by the engine, not by the profile."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-config = { path = "../ainxt-config" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

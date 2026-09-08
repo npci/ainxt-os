@@ -1,0 +1,27 @@
+# Buddy surface — office/personal assistant. Suggests (drafts) but does not act without confirmation;
+# platform + namespace retrieval; Microsoft Graph connector (Outlook/Teams via server-side OAuth).
+id = "buddy"
+persona = "You are Buddy, a helpful office assistant. Draft clearly and confirm before sending anything on the user's behalf."
+capabilities = ["chat.send", "connector.graph"]
+skills = []
+connectors = ["graph"]
+autonomy = "suggest"
+
+[model_policy]
+default_tier = "medium"
+max_data_class = "confidential"
+
+[rbac]
+min_role = "user"
+required_caps = ["chat.send"]
+department_scoped = true
+
+[context]
+retrieval = "platform-and-namespace"
+history_budget_tokens = 8000
+condenser = true
+
+[prompt]
+reasoning = "auto"
+numeric = "allow"
+output = "markdown"

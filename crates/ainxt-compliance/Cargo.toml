@@ -1,0 +1,16 @@
+[package]
+name = "ainxt-compliance"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — a strong, generic DLP/redaction ComplianceGate default (ADR-003). Upgrades the runtime's placeholder redactor with Luhn-validated (separator-tolerant) payment-card detection, marker/prefixed/bearer secret redaction, high-entropy credential detection, and email redaction — all redact-and-proceed, never hard-block. GENERIC + international by design; jurisdiction-specific PCI/DSS rule packs (for example India's Aadhaar/UPI/IFSC/PAN formats) are deployment-supplied plugins behind the same seam, NOT in this OSS tree. Std-only, zero new license surface, exhaustively tested."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-runtime = { path = "../ainxt-runtime" }
+
+[lints.rust]
+unsafe_code = "forbid"

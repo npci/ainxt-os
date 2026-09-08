@@ -1,0 +1,39 @@
+[package]
+name = "ainxt-lifecycle"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — data lifecycle / retention core (gap Q; ADR-015; REGULATED_FI_COMPLIANCE_OPS.md §6). The Event Log and memories cannot live forever, a data principal can demand DPDP right-to-erasure, and a legal hold overrides both. Real, pure, deterministic (logical ticks passed in — no clock/rng/I/O): RetentionPolicy per DataClass, a RecordStore, purge_expired (TTL sweep that skips legal-held classes), and erase_subject (right-to-erasure that REFUSES held records with a reason-coded, deferred-with-record entry — never silently kept nor silently dropped), all leaving a signed-shape audit trail. Deterministic precedence (legal-hold > erasure/TTL) so retention, purge, and deferral are equally provable to a regulator."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+# Cryptographic hash for the tamper-evident, hash-chained DSAR register (§4.4). RustCrypto,
+# MIT/Apache-2.0 dual-licensed, already in the workspace tree (ainxt-eventlog) — no new license
+# surface. Used only to chain register events; no clock/rng/I/O enters the crate.
+sha2 = "0.11"
+# FI-09 live cross-tier DSAR lineage: real (not test-double) LineageResolver adapters over the
+# actual data-tier representations. These base crates depend only on ainxt-types (verified acyclic —
+# none has a reverse dep on ainxt-lifecycle), so ainxt-lifecycle may consume them directly:
+#   ainxt-memory   → redis-session / postgres-episodic / kg-memoryfact / embeddings tiers
+#   ainxt-eventlog → the trace tier (offline LogRecord representation, no file I/O in resolve)
+#   ainxt-incident → the incident-register tier
+ainxt-memory = { path = "../ainxt-memory" }
+ainxt-eventlog = { path = "../ainxt-eventlog" }
+ainxt-incident = { path = "../ainxt-incident" }
+# GAP-FIX regulated-fi-responsible-lifecycle (gap6) — `SessionReplayTier` (guarded.rs) is the real
+# ErasableTier adapter over the served turn-tree/replay store (`ainxt_runtimed::SERVED_TURN_TIER`'s
+# write-path mirror target). ainxt-replay depends only on ainxt-types/serde/sha2 (verified acyclic —
+# no reverse dep on ainxt-lifecycle), so this is safe to consume directly, same shape as ainxt-memory
+# above.
+ainxt-replay = { path = "../ainxt-replay" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

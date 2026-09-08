@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-replay"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the interaction/replay spine (INTERACTION_REPL_COMMANDS.md §2/§3). A session is a TREE of turns (stable id + parent pointer, movable active head), so branch/edit/stop/steer are first-class tree operations and 'editing' never mutates history — it forks a labeled sibling branch. Deterministic Execution Replay reads the (already-redacted) event stream and re-emits the SAME typed protocol events with zero model calls and zero side effects; replay is RBAC-scoped identically to live viewing (session participant or a compliance role), per-event data-class filtered (redaction-preserving), with real-time/fast-forward/step pacing and tool-call/approval/model-call step boundaries. Re-execution is an opt-in seam that forks a NEW branch off the original (never overwrites). Includes a shareable replay bundle (content-committed, credential-free) and a break-glass compliance-evidence vault that audits every pre-redaction access. Pure + deterministic: no clock, no rng — time/ids are passed in."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for the (de)serializable tree/events/bundle; ainxt-types by path for the
+# shared DataClass clearance ladder + Principal (RBAC); sha2 (RustCrypto, MIT/Apache — already in the
+# tree via ainxt-eventlog) for the bundle's tamper-evident content commitment. NOTHING copyleft.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+sha2 = "0.11"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,30 @@
+[package]
+name = "ainxt-providers"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — provider adapters (OpenAI-schema, Anthropic, Gemini) normalizing vendor wire formats to the event-enum seam (ADR-006)"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-classify = { path = "../ainxt-classify" }
+tokio = { workspace = true }
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "json"] }
+futures-util = "0.3.7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# ainxt-convo assembles the real ModelIntentClassifier over this crate's
+# ProviderLabelModel in the CONV-03 wiring test. It is a dev-only dependency:
+# ainxt-convo does not depend on ainxt-providers, so the graph stays acyclic.
+[dev-dependencies]
+ainxt-convo = { path = "../ainxt-convo" }
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,44 @@
+[package]
+name = "ainxt-conformance"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — DoD conformance harness: drives the FULLY-ASSEMBLED real runtime (compliance StrongRedactor + RBAC + audit + provider failover + tool ledger + injection gate) through the 1,000+-scenario matrix (ainxt-scenario::matrix) via the layered oracles. This is where 'done' is measured against the real pipeline, not a mock — a broken invariant fails RED. Deterministic; no network/keys (mock providers)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-scenario = { path = "../ainxt-scenario" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+# ainxt-eval (path) — the composed release gate the dogfood provider drives with the real runtime as
+# system-under-eval. Acyclic: ainxt-eval depends only on ainxt-types (+ serde/sha2), never on this
+# crate or on the runtime.
+ainxt-eval = { path = "../ainxt-eval" }
+ainxt-compliance = { path = "../ainxt-compliance" }
+ainxt-tools = { path = "../ainxt-tools" }
+ainxt-injection = { path = "../ainxt-injection" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-types = { path = "../ainxt-types" }
+tokio = { workspace = true }
+
+# ---------- CI-facing binaries ----------
+# The REAL, named CI gate `.gitlab-ci.yml`'s `scenario-matrix` job invokes — not a test-only
+# harness. It lives here (rather than in ainxt-scenario) because only this crate depends on BOTH
+# the real runtime (ainxt-runtime, via ConformanceTarget) and ainxt-scenario's matrix generators
+# without creating a dependency cycle (ainxt-scenario is zero-dependency by design).
+[[bin]]
+name = "scenario-runner"
+path = "src/bin/scenario-runner.rs"
+
+# The "release-gate" gate: the composed eval release gate (ainxt-eval::ci), dogfooded against the
+# real runtime, tagged with the ACTUAL commit SHA of the MR/PR diff under review (from the CI job's
+# own environment) — not a hardcoded placeholder SHA. Lives here because only this crate depends on
+# both ainxt-eval and the real-runtime dogfood provider.
+[[bin]]
+name = "release-gate-ci"
+path = "src/bin/release-gate-ci.rs"
+
+[lints.rust]
+unsafe_code = "forbid"

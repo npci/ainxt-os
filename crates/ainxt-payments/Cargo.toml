@@ -1,0 +1,23 @@
+[package]
+name = "ainxt-payments"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the payment action boundary (ADR-016 / AGENT_IDENTITY_AND_PAYMENT_BOUNDARY.md). Real, pure, deterministic core for value-movement safety: a typed PaymentIntent; a settlement SAGA state machine (Draft→Reserved→Committed with Compensated/Failed/InDoubt) where only legal transitions are allowed and illegal ones are rejected with a structured error rather than a silent no-op; exactly-once settlement keyed on an idempotency_key (committing the same key twice returns the FIRST outcome and performs no second effect); a PolicyGate enforcing per-tier amount ceilings, dual-control above a high-value threshold (two DISTINCT approvers — the same approver twice is refused), and data-residency (a regulated/PII intent is flagged in-house-only, never cloud-eligible); and in-doubt handling where a commit with an unknown result becomes InDoubt requiring explicit reconciliation, never an automatic retry. No clock, no rng, no I/O — every time/tick/result is an injected parameter, so the guarantees are unit-testable properties."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde for (de)serializable intents/decisions/outcomes; ainxt-types by
+# path for the shared DataClass residency model (ADR-012). NOTHING copyleft. No clock/rng/HTTP
+# crate enters the supply-chain surface — the boundary logic is pure and deterministic.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-types = { path = "../ainxt-types" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

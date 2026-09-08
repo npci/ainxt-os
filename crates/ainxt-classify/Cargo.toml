@@ -1,0 +1,23 @@
+[package]
+name = "ainxt-classify"
+version = "0.0.0"
+publish = false
+description = "AiNxt constrained-decoding label extractor — the model-agnostic core behind the intent / complexity / tool-selection seams (CONVERSATION_INTELLIGENCE.md). Real, pure Rust: an ordered LabelSet with per-label aliases; build_prompt() emitting an 'EXACTLY one of' constraint instruction; parse_label() pulling ONE canonical label from messy weak-model output (case-insensitive, prose/quote/punctuation-tolerant, whole-token only — never a substring, first-appearance wins, confidence graded down for alias/loose/ambiguous matches); and classify_with_fallback() that always yields a label and reports whether the fallback fired. Deterministic (no clock/rng), no ML runtime — grammar/JSON-schema-constrained decoding is a downstream transport seam, this crate is the label taxonomy + extraction logic it depends on."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# Permissive-only deps. serde makes a LabelSet / Classified / Resolution wire-serializable
+# so a Surface Profile can declare its taxonomy declaratively (config-first) and the runtime
+# can carry the classification result over the protocol. NOTHING copyleft; no regex/ML/vector
+# crate enters the supply-chain surface — the whole-token scanner is hand-written and pure.
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

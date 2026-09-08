@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-admission"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the Harness API + capability-permission core (Phase 5, extensibility). An engineer declares a harness (requested capabilities, budget, RBAC, steps); the runtime runs it under LEAST PRIVILEGE — effective authority = requested ∩ granted ∩ the invoking principal — with an unbypassable capability-authz + audit seam and a hard budget (steps/tokens/tool-calls, fail-closed). The manifest schema has NO field to disable compliance/RBAC/audit: safety lives in the spine, not the harness. This is declarative-first (levels 1–2); programmatic/WASM plugins are a separate seam."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-governance = { path = "../ainxt-governance" }
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
+ainxt-scenario = { path = "../ainxt-scenario" }
+ainxt-plugin = { path = "../ainxt-plugin" }
+
+[lints.rust]
+unsafe_code = "forbid"

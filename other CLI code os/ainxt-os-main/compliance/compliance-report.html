@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSS compliance audit &mdash; ainxt</title>
+<style>
+:root {
+  color-scheme: light;
+  --plane:      #f9f9f7;
+  --surface:    #fcfcfb;
+  --ink:        #0b0b0b;
+  --ink-2:      #52514e;
+  --ink-muted:  #898781;
+  --rule:       #e1e0d9;
+  --border:     rgba(11,11,11,0.10);
+  --good:       #0ca30c;
+  --warning:    #fab219;
+  --serious:    #ec835a;
+  --critical:   #d03b3b;
+  --good-ink:   #006300;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+    --ink-muted: #898781; --rule: #2c2c2a; --border: rgba(255,255,255,0.10);
+    --good-ink: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+  --ink-muted: #898781; --rule: #2c2c2a; --border: rgba(255,255,255,0.10);
+  --good-ink: #0ca30c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 0 5rem;
+  background: var(--plane); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+header.top {
+  background: var(--surface); border-bottom: 1px solid var(--rule);
+  padding: 2rem 0 1.5rem; margin-bottom: 1.75rem;
+}
+h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 .35rem; letter-spacing: -.01em; }
+h2 {
+  font-size: 1.05rem; font-weight: 600; margin: 2.5rem 0 .5rem;
+  padding-bottom: .4rem; border-bottom: 1px solid var(--rule);
+}
+h3 { font-size: .95rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+p  { margin: .5rem 0; color: var(--ink-2); max-width: 78ch; }
+a  { color: inherit; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .86em;
+}
+.sub { color: var(--ink-2); font-size: .9rem; margin: 0; }
+
+/* hero: exactly one per view -- the verdict */
+.hero { display: flex; align-items: baseline; gap: .75rem; margin: .75rem 0 .25rem; }
+.hero .figure { font-size: 3rem; font-weight: 600; line-height: 1; letter-spacing: -.02em; }
+.hero .exit { font-size: .9rem; color: var(--ink-2); }
+.s-critical { color: var(--critical); }
+.s-serious  { color: var(--serious); }
+.s-warning  { color: var(--warning); }
+.s-good     { color: var(--good-ink); }
+.s-neutral  { color: var(--ink-2); }
+.s-muted    { color: var(--ink-muted); }
+
+/* KPI tiles: glyph + label + count.  Colour is never the only channel. */
+.tiles { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.25rem 0 .5rem; }
+.tile {
+  flex: 1 1 128px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: .7rem .85rem;
+}
+.tile .lab { font-size: .78rem; color: var(--ink-2); display: flex; align-items: center; gap: .35rem; }
+.tile .val { font-size: 1.7rem; font-weight: 600; line-height: 1.15; margin-top: .1rem; }
+.glyph { font-size: .8em; }
+
+/* pills carry glyph + label together, so they survive greyscale and CVD */
+.pill {
+  display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .08rem .5rem; font-size: .78rem; font-weight: 600;
+  background: var(--surface);
+}
+
+table { width: 100%; border-collapse: collapse; margin: .5rem 0 1rem; background: var(--surface); }
+caption { text-align: left; color: var(--ink-2); font-size: .85rem; padding: .3rem 0 .5rem; }
+th, td {
+  text-align: left; padding: .42rem .6rem; border-bottom: 1px solid var(--rule);
+  font-size: .875rem; vertical-align: top;
+}
+th { font-weight: 600; color: var(--ink-2); font-size: .8rem; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr:hover { background: rgba(127,127,127,.06); }
+
+/* filters in one row above the findings */
+.filters {
+  display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: .6rem .8rem; margin: .75rem 0 1rem; position: sticky; top: 0; z-index: 5;
+}
+.filters label { font-size: .84rem; display: inline-flex; align-items: center; gap: .3rem; }
+.filters input[type=search] {
+  font: inherit; font-size: .85rem; padding: .25rem .5rem; min-width: 15rem;
+  border: 1px solid var(--rule); border-radius: 4px;
+  background: var(--plane); color: var(--ink);
+}
+.filters .count { margin-left: auto; font-size: .84rem; color: var(--ink-2); }
+button {
+  font: inherit; font-size: .82rem; padding: .25rem .6rem; cursor: pointer;
+  border: 1px solid var(--rule); border-radius: 4px;
+  background: var(--plane); color: var(--ink);
+}
+
+details.rule {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; margin: .5rem 0; padding: 0;
+}
+details.rule > summary {
+  cursor: pointer; padding: .6rem .8rem; display: flex; gap: .6rem;
+  align-items: center; flex-wrap: wrap; font-size: .9rem;
+}
+details.rule > summary::marker { color: var(--ink-muted); }
+details.rule .body { padding: 0 .8rem .8rem; border-top: 1px solid var(--rule); }
+details.rule .why { color: var(--ink-2); font-size: .875rem; max-width: 88ch; }
+.badge {
+  font-size: .72rem; color: var(--ink-2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0 .3rem;
+}
+.note {
+  border-left: 3px solid var(--warning); background: var(--surface);
+  padding: .6rem .85rem; margin: 1rem 0; font-size: .9rem;
+}
+.note.blocked { border-left-color: var(--critical); }
+.note.ok { border-left-color: var(--good); }
+ul.tight { margin: .4rem 0; padding-left: 1.15rem; }
+ul.tight li { margin: .2rem 0; color: var(--ink-2); font-size: .88rem; max-width: 88ch; }
+.themetoggle { position: absolute; top: 1rem; right: 1.5rem; }
+.legal { border-top: 1px solid var(--rule); margin-top: 2.5rem; padding-top: 1rem; }
+@media print {
+  .filters, .themetoggle { display: none; }
+  details.rule { break-inside: avoid; }
+  details.rule[open] > summary { font-weight: 600; }
+}
+@media (forced-colors: active) {
+  .pill, .tile, table { border: 1px solid CanvasText; }
+}
+</style></head><body>
+<header class="top"><div class="wrap">
+<button class="themetoggle" id="theme" type="button">Dark mode</button>
+<h1>Open-source compliance audit</h1>
+<p class="sub"><span class="mono">/Users/admin/ainxt-oss-suite/ainxt-suite-oss/ainxt-os-main</span> &middot; commit <span class="mono">not a git re</span> &middot; intended licence <span class="mono">Apache-2.0</span> &middot; 2026-08-27 12:34:06Z</p>
+<div class="hero">
+<span class="figure s-warning"><span aria-hidden="true">◆</span> YELLOW</span>
+<span class="exit">warnings &middot; exit code <span class="mono">1</span></span>
+</div>
+<div class="tiles">
+<div class="tile"><div class="lab s-critical"><span class="glyph" aria-hidden="true">✕</span>Blocking</div><div class="val s-critical">0</div></div>
+<div class="tile"><div class="lab s-serious"><span class="glyph" aria-hidden="true">▲</span>High</div><div class="val s-serious">0</div></div>
+<div class="tile"><div class="lab s-warning"><span class="glyph" aria-hidden="true">◆</span>Review</div><div class="val s-warning">52</div></div>
+<div class="tile"><div class="lab s-neutral"><span class="glyph" aria-hidden="true">●</span>Warning</div><div class="val s-neutral">0</div></div>
+<div class="tile"><div class="lab s-muted"><span class="glyph" aria-hidden="true">○</span>Info</div><div class="val s-muted">46</div></div>
+<div class="tile"><div class="lab s-good"><span class="glyph" aria-hidden="true">✓</span>Cleared by triage</div><div class="val s-good">103</div></div>
+<div class="tile"><div class="lab"><span class="glyph" aria-hidden="true">⚖</span>Legal review</div><div class="val">98</div></div>
+</div>
+<p class="sub">Severity is shown by glyph and label as well as colour: the reserved status palette places Review and High close together to normal vision, so hue alone is not relied on anywhere in this report.</p>
+</div></header>
+<div class="wrap">
+<div class="note "><strong>Why this verdict</strong><ul class="tight">
+<li>98 findings require human legal review; these are not questions an automated scan can close.</li>
+</ul></div>
+<h2 id="coverage">Coverage &mdash; what was checked, and what was not</h2>
+<p>A capability that could not be exercised is a gap, not a pass. A clean result in a category whose capability reads <em>NOT checked</em> means only that nothing looked.</p>
+<table><thead><tr><th>State</th><th>Capability</th><th>Tool</th><th>Detail</th></tr></thead><tbody>
+<tr><td><span class="pill s-critical"><span class="glyph" aria-hidden="true">✕</span>NOT checked</span></td><td><span class="mono">git_history_secret_scan</span></td><td>gitleaks</td><td>gitleaks 8.30.1 is installed but every invocation failed: no git root to scan</td></tr>
+<tr><td><span class="pill s-critical"><span class="glyph" aria-hidden="true">✕</span>NOT checked</span></td><td><span class="mono">history_review</span></td><td>ossaudit (builtin)</td><td>0 commit(s) across 0 git root(s) examined</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">ai_artifact_review</span></td><td>ossaudit (builtin)</td><td>0 weight, 0 tokenizer, 0 dataset file(s) found</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">artifact_inventory</span></td><td>ossaudit (builtin)</td><td>0 artifact(s) totalling 0.0 MiB inventoried and hashed</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">branding_detection</span></td><td>ossaudit (builtin)</td><td>10 rule(s) from policy/patterns/branding.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">build_reproducibility</span></td><td>ossaudit (builtin)</td><td>verdict: PASS</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">configuration_review</span></td><td>ossaudit (builtin)</td><td>7 rule(s) from policy/patterns/endpoints.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">dependency_enumeration</span></td><td>ossaudit (builtin)</td><td>328 components across 1 ecosystem(s) from 1 manifest/lockfile(s)</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">governance_review</span></td><td>ossaudit (builtin)</td><td>6 required file(s) present</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">header_review</span></td><td>ossaudit (builtin)</td><td>247 source files checked for SPDX headers</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">internal_data_detection</span></td><td>ossaudit (builtin)</td><td>9 rule(s) from policy/patterns/internal_data.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">legal_marker_detection</span></td><td>ossaudit (builtin)</td><td>6 rule(s) from policy/patterns/legal_markers.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">license_detection</span></td><td>ossaudit (builtin)</td><td>2 license file(s) found, 2 identified, 0 unidentified; bundled SPDX snapshot 2026-08-14</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">model_hardcoding_detection</span></td><td>ossaudit (builtin)</td><td>7 rule(s) from policy/patterns/models.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">portability_coupling_detection</span></td><td>ossaudit (builtin)</td><td>1 rule(s) from policy/patterns/coupling.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">provenance_review</span></td><td>ossaudit (builtin)</td><td>0 vendored tree(s) covering 0 file(s) assessed</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">provenance_review</span></td><td>ossaudit (builtin)</td><td>7 rule(s) from policy/patterns/provenance_markers.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">repository_inventory</span></td><td>ossaudit (builtin)</td><td>849 files across 1 root(s); 6 language(s), 1 ecosystem(s)</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">sbom_generation</span></td><td>ossaudit (builtin)</td><td>328 component(s) and 0 artifact(s) in: sbom.cdx.json, sbom.spdx.json</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">secret_detection</span></td><td>ossaudit (builtin)</td><td>15 rule(s) from policy/patterns/secrets.yaml applied to 849 files</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">self_verification</span></td><td>ossaudit (builtin)</td><td>35 engine source files checked against 10 forbidden literals; policy coherence validated</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">supply_chain_review</span></td><td>ossaudit (builtin)</td><td>0 build/install/CI file(s) scanned with 11 supply-chain rule(s)</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">transitive_license_review</span></td><td>ossaudit (builtin)</td><td>lockfiles present for: cargo</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">vendored_tree_review</span></td><td>ossaudit (builtin)</td><td>0 vendored tree(s)</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Checked</span></td><td><span class="mono">vulnerability_scan</span></td><td>trivy</td><td>trivy scanned an SBOM of 328 enumerated component(s) using a local database from 2026-08-26 13:02:19.845522405 +0000 UTC (1.2 days old)</td></tr>
+</tbody></table>
+<h2 id="matrix">Compliance matrix</h2>
+<table><thead><tr><th>Status</th><th>Category</th><th>Basis</th></tr></thead><tbody>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Project license</td><td>no open findings; capability `license_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>License headers</td><td>no open findings; capability `header_review` exercised</td></tr>
+<tr><td><span class="pill s-warning"><span class="glyph" aria-hidden="true">◆</span>Warn</span></td><td>Third-party licenses</td><td>46 finding(s) for review</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>NOTICE / attribution</td><td>no open findings; capability `license_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Copyright</td><td>no open findings; capability `provenance_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Provenance</td><td>no open findings; capability `provenance_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>SBOM</td><td>no open findings; capability `sbom_generation` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Vulnerabilities</td><td>no open findings; capability `vulnerability_scan` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Secrets</td><td>no open findings; capability `secret_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Organisation branding</td><td>no open findings; capability `branding_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Internal data</td><td>no open findings; capability `internal_data_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Model hardcoding</td><td>no open findings; capability `model_hardcoding_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Vendor lock-in</td><td>no open findings; capability `model_hardcoding_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Configuration</td><td>no open findings; capability `configuration_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Organisation coupling</td><td>no open findings; capability `portability_coupling_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Contributor governance</td><td>no open findings; capability `governance_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Trademark</td><td>no open findings; capability `branding_detection` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Patent review</td><td>no open findings; capability `legal_marker_detection` exercised</td></tr>
+<tr><td><span class="pill s-warning"><span class="glyph" aria-hidden="true">◆</span>Warn</span></td><td>Crypto / export review</td><td>52 finding(s) for review</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Supply chain</td><td>no open findings; capability `supply_chain_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Build reproducibility</td><td>no open findings; capability `build_reproducibility` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Committed artifacts</td><td>no open findings; capability `artifact_inventory` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Telemetry</td><td>no open findings; capability `configuration_review` exercised</td></tr>
+<tr><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Pass</span></td><td>Documentation</td><td>no open findings; capability `governance_review` exercised</td></tr>
+<tr><td><span class="pill s-neutral"><span class="glyph" aria-hidden="true">○</span>Not checked</span></td><td>Git history</td><td>capability `history_review` was not exercised, so this row is unassessed</td></tr>
+</tbody></table>
+<h2 id="findings">Findings</h2>
+<div class="filters">
+<label><input type="checkbox" class="sev" value="BLOCK" checked> <span class="glyph" aria-hidden="true">✕</span>Blocking</label>
+<label><input type="checkbox" class="sev" value="HIGH" checked> <span class="glyph" aria-hidden="true">▲</span>High</label>
+<label><input type="checkbox" class="sev" value="REVIEW" checked> <span class="glyph" aria-hidden="true">◆</span>Review</label>
+<label><input type="checkbox" class="sev" value="WARN"> <span class="glyph" aria-hidden="true">●</span>Warning</label>
+<label><input type="checkbox" class="sev" value="INFO"> <span class="glyph" aria-hidden="true">○</span>Info</label>
+<input type="search" id="q" placeholder="filter by rule, path or title">
+<button type="button" id="expand">Expand all</button>
+<label title="Groups are filtered by their most severe occurrence, so a selected group may also contain lower-severity findings."><span class="glyph" aria-hidden="true">ⓘ</span>group-level</label>
+<span class="count" id="shown"></span>
+</div>
+<details class="rule" data-severity="REVIEW" data-count="46" data-search="dep.license_review cranelift-assembler-x64 0.133.3 is review (apache-2.0 with llvm-exception) cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock">
+<summary><span class="pill s-warning"><span class="glyph" aria-hidden="true">◆</span>Review</span> <strong>e.g. cranelift-assembler-x64 0.133.3 is review (Apache-2.0 WITH LLVM-exception)</strong>
+<span class="badge mono">DEP.LICENSE_REVIEW</span>
+<span class="badge">46 occurrences</span>
+<span class="badge s-warning">legal review</span>
+</summary>
+<div class="body">
+<p class="why"><strong>Why this matters.</strong> Apache-2.0 is permissive, but the exception clause &#x27;LLVM-exception&#x27; is not on the reviewed exception list, so its effect is unverified.</p>
+<p class="why"><strong>What to do.</strong> Have the licence assessed against the intended distribution.  If it is acceptable, record the decision in the triage ledger with the rationale, so the conclusion survives to the next audit.</p>
+<table><thead><tr><th>Location</th><th>Evidence</th><th>Finding id</th></tr></thead><tbody>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-assembler-x64 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">002f3ed6166f3eda</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">zerovec-derive 0.11.6 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">00ac7f30e2602e94</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-frontend 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">0f0a7a40cc96ea63</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-fiber 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">12b611c951d6ca11</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">icu_locale_core 2.3.0 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">276531f644372c70</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">litemap 0.8.3 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">2dabf8a91c10e765</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-jit-debug 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">3058c7677d608295</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-environ 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">32ce34f5deb68cc9</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">38a9fe78dd6512f4</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">target-lexicon 0.13.5 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">3c9dd358031aad0b</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">icu_properties_data 2.3.0 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">3ff7b9a7861d4588</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">icu_collections 2.3.0 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">460bd3371e7b4998</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-unwinder 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">4a0ac7f715e35f9d</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-control 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">4ff6e7459e7d1974</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">pulley-interpreter 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">559830691fa7981c</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-entity 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">5a005239ae4133ee</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">potential_utf 0.1.6 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">5deba650d58369af</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">zerotrie 0.2.5 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">5ec29cbb0aed91b9</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-core 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">62a00a4a2df12655</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">writeable 0.6.4 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">6670c6153ec65d4c</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-component-util 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">6afe1de7c163a9ab</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">wasmtime-internal-jit-icache-coherence 46.0.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">70ebe8759248ab78</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">zerofrom-derive 0.1.7 [cargo] license=Unicode-3.0 (source: cargo registry cache)</td><td class="mono">71fee5883697d28b</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-bforest 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">7dc677e48bf560f6</td></tr>
+<tr><td class="mono">Cargo.lock</td><td class="mono">cranelift-codegen 0.133.3 [cargo] license=Apache-2.0 WITH LLVM-exception (source: cargo registry cache)</td><td class="mono">7ffd1a4c93af410d</td></tr>
+</tbody>
+<caption style="caption-side:bottom">Showing 25 of 46. The remainder are in <span class="mono">findings.json</span>.</caption>
+</table></div></details>
+<details class="rule" data-severity="REVIEW" data-count="23" data-search="legal.crypto_implementation cryptographic implementation or key management in source third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml crates/ainxt-token/src/lib.rs crates/ainxt-token/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-cryptoagility/src/lib.rs crates/ainxt-prompt/src/control.rs crates/ainxt-prompt/src/control.rs crates/ainxt-skill/src/control.rs crates/ainxt-skill/src/control.rs crates/ainxt-token/src/lib.rs crates/ainxt-token/src/lib.rs">
+<summary><span class="pill s-warning"><span class="glyph" aria-hidden="true">◆</span>Review</span> <strong>Cryptographic implementation or key management in source</strong>
+<span class="badge mono">LEGAL.CRYPTO_IMPLEMENTATION</span>
+<span class="badge">23 occurrences</span>
+<span class="badge">6 review · 17 info</span>
+<span class="badge s-warning">legal review</span>
+</summary>
+<div class="body">
+<p class="why"><strong>Why this matters.</strong> Cryptographic functionality can bring a distribution within the scope of export-control regimes.  Whether an exemption or notification applies is a legal determination about the specific distribution, not something a scanner can decide.</p>
+<p class="why"><strong>What to do.</strong> Inventory the cryptographic capabilities of the release and refer them for export-control review.  Many open-source distributions qualify for published-source exemptions, but that conclusion must come from counsel.</p>
+<table><thead><tr><th>Location</th><th>Evidence</th><th>Finding id</th></tr></thead><tbody>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:86</td><td class="mono">- name: chacha20</td><td class="mono">e8e9e201e914e7df</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:89</td><td class="mono">repo: https://crates.io/crates/chacha20</td><td class="mono">7d49a4c4501cd5bc</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:428</td><td class="mono">- name: poly1305</td><td class="mono">f2be4ddc48a30f8d</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:431</td><td class="mono">repo: https://crates.io/crates/poly1305</td><td class="mono">287876620130c2e3</td></tr>
+<tr><td class="mono">crates/ainxt-token/src/lib.rs:41</td><td class="mono">/// Length of an XChaCha20-Poly1305 key (256-bit) and nonce (192-bit).</td><td class="mono">e307b54bec315446</td></tr>
+<tr><td class="mono">crates/ainxt-token/src/lib.rs:82</td><td class="mono">/// Ciphertext with the appended Poly1305 authentication tag.</td><td class="mono">3abe0130352bbcc1</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:431</td><td class="mono">Algorithm::deprecated(&quot;ed25519&quot;, 100, false),</td><td class="mono">acdff255a3f132cf</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:435</td><td class="mono">Algorithm::forbidden(&quot;rsa-1024-sha1&quot;, false),</td><td class="mono">473a3b0f87bfcaf4</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:456</td><td class="mono">r.register(Purpose::Signing, Algorithm::forbidden(&quot;rsa-1024&quot;, false))</td><td class="mono">2c53b2effedaa8f1</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:462</td><td class="mono">assert_eq!(r.resolve(Purpose::Signing, 50).unwrap().name, &quot;ed25519&quot;);</td><td class="mono">28621a709b409ebd</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:463</td><td class="mono">assert_eq!(r.resolve(Purpose::Signing, 100).unwrap().name, &quot;ed25519&quot;);</td><td class="mono">6daac2dcd85ea527</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:498</td><td class="mono">Algorithm::deprecated(&quot;x25519&quot;, 10, true),</td><td class="mono">3d704eda67e062b0</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:539</td><td class="mono">.register(Purpose::KeyExchange, Algorithm::approved(&quot;x25519&quot;, false));</td><td class="mono">6b3b3b4e9150dce3</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:554</td><td class="mono">let forbidden = Algorithm::forbidden(&quot;rsa-1024&quot;, false);</td><td class="mono">95f15b0e97e28b3f</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:555</td><td class="mono">let deprecated = Algorithm::deprecated(&quot;ed25519&quot;, 100, false);</td><td class="mono">15d8a07ae1bc34d6</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:575</td><td class="mono">let dep = Algorithm::deprecated(&quot;x25519&quot;, 50, true);</td><td class="mono">1bc42c83622dcf6e</td></tr>
+<tr><td class="mono">crates/ainxt-cryptoagility/src/lib.rs:589</td><td class="mono">assert_eq!(names, [&quot;ml-dsa-65&quot;, &quot;ed25519&quot;, &quot;rsa-1024-sha1&quot;]);</td><td class="mono">393b8b2f8dcd2f41</td></tr>
+<tr><td class="mono">crates/ainxt-prompt/src/control.rs:348</td><td class="mono">static CTR: AtomicU64 = AtomicU64::new(0);</td><td class="mono">85460ab776c18068</td></tr>
+<tr><td class="mono">crates/ainxt-prompt/src/control.rs:349</td><td class="mono">let n = CTR.fetch_add(1, Ordering::SeqCst);</td><td class="mono">a900e170fe43ab0b</td></tr>
+<tr><td class="mono">crates/ainxt-skill/src/control.rs:508</td><td class="mono">static CTR: AtomicU64 = AtomicU64::new(0);</td><td class="mono">7028e60757a7fb3d</td></tr>
+<tr><td class="mono">crates/ainxt-skill/src/control.rs:509</td><td class="mono">let n = CTR.fetch_add(1, Ordering::SeqCst);</td><td class="mono">9124661ff373a545</td></tr>
+<tr><td class="mono">crates/ainxt-token/src/lib.rs:1560</td><td class="mono">// The design names FERNET/MultiFernet. AiNxt deliberately diverges to XChaCha20-Poly1305 over</td><td class="mono">17285b1e4d6c1e61</td></tr>
+<tr><td class="mono">crates/ainxt-token/src/lib.rs:1901</td><td class="mono">// The design names FERNET/MultiFernet. AiNxt ships XChaCha20-Poly1305 over a versioned KeyRing</td><td class="mono">864cfa493c4eeb49</td></tr>
+</tbody>
+</table></div></details>
+<details class="rule" data-severity="INFO" data-count="29" data-search="legal.crypto_library_dependency cryptography or tls library dependency cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock cargo.lock third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml third_party_inventory.yaml crates/ainxt-connector-http/cargo.toml crates/ainxt-connector-http/cargo.toml crates/ainxt-connector-http/cargo.toml crates/ainxt-connector-http/src/lib.rs crates/ainxt-providers/cargo.toml crates/ainxt-runtimed/cargo.toml crates/ainxt-server/cargo.toml crates/ainxt-token/cargo.toml crates/ainxt-token/src/lib.rs crates/ainxt-token/src/lib.rs deny.toml">
+<summary><span class="pill s-muted"><span class="glyph" aria-hidden="true">○</span>Info</span> <strong>Cryptography or TLS library dependency</strong>
+<span class="badge mono">LEGAL.CRYPTO_LIBRARY_DEPENDENCY</span>
+<span class="badge">29 occurrences</span>
+<span class="badge s-warning">legal review</span>
+</summary>
+<div class="body">
+<p class="why"><strong>Why this matters.</strong> Recorded so the export-control review has a complete list of cryptographic dependencies.  Informational: depending on a TLS library is normal and not a defect.</p>
+<p class="why"><strong>What to do.</strong> Include in the cryptography inventory supplied to legal review.</p>
+<table><thead><tr><th>Location</th><th>Evidence</th><th>Finding id</th></tr></thead><tbody>
+<tr><td class="mono">Cargo.lock:1561</td><td class="mono">name = &quot;hyper-rustls&quot;</td><td class="mono">9efc7249696a93ce</td></tr>
+<tr><td class="mono">Cargo.lock:2165</td><td class="mono">name = &quot;ring&quot;</td><td class="mono">69cf7fcd133f2501</td></tr>
+<tr><td class="mono">Cargo.lock:2204</td><td class="mono">name = &quot;rustls&quot;</td><td class="mono">95f9115283f2a3ad</td></tr>
+<tr><td class="mono">Cargo.lock:2218</td><td class="mono">name = &quot;rustls-pki-types&quot;</td><td class="mono">5e768ebf8b2bce2c</td></tr>
+<tr><td class="mono">Cargo.lock:2228</td><td class="mono">name = &quot;rustls-webpki&quot;</td><td class="mono">22ddffc631945d4b</td></tr>
+<tr><td class="mono">Cargo.lock:2567</td><td class="mono">name = &quot;tokio-rustls&quot;</td><td class="mono">605409633dc29486</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:260</td><td class="mono">- name: hyper-rustls</td><td class="mono">ee690780d12eb4ad</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:263</td><td class="mono">repo: https://crates.io/crates/hyper-rustls</td><td class="mono">f937d409f6238285</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:507</td><td class="mono">- name: ring</td><td class="mono">468b1db20e3e0ce5</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:510</td><td class="mono">repo: https://crates.io/crates/ring</td><td class="mono">66838ceac1536eff</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:519</td><td class="mono">- name: rustls</td><td class="mono">b64235e7155bd89c</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:522</td><td class="mono">repo: https://crates.io/crates/rustls</td><td class="mono">16da22329d080210</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:525</td><td class="mono">- name: rustls-pki-types</td><td class="mono">ff6f07c6bea1cf6a</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:528</td><td class="mono">repo: https://crates.io/crates/rustls-pki-types</td><td class="mono">99d0de9641ee68d9</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:531</td><td class="mono">- name: rustls-webpki</td><td class="mono">238727c34a049161</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:534</td><td class="mono">repo: https://crates.io/crates/rustls-webpki</td><td class="mono">1bda5755c3aceafa</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:694</td><td class="mono">- name: tokio-rustls</td><td class="mono">f69e110f8541d1ef</td></tr>
+<tr><td class="mono">THIRD_PARTY_INVENTORY.yaml:697</td><td class="mono">repo: https://crates.io/crates/tokio-rustls</td><td class="mono">f52d53a34f75fd23</td></tr>
+<tr><td class="mono">crates/ainxt-connector-http/Cargo.toml:13</td><td class="mono"># The real HTTP transport (reqwest + rustls, honoring the air-gap forward proxy). OFF by default so</td><td class="mono">7cc8d2e4677d5167</td></tr>
+<tr><td class="mono">crates/ainxt-connector-http/Cargo.toml:37</td><td class="mono"># Real transport (optional). rustls-tls (no OpenSSL); already cleared by the deny license gate.</td><td class="mono">febfb272aaf3b232</td></tr>
+<tr><td class="mono">crates/ainxt-connector-http/Cargo.toml:38</td><td class="mono">reqwest = { version = &quot;0.12&quot;, default-features = false, features = [&quot;blocking&quot;, &quot;rustls-tls&quot;], optional = true }</td><td class="mono">430d7b02262b12ec</td></tr>
+<tr><td class="mono">crates/ainxt-connector-http/src/lib.rs:1615</td><td class="mono">/// Production HTTP transport: reqwest (blocking) + rustls, honoring the air-gap forward proxy.</td><td class="mono">fb564b186377e2de</td></tr>
+<tr><td class="mono">crates/ainxt-providers/Cargo.toml:18</td><td class="mono">reqwest = { version = &quot;0.12&quot;, default-features = false, features = [&quot;rustls-tls&quot;, &quot;stream&quot;, &quot;json&quot;] }</td><td class="mono">d3c78b60a99e6b43</td></tr>
+<tr><td class="mono">crates/ainxt-runtimed/Cargo.toml:170</td><td class="mono">reqwest = { version = &quot;0.12&quot;, default-features = false, features = [&quot;rustls-tls&quot;] }</td><td class="mono">72603a3d62102c1d</td></tr>
+<tr><td class="mono">crates/ainxt-server/Cargo.toml:119</td><td class="mono">reqwest = { version = &quot;0.12&quot;, default-features = false, features = [&quot;rustls-tls&quot;, &quot;stream&quot;, &quot;json&quot;] }</td><td class="mono">afb664e922b76a1c</td></tr>
+</tbody>
+<caption style="caption-side:bottom">Showing 25 of 29. The remainder are in <span class="mono">findings.json</span>.</caption>
+</table></div></details>
+<h2 id="triage">Triage ledger</h2>
+<table><tbody>
+<tr><th>ledger path</th><td class="mono">/Users/admin/ainxt-oss-suite/ainxt-suite-oss/ainxt-os-main/compliance/triage.yaml</td></tr>
+<tr><th>decisions in ledger</th><td class="mono">103</td></tr>
+<tr><th>decisions applied</th><td class="mono">103</td></tr>
+<tr><th>decisions rejected</th><td class="mono">0</td></tr>
+<tr><th>decisions invalidated by change</th><td class="mono">0</td></tr>
+<tr><th>decisions expired</th><td class="mono">0</td></tr>
+</tbody></table>
+<h2 id="modules">Module execution</h2>
+<table><thead><tr><th>Module</th><th class="num">Findings</th><th>Status</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">ai_artifacts</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">artifacts</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">buildscripts</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">deps</td><td class="num">46</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">discover</td><td class="num">1</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">git_history</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">governance</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">licenses</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">provenance</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">selfcheck</td><td class="num">4</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+<tr><td class="mono">textscan</td><td class="num">310</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td>rule COUPLING.OPTIONAL_SERVICE_HARDCODED not applied: inert: coupling.optional_capability_services is empty in configuration; rule MODEL.RETIRED_IDENTIFIER_REFE</td></tr>
+<tr><td class="mono">vulns</td><td class="num">0</td><td><span class="pill s-good"><span class="glyph" aria-hidden="true">✓</span>Completed</span></td><td></td></tr>
+</tbody></table>
+<h2 id="limitations">What this audit could NOT verify</h2>
+<p>Every scanner has limits. These are stated so that a clean result in a category is read with the right confidence.</p>
+<ul class="tight">
+<li><span class="mono">ai_artifacts</span> &mdash; Model artifacts are identified by file extension and name.  Weights stored under an unconventional extension, or fetched at runtime, are not detected here -- runtime downloads are covered by the endpoint inventory instead.</li>
+<li><span class="mono">artifacts</span> &mdash; Binary contents are assessed from magic bytes and embedded strings only.  The auditor does not disassemble, and cannot enumerate the libraries statically linked into a binary.  A committed binary&#x27;s true third-party composition can only be established from its build.</li>
+<li><span class="mono">buildscripts</span> &mdash; Reproducibility is assessed from configuration -- lockfiles, pinned toolchains, pinned images -- not by performing two builds and comparing them.  A genuine bit-for-bit reproducibility claim requires actually building twice.</li>
+<li><span class="mono">deps</span> &mdash; Maven and Gradle dependencies are read from build files only.  Neither transitive closure nor license data is resolved, because that requires the build tool and a repository connection.  Treat those counts as a floor.</li>
+<li><span class="mono">deps</span> &mdash; Dependency licenses come from local metadata, a vendored copy, or the project&#x27;s own declaration -- in that order.  A declaration is the package author&#x27;s claim, not a verified fact; where redistribution turns on it, read the component&#x27;s actual license file.</li>
+<li><span class="mono">discover</span> &mdash; Only git-tracked files were examined.  Untracked working-tree files -- including any local .env holding live credentials -- were not scanned.  Re-run with scan.include_untracked=true to cover them.</li>
+<li><span class="mono">git_history</span> &mdash; History review examines commit metadata and the set of paths that ever existed.  It does NOT read the content of every historical revision: that requires walking every blob in the object database, which is prohibitively slow on a large repository.  A secret committed inside a normal source file and later edited out will therefore NOT be found here.  Install gitleaks to get content-level history scanning.</li>
+<li><span class="mono">licenses</span> &mdash; License identification uses distinctive marker phrases from a bundled snapshot, not full text comparison.  A license text modified in a region not covered by a marker phrase will still be identified as the base license; the length check above is a partial mitigation, not a guarantee.</li>
+<li><span class="mono">licenses</span> &mdash; The bundled SPDX snapshot (2026-08-14) covers 116 identifiers, not the complete SPDX list.  An identifier outside it is treated as unrecognised.</li>
+<li><span class="mono">provenance</span> &mdash; Provenance is established from what is in the tree: license files, copyright headers, derivation comments and byte-identical matches against other copies in the same repository.  Without network access the auditor cannot compare against real upstream releases, so a file copied from a project that is not also vendored here will only be caught if it carries a marker or a foreign copyright line.</li>
+<li><span class="mono">textscan</span> &mdash; These rules hit their configured max_findings cap and stopped reporting, so their true count is higher than shown: PROVENANCE.UPSTREAM_REPOSITORY_REFERENCE</li>
+<li><span class="mono">textscan</span> &mdash; Content rules are regular expressions over single lines.  A value split across lines, assembled at runtime, base64-encoded or otherwise obfuscated will not match.  Absence of a finding is not proof of absence.</li>
+<li><span class="mono">vulns</span> &mdash; Vulnerability results are only as current as the advisory database used, and its timestamp is recorded above.  Absence of findings from a stale or missing database is not evidence of absence of vulnerabilities.</li>
+</ul>
+<div class="legal"><h3>Status of this report</h3>
+<p>Automated open-source compliance checks were executed against the configured policy and the results are above. <strong>This is an engineering release gate, not a legal opinion.</strong> It does not establish that the repository is legally compliant, and it cannot: copyright ownership, provenance of incorporated code, patent exposure, trademark use, export control and the interpretation of unusual licences all require a qualified human decision. Every finding marked <em>legal review</em> is such a question.</p>
+<p class="sub">Policy <span class="mono">ainxt-oss-baseline</span> fingerprint <span class="mono">43189e46f04c1e3a</span> &middot; run <span class="mono">20260827T123349Z-04611a</span></p>
+</div></div>
+<script>
+(function () {
+  var root = document.documentElement;
+  var toggle = document.getElementById('theme');
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var now = root.getAttribute('data-theme');
+      var next = now === 'dark' ? 'light' : (now === 'light' ? 'dark' : 'light');
+      root.setAttribute('data-theme', next);
+      toggle.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
+    });
+  }
+  var search = document.getElementById('q');
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.sev'));
+  var counter = document.getElementById('shown');
+  var rules = Array.prototype.slice.call(document.querySelectorAll('details.rule'));
+
+  function apply() {
+    var term = (search && search.value || '').toLowerCase();
+    var wanted = {};
+    boxes.forEach(function (b) { wanted[b.value] = b.checked; });
+    var visible = 0;
+    var shownGroups = 0;
+    rules.forEach(function (node) {
+      var sev = node.getAttribute('data-severity');
+      var hay = node.getAttribute('data-search') || '';
+      var show = wanted[sev] !== false && (!term || hay.indexOf(term) >= 0);
+      node.hidden = !show;
+      if (show) {
+        visible += parseInt(node.getAttribute('data-count') || '0', 10);
+        shownGroups += 1;
+      }
+    });
+    if (counter) {
+      counter.textContent = visible.toLocaleString() + ' findings in ' + shownGroups +
+        ' rule group' + (shownGroups === 1 ? '' : 's');
+    }
+  }
+  if (search) { search.addEventListener('input', apply); }
+  boxes.forEach(function (b) { b.addEventListener('change', apply); });
+  var expand = document.getElementById('expand');
+  if (expand) {
+    expand.addEventListener('click', function () {
+      var open = rules.some(function (n) { return !n.open && !n.hidden; });
+      rules.forEach(function (n) { if (!n.hidden) { n.open = open; } });
+      expand.textContent = open ? 'Collapse all' : 'Expand all';
+    });
+  }
+  apply();
+})();
+</script>
+</body></html>

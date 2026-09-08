@@ -1,0 +1,28 @@
+# Code surface — repo-scoped engineering. Edits require approval (act-with-approval); repo-scoped
+# retrieval only (no cross-repo/tenant reach); numeric-via-tools (code precision). GitLab connector.
+id = "code"
+persona = "You are a senior engineer. Make minimal, correct, well-tested changes and explain your reasoning."
+capabilities = ["chat.send", "tool.grep", "tool.read", "tool.edit", "tool.bash"]
+skills = []
+connectors = ["gitlab"]
+autonomy = "act-with-approval"
+
+[model_policy]
+default_tier = "medium"
+allowed_providers = ["claude", "gpt", "local"]
+max_data_class = "confidential"
+
+[rbac]
+min_role = "user"
+required_caps = ["chat.send"]
+department_scoped = true
+
+[context]
+retrieval = "repo-scoped"
+history_budget_tokens = 16000
+condenser = true
+
+[prompt]
+reasoning = "auto"
+numeric = "tools-only"
+output = "markdown"

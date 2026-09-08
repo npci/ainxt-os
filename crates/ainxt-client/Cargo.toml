@@ -1,0 +1,26 @@
+[package]
+name = "ainxt-client"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the Rust protocol client / SDK (Phase 4). A typed client over a Transport seam: the in-process transport embeds the SessionManager (the headless CLI + desktop talk to the runtime DIRECTLY, never via a wrapped binary), and a network HTTP/SSE transport (feature `http`) speaks to ainxt-server. Every language SDK (Python first, then TypeScript) mirrors this same protocol contract. Backpressure surfaces as a typed error; a turn can be cancelled and its events collected."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+ainxt-protocol = { path = "../ainxt-protocol" }
+ainxt-runtime = { path = "../ainxt-runtime" }
+ainxt-session = { path = "../ainxt-session" }
+ainxt-admission = { path = "../ainxt-admission" }
+tokio = { workspace = true, features = ["sync"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "sync", "time"] }
+
+[lints.rust]
+unsafe_code = "forbid"

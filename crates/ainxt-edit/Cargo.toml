@@ -1,0 +1,23 @@
+[package]
+name = "ainxt-edit"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — the edit engine (Phase 3, Code/SDLC profiles). Parses a model's edit envelope, DRY-RUN classifies each edit against an in-memory snapshot, and applies ALL-OR-NOTHING: exact match first, then a whitespace-insensitive line match, and NEVER a semantic-fuzzy fallback; ambiguous/unmatched/overlapping anchors become structured errors for bounded same-turn self-correction. Full-file generations re-inject imports the model dropped; a field rename with live usages is blocked; a function span prefers the declaration over call sites (the three known SDLC edit bugs, encoded as invariants)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Real tree-sitter parse behind the deterministic-verify seam's Compile step (the offline toolchain's
+# "real available check"). The anchor-editing core stays parser-free; only the toolchain module's
+# parse gate uses this — a pure, no-I/O grammar parse (never a fabricated compile pass).
+ainxt-semantic = { path = "../ainxt-semantic" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

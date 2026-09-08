@@ -1,0 +1,32 @@
+[package]
+name = "ainxt-prompt"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — Prompt Engine: deterministic, MODEL-AGNOSTIC prompt assembly with instruction precedence (BG), adaptive reasoning depth (BE), and numeric-via-tools discipline (BH). Plain structured text — works on Claude/OpenAI/Gemini and in-house OSS (Qwen/GLM/Gemma/Kimi)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ainxt-types = { path = "../ainxt-types" }
+# The Prompt Registry's eval-delta merge-block gate REUSES the eval keystone's non-inferiority
+# check (evaluate_gate) rather than reinventing it — the git-native "eval_set FK" that makes a
+# regressing prompt version structurally un-mergeable. Path dep, no cycle (ainxt-eval does not
+# depend on ainxt-prompt).
+ainxt-eval = { path = "../ainxt-eval" }
+serde = { version = "1", features = ["derive"] }
+# Runtime JSON parsing for constrained-decoding schema validation (§4/PE3) and the git-native
+# control-plane manifest loader (§3). Permissive (MIT/Apache-2.0), workspace-consistent version pin.
+serde_json = "1"
+
+[dev-dependencies]
+serde_json = "1"
+# GAP-FIX prompt L2-policy — proves PolicyEngineConfig deserializes through real TOML (the same crate
+# ainxt-config's Loader uses), not just via serde's in-memory derive. Dev-dependency only (test-only);
+# no cycle (toml has no ainxt-* deps).
+toml = "0.8"
+
+[lints.rust]
+unsafe_code = "forbid"

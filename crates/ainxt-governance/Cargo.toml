@@ -1,0 +1,24 @@
+[package]
+name = "ainxt-governance"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — git-native governance + marketplace (Phase 5, ADR-026). The definition lifecycle is git primitives, not a DB status field: DRAFT (branch) → PENDING_APPROVAL (PR + CI) → APPROVED (CODEOWNERS-reviewed, signed merge) → PRODUCTION (signed tag on env/prod) → DEPRECATED. `publish` emits a PULL REQUEST descriptor, never a DB row. A pre-receive gate BLOCKS (does not redact) a push carrying PII/secrets. The marketplace is a federation of pinned git repos with trust-on-first-use hash pinning — a hash/URL mismatch on a pinned source is rejected (supply-chain integrity)."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+ainxt-payments = { path = "../ainxt-payments" }
+# Real HMAC-SHA256 signature verification for merge/tag promotion (HmacSha256Verifier) — the same
+# RustCrypto primitive already vetted elsewhere in the workspace (e.g. ainxt-server's HS256 JWT
+# verifier). Permissive (MIT/Apache-2.0), no new license surface.
+sha2 = "0.11"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"

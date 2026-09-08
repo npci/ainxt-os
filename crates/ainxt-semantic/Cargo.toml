@@ -1,0 +1,42 @@
+[package]
+name = "ainxt-semantic"
+version = "0.0.0"
+publish = false
+description = "AiNxt runtime — AST-precise semantic editing (Phase 3, Code/SDLC profiles). Edits code by MEANING, not characters, over tree-sitter concrete syntax trees. Locates a function/method DEFINITION by name (never a call site — the known first-`foo(`-wins bug class is structurally impossible here), returns its exact byte span, and performs a byte-span-precise replacement that leaves every other byte identical. A replacement is DRY-RUN parse-verified before commit: unparseable or non-function new text is rejected, and an edit that would introduce a parse error into a previously-clean file is refused. Clean-room throughout."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# Serde (MIT/Apache) — the edit-ladder `Rung` is a wire-visible knob (it feeds the pipeline
+# Confidence Score penalty and rides on the route-ready edit request), so it must round-trip.
+serde = { version = "1", features = ["derive"] }
+# JSON-RPC 2.0 codec for the real LSP driver (rung 1). License: MIT/Apache-2.0. The Language Server
+# Protocol frames JSON-RPC over a `Content-Length`-delimited base protocol; this is the wire format
+# the `lsp` module speaks to rust-analyzer/gopls/pyright/tsserver/jdtls.
+serde_json = "1"
+# Concrete-syntax-tree parsing substrate. License: MIT. Host bumped to 0.25 (round-11) so the broader
+# AST-precise language set (Go/JS/TS grammars ship ABI-15 tree-sitter node types) parses; the pinned
+# 0.23.x Rust/Python grammars remain compatible (0.25 host supports the 0.23-era grammar ABI).
+tree-sitter = "0.25"
+# Rust grammar. License: MIT. Exports `LANGUAGE: LanguageFn`, converted to the host via `.into()`.
+tree-sitter-rust = "0.23"
+# Python grammar. License: MIT. Same LanguageFn export + host compatibility as above.
+tree-sitter-python = "0.23"
+# Go grammar. License: MIT. Round-11 AST-precise language coverage.
+tree-sitter-go = "0.25"
+# JavaScript grammar. License: MIT.
+tree-sitter-javascript = "0.25"
+# TypeScript grammar. License: MIT. Exposes `LANGUAGE_TYPESCRIPT` (and a separate TSX language).
+tree-sitter-typescript = "0.23"
+# Java grammar. License: MIT/Apache-2.0.
+tree-sitter-java = "0.23"
+
+[dev-dependencies]
+# Round-11: parse a declarative, git-controlled layering-contract manifest in tests. MIT/Apache.
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
