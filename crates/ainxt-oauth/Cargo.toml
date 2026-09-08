@@ -13,7 +13,7 @@ rust-version.workspace = true
 # SHA-256 for the PKCE S256 code challenge (RustCrypto, MIT/Apache-2.0).
 sha2 = "0.11"
 # OS CSPRNG for the PKCE verifier + CSRF state (MIT/Apache-2.0).
-getrandom = "0.2"
+getrandom = "0.4"
 # RFC3986 percent-encoding for authorize-URL query params (MIT/Apache-2.0).
 percent-encoding = "2"
 serde = { version = "1", features = ["derive"] }
