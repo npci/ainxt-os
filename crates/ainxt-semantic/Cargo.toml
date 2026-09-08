@@ -22,7 +22,7 @@ serde_json = "1"
 # 0.23.x Rust/Python grammars remain compatible (0.25 host supports the 0.23-era grammar ABI).
 tree-sitter = "0.25"
 # Rust grammar. License: MIT. Exports `LANGUAGE: LanguageFn`, converted to the host via `.into()`.
-tree-sitter-rust = "0.23"
+tree-sitter-rust = "0.24"
 # Python grammar. License: MIT. Same LanguageFn export + host compatibility as above.
 tree-sitter-python = "0.23"
 # Go grammar. License: MIT. Round-11 AST-precise language coverage.
