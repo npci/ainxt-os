@@ -20,7 +20,7 @@ serde_json = "1"
 # Concrete-syntax-tree parsing substrate. License: MIT. Host bumped to 0.25 (round-11) so the broader
 # AST-precise language set (Go/JS/TS grammars ship ABI-15 tree-sitter node types) parses; the pinned
 # 0.23.x Rust/Python grammars remain compatible (0.25 host supports the 0.23-era grammar ABI).
-tree-sitter = "0.25"
+tree-sitter = "0.27"
 # Rust grammar. License: MIT. Exports `LANGUAGE: LanguageFn`, converted to the host via `.into()`.
 tree-sitter-rust = "0.23"
 # Python grammar. License: MIT. Same LanguageFn export + host compatibility as above.
