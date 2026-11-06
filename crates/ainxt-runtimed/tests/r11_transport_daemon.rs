@@ -171,7 +171,6 @@ fn r11_config_selects_otlp_telemetry_sink() {
             .iter()
             .any(|l| l.contains("OTLP/OpenTelemetry exporter SELECTED")
                 && l.contains("collector:4318")),
-        "sink=otlp must config-select the OTLP exporter (report): {:?}",
-        otlp_full.report
+        "sink=otlp must config-select the OTLP exporter"
     );
 }

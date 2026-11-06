@@ -504,7 +504,7 @@ async fn llm_status(State(state): State<Arc<AppState>>) -> Json<LlmStatusRespons
     );
     let cfg = &state.judge_cfg_snapshot;
     let base_url = cfg.litellm_url.as_deref().unwrap_or("").to_string();
-    let api_key = cfg.litellm_api_key.as_deref().unwrap_or("").to_string();
+    let api_key = cfg.litellm_credential.as_deref().unwrap_or("").to_string();
 
     let probe_timeout_ms: u64 = 30000;
 

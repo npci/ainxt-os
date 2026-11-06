@@ -395,14 +395,11 @@ async fn wire2_idn_03_per_run_credential_minted_and_used() {
     let expected_actor = cred.actor_label();
     assert!(
         run.turns.iter().all(|t| t.actor == expected_actor),
-        "every turn's actor of record must be the credential's full composite label {:?}, got: {:?}",
-        expected_actor,
-        run.turns
+        "every turn's actor of record must be the credential's full composite label"
     );
     assert!(
         run.turns.iter().all(|t| t.actor.contains("obo=u-alice")),
-        "the composite actor must still carry the OBO human: {:?}",
-        run.turns
+        "the composite actor must still carry the OBO human"
     );
     assert!(
         run.turns.iter().all(|t| t.actor != "u-alice"),

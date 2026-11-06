@@ -121,8 +121,7 @@ fn served_chat_surface_applies_the_configured_guardrails() {
     let full_off = assemble_full(&off, assembled_off).unwrap();
     assert!(
         full_off.report.iter().any(|r| r.contains("inert")),
-        "an all-Off guardrails config must be reported inert:\n{:?}",
-        full_off.report
+        "an all-Off guardrails config must be reported inert"
     );
 }
 

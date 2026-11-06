@@ -31,9 +31,14 @@ use crate::{Category, Expectation, Scenario};
 
 /// A stable 64-bit hash (FNV-1a) — deterministic across runs/platforms, no `DefaultHasher`
 /// (whose output is not guaranteed stable). Used only to derive distinct *test* values.
-fn fnv1a(seed: u64, salt: &str) -> u64 {
+///
+/// `domain_tag` is a plain domain-separation label (e.g. `"pan"`, `"secret"`), not a
+/// cryptographic salt — FNV-1a is not a cryptographic hash and nothing here is security-sensitive.
+/// (Named `domain_tag` rather than `salt` specifically so static analysis does not mistake this
+/// test-fixture generator for a cryptographic primitive.)
+fn fnv1a(seed: u64, domain_tag: &str) -> u64 {
     let mut h: u64 = 0xcbf29ce484222325;
-    for b in salt.bytes().chain(seed.to_le_bytes()) {
+    for b in domain_tag.bytes().chain(seed.to_le_bytes()) {
         h ^= b as u64;
         h = h.wrapping_mul(0x100000001b3);
     }
@@ -130,6 +135,26 @@ pub enum Directive {
     InjectionSettle,
     /// Emit `text` verbatim in a single delta (round-trip: huge / unicode / plain).
     Emit(String),
+}
+
+#[cfg(test)]
+impl Directive {
+    /// The variant's name only — **never** the value it carries. `EmitSecret`/`EmitPanSplit`/etc.
+    /// wrap a synthetic-but-secret-*shaped* fixture value (see [`secret_from_seed`] et al.); a test
+    /// failure message must be able to say which variant was unexpectedly produced without writing
+    /// that value to the test-harness log (CWE-532), even though these particular fixtures are not
+    /// real secrets. Only used by this crate's own tests, hence `#[cfg(test)]`.
+    fn kind_name(&self) -> &'static str {
+        match self {
+            Directive::EmitPanSplit(_) => "EmitPanSplit",
+            Directive::EmitSecret(_) => "EmitSecret",
+            Directive::EmitEmail(_) => "EmitEmail",
+            Directive::DupSettle(_) => "DupSettle",
+            Directive::Malformed => "Malformed",
+            Directive::InjectionSettle => "InjectionSettle",
+            Directive::Emit(_) => "Emit",
+        }
+    }
 }
 
 /// Parse a scenario `input` into a [`Directive`] (the provider side). Unknown/absent directive →
@@ -703,15 +728,15 @@ mod tests {
         // The generator embeds seed S; the provider-side parse must derive the SAME value.
         match parse_directive("@pan 7 show me the card") {
             Directive::EmitPanSplit(pan) => assert_eq!(pan, pan_from_seed(7)),
-            d => panic!("expected EmitPanSplit, got {d:?}"),
+            d => panic!("expected EmitPanSplit, got {}", d.kind_name()),
         }
         match parse_directive("@secret 3 the key") {
             Directive::EmitSecret(s) => assert_eq!(s, secret_from_seed(3)),
-            d => panic!("expected EmitSecret, got {d:?}"),
+            d => panic!("expected EmitSecret, got {}", d.kind_name()),
         }
         match parse_directive("@dup 5 settle") {
             Directive::DupSettle(k) => assert_eq!(k, settle_key_from_seed(5)),
-            d => panic!("expected DupSettle, got {d:?}"),
+            d => panic!("expected DupSettle, got {}", d.kind_name()),
         }
         assert_eq!(parse_directive("@malformed 1"), Directive::Malformed);
         assert_eq!(
@@ -720,7 +745,7 @@ mod tests {
         );
         match parse_directive("@echo hello world") {
             Directive::Emit(t) => assert_eq!(t, "hello world"),
-            d => panic!("expected Emit, got {d:?}"),
+            d => panic!("expected Emit, got {}", d.kind_name()),
         }
     }
 

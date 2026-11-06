@@ -145,7 +145,10 @@ pool_idle_timeout_secs = 60
 temperature = 0.0
 
 # Accept self-signed TLS certificates on the internal LiteLLM proxy.
-accept_invalid_certs = true
+# SECURITY: leave this `false` unless your LiteLLM proxy presents a self-signed or otherwise
+# untrusted certificate on a network you control end-to-end. Setting it `true` disables TLS
+# certificate validation for that connection, which exposes it to man-in-the-middle attacks.
+accept_invalid_certs = false
 
 # ── LLM tokens ─────────────────────────────────────────────────────────────
 

@@ -246,7 +246,7 @@ The first readable and parseable file wins. If none are found, the service start
 | `policy_path` | `None` | Legacy path to `llm-judge-rules.toml`. |
 | `temperature` | `0.0` | LLM sampling temperature. |
 | `max_tokens` | `1024` | Maximum tokens in a judge response. |
-| `accept_invalid_certs` | `true` | Accept invalid TLS certificates for the LiteLLM proxy. |
+| `accept_invalid_certs` | `false` | Accept invalid TLS certificates for the LiteLLM proxy. Secure by default; only set `true` for a self-signed proxy on a network you control. |
 
 ### `[keyword_scan]` — L3 keyword scan thresholds
 

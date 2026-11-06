@@ -175,7 +175,7 @@ fn ledger_backed_definition_telemetry_drives_the_real_decay_sweep() {
 
     assert_eq!(
         summary.decay_flagged, 1,
-        "exactly one of the two roles should decay-flag: {summary:?}"
+        "exactly one of the two roles should decay-flag (decay_flagged count mismatch)"
     );
     let flagged_ids: Vec<&str> = store
         .decay_flags

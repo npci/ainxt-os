@@ -100,6 +100,14 @@ pub const MAX_IDENT_LEN: usize = 63;
 /// bounded; this is the cap a missing/oversized [`QueryIntent::limit`] is clamped to.
 pub const DEFAULT_MAX_LIMIT: u64 = 1000;
 
+/// Upper bound on how many entries a single [`QueryIntent::select`], [`QueryIntent::filters`], or
+/// [`QueryIntent::order_by`] list may carry. Real tables have at most a few dozen columns, so this
+/// is far above any legitimate query; it exists to fail closed — before any per-item validation or
+/// allocation — against a pathological or compromised model proposing an intent large enough to
+/// force an outsized allocation (an attacker does not need a valid query to exhaust memory, only a
+/// long list).
+pub const MAX_QUERY_LIST_LEN: usize = 256;
+
 /// A single allow-listed column and the sensitivity class required to read it.
 ///
 /// The `data_class` is the *minimum clearance* a [`Principal`] must hold to `SELECT`, filter on, or
@@ -543,6 +551,10 @@ pub enum QueryError {
     /// Raised by [`query_ledger`] *before* any schema/column is consulted, so a caller without the
     /// capability learns nothing about the schema (not even whether a table exists).
     NotAuthorized,
+    /// `select`, `filters`, or `order_by` exceeded [`MAX_QUERY_LIST_LEN`]. Raised before any
+    /// per-item validation or allocation, so an oversized intent cannot force an outsized
+    /// allocation regardless of what it contains.
+    TooManyItems,
 }
 
 impl fmt::Display for QueryError {
@@ -561,6 +573,12 @@ impl fmt::Display for QueryError {
             QueryError::NotAuthorized => {
                 write!(f, "not authorized to query the ledger")
             }
+            QueryError::TooManyItems => {
+                write!(
+                    f,
+                    "select, filters, or order_by exceeded the maximum of {MAX_QUERY_LIST_LEN} items"
+                )
+            }
         }
     }
 }
@@ -576,12 +594,14 @@ impl std::error::Error for QueryError {}
 /// Deterministic and side-effect-free. The steps, in order:
 /// 1. Resolve `from` against the allowlist (else [`QueryError::UnknownTable`]).
 /// 2. Require a non-empty projection (else [`QueryError::NoColumnsSelected`]).
-/// 3. Resolve **and authorize** every `select`, `filter`, and `order_by` column: unknown or
+/// 3. Reject an oversized `select`/`filters`/`order_by` (else [`QueryError::TooManyItems`]) before
+///    any per-item validation or allocation runs.
+/// 4. Resolve **and authorize** every `select`, `filter`, and `order_by` column: unknown or
 ///    over-clearance columns both yield [`QueryError::ColumnNotAvailable`] (no existence leak).
-/// 4. Emit each filter value as a `$n` placeholder, appending the value to `params` in order.
-/// 5. Inject the table's [`RowScope`] row-level-security predicates (principal-derived, un-bypassable),
+/// 5. Emit each filter value as a `$n` placeholder, appending the value to `params` in order.
+/// 6. Inject the table's [`RowScope`] row-level-security predicates (principal-derived, un-bypassable),
 ///    or fail closed with [`QueryError::RowScopeUnavailable`] if a required attribute is absent.
-/// 6. Force a bounded `LIMIT`, clamping a missing/oversized request down to `schema.max_limit()`.
+/// 7. Force a bounded `LIMIT`, clamping a missing/oversized request down to `schema.max_limit()`.
 ///
 /// The returned `sql` always begins with `SELECT `, contains no caller value, and contains no `;`.
 /// [`SafeQuery::settings`] additionally carries the caller's identity for native-DB RLS.
@@ -598,15 +618,33 @@ pub fn validate_and_compile(
         return Err(QueryError::NoColumnsSelected);
     }
 
+    // Fail closed on a pathologically large intent BEFORE any per-item validation or allocation —
+    // an attacker does not need a valid query to exhaust memory, only a long list (CWE-789/CWE-770).
+    // Each list is guarded individually, immediately before the allocation that sizes off of it, so
+    // the length used for `Vec::with_capacity` below is always provably <= MAX_QUERY_LIST_LEN by the
+    // time it is used (no reliance on a combined/earlier check or a `.min()` clamp at the call site).
+    if intent.select.len() > MAX_QUERY_LIST_LEN {
+        return Err(QueryError::TooManyItems);
+    }
+    if intent.filters.len() > MAX_QUERY_LIST_LEN {
+        return Err(QueryError::TooManyItems);
+    }
+    if intent.order_by.len() > MAX_QUERY_LIST_LEN {
+        return Err(QueryError::TooManyItems);
+    }
+
     // --- projection -------------------------------------------------------
-    let mut select_sql = Vec::with_capacity(intent.select.len());
+    // No `with_capacity(intent.*.len())` here: sizing an allocation from caller-supplied length is
+    // the CodeQL rust/uncontrolled-allocation-size sink. The lists are already bounded by
+    // MAX_QUERY_LIST_LEN above, so letting the Vec grow on demand costs nothing meaningful.
+    let mut select_sql = Vec::new();
     for name in &intent.select {
         let col = resolve_readable(table, principal, name)?;
         select_sql.push(quote_ident(col.name()));
     }
 
     // --- filters (parameterized) -----------------------------------------
-    let mut where_sql: Vec<String> = Vec::with_capacity(intent.filters.len());
+    let mut where_sql: Vec<String> = Vec::new();
     let mut params: Vec<Value> = Vec::new();
     let mut next_placeholder: usize = 1;
     for filter in &intent.filters {
@@ -645,7 +683,7 @@ pub fn validate_and_compile(
     }
 
     // --- ordering (authorized like a projection) --------------------------
-    let mut order_sql = Vec::with_capacity(intent.order_by.len());
+    let mut order_sql = Vec::new();
     for ob in &intent.order_by {
         let col = resolve_readable(table, principal, &ob.column)?;
         let dir = match ob.direction {

@@ -55,7 +55,7 @@ fn capability_search_dispatches_through_the_real_served_registry_instead_of_unkn
                 serde_json::from_str(&body).expect("capability.search must return valid JSON");
             assert!(
                 json.get("matches").and_then(|m| m.as_array()).is_some(),
-                "response must carry a 'matches' array: {body}"
+                "response must carry a 'matches' array"
             );
             // Air-gapped default: no MCP servers configured on this registry, so the honest result is
             // EMPTY — never a fabricated hit — matching the sibling federated_query/named_fabric_query
@@ -63,7 +63,7 @@ fn capability_search_dispatches_through_the_real_served_registry_instead_of_unkn
             assert_eq!(
                 json["matches"].as_array().unwrap().len(),
                 0,
-                "no MCP servers are configured on the air-gapped default, so matches must be empty: {body}"
+                "no MCP servers are configured on the air-gapped default, so matches must be empty"
             );
         }
         other => panic!(

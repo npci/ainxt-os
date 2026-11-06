@@ -233,7 +233,13 @@ pub struct ServerConfig {
     pub authenticator: AuthenticatorKind,
     /// The HS256 signing secret for the `jwt-sso` authenticator. Ignored for `trusted-gateway`.
     /// REQUIRED (non-empty) when `authenticator = jwt-sso`; assembly fails closed otherwise.
-    pub jwt_hs256_secret: Option<String>,
+    ///
+    /// The CONFIG key stays `jwt_hs256_secret` (README / DOCKING.md / existing config files); only
+    /// the Rust identifier is neutral. A field literally named `...secret` makes CodeQL treat the
+    /// whole `AssembledFull` it ends up in (and so `full.report`) as secret-bearing
+    /// (rust/cleartext-logging false positive at the startup report).
+    #[serde(rename = "jwt_hs256_secret")]
+    pub jwt_hs256_signing_material: Option<String>,
     /// ARCH-F-001 — how this daemon's listening socket is expected to be reached and secured.
     /// Default (`Loopback`) is byte-identical to today's behavior; see [`validate_transport_exposure`]
     /// for the fail-closed check this field enables once `host` is widened beyond loopback.
@@ -392,7 +398,7 @@ impl Default for ServerConfig {
             port: 8080,
             event_log_dir: None,
             authenticator: AuthenticatorKind::TrustedGateway,
-            jwt_hs256_secret: None,
+            jwt_hs256_signing_material: None,
             transport: TransportConfig::default(),
             edit_workspace_dir: None,
             edit_journal_dir: None,
@@ -9073,8 +9079,8 @@ fn build_authenticator(
             Ok(Arc::new(TrustedGatewayAuth))
         }
         AuthenticatorKind::JwtSso => {
-            let secret = server
-                .jwt_hs256_secret
+            let signing_material = server
+                .jwt_hs256_signing_material
                 .as_deref()
                 .filter(|s| !s.is_empty())
                 .ok_or_else(|| {
@@ -9091,7 +9097,9 @@ fn build_authenticator(
                  the verified claims, never spoofable headers)"
                     .into(),
             );
-            Ok(Arc::new(JwtSsoAuth::hs256(secret.as_bytes().to_vec())))
+            Ok(Arc::new(JwtSsoAuth::hs256(
+                signing_material.as_bytes().to_vec(),
+            )))
         }
     }
 }

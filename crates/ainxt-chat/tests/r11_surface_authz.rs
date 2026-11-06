@@ -55,7 +55,7 @@ fn r11_surface_scoped_authorizer_restricts_to_declared_tools_even_for_admin() {
     match authz.authorize(&admin, "tool.delete") {
         Decision::Deny(m) => assert!(
             m.contains("outside this surface's declared capability set"),
-            "denial must come from the surface scope, got: {m}"
+            "denial must come from the surface scope"
         ),
         Decision::Allow => panic!("the surface scope must deny an undeclared tool for an admin"),
     }

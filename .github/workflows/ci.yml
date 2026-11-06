@@ -15,6 +15,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Least-privilege default: every job below only checks out the repo, builds, tests or scans it —
+# none needs to write to the repo, issues, PRs or packages. Setting this once here means a job
+# that forgets to narrow `permissions` itself still gets a read-only GITHUB_TOKEN instead of the
+# workflow-wide default (which can otherwise be "read/write" depending on repo settings).
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 

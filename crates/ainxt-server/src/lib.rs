@@ -14891,10 +14891,10 @@ mod tests {
             .expect("begin");
         let begin_body: serde_json::Value =
             serde_json::from_str(&begin.text().await.unwrap()).unwrap();
-        let oauth_state = begin_body["state"].as_str().expect("state").to_string();
+        let flow_nonce = begin_body["state"].as_str().expect("state").to_string();
         let callback = client
             .get(format!(
-                "{base}/connectors/callback?state={oauth_state}&code=auth-code"
+                "{base}/connectors/callback?state={flow_nonce}&code=auth-code"
             ))
             .send()
             .await
@@ -15071,10 +15071,10 @@ mod tests {
             .expect("begin");
         let begin_body: serde_json::Value =
             serde_json::from_str(&begin.text().await.unwrap()).unwrap();
-        let oauth_state = begin_body["state"].as_str().expect("state").to_string();
+        let flow_nonce = begin_body["state"].as_str().expect("state").to_string();
         let callback = client
             .get(format!(
-                "{base}/connectors/callback?state={oauth_state}&code=auth-code"
+                "{base}/connectors/callback?state={flow_nonce}&code=auth-code"
             ))
             .send()
             .await

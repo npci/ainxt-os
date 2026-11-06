@@ -159,7 +159,7 @@ async fn main() {
         loaded.runtime.gates.compliance, loaded.runtime.gates.authz, loaded.runtime.gates.audit
     );
     for line in &full.report {
-        eprintln!("  {line}");
+        eprintln!("  {}", redact_report_line(line));
     }
 
     if check {
@@ -431,6 +431,29 @@ async fn main() {
     // serve_full_ext mounts the additive cluster surfaces (connector OAuth + artifact + step-replay)
     // alongside the base FullApp (which now also carries the harness invoke/run surface).
     ainxt_server::serve_full_ext(listener, full.to_full_app(), full.to_full_app_ext()).await;
+}
+
+/// Defence in depth for the startup report: the report is descriptive wiring text, but it is
+/// assembled from config, so mask the value of any `key=value` / `key: value` segment whose key
+/// looks credential-like before it reaches stderr (CWE-312 / rust/cleartext-logging).
+fn redact_report_line(line: &str) -> String {
+    const SENSITIVE: [&str; 7] = [
+        "secret",
+        "token",
+        "password",
+        "passwd",
+        "api_key",
+        "apikey",
+        "credential",
+    ];
+    let lower = line.to_ascii_lowercase();
+    if !SENSITIVE.iter().any(|k| lower.contains(k)) {
+        return line.to_string();
+    }
+    match line.find(['=', ':']) {
+        Some(idx) => format!("{} [redacted]", &line[..=idx]),
+        None => "[redacted: line mentions a sensitive field]".to_string(),
+    }
 }
 
 fn fail(code: i32, msg: &str) -> ! {

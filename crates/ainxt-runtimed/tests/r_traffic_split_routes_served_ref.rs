@@ -58,7 +58,7 @@ async fn r_traffic_split_routes_a_deterministic_served_ref() {
             .expect("a non-empty traffic split must always resolve a ref");
         assert!(
             served_ref == "env/prod" || served_ref == "env/candidate",
-            "unexpected served ref: {served_ref}"
+            "served ref was neither env/prod nor env/candidate"
         );
         if served_ref == "env/prod" {
             saw_champion = true;

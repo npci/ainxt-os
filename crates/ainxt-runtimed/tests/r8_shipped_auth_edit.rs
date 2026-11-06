@@ -128,8 +128,7 @@ async fn r8_jwt_sso_authenticator_selectable_and_verified() {
         full.report
             .iter()
             .any(|l| l.contains("authenticator: jwt-sso")),
-        "the report must name the SELECTED authenticator: {:?}",
-        full.report
+        "the report must name the SELECTED authenticator"
     );
 
     let addr = serve(&loaded).await;

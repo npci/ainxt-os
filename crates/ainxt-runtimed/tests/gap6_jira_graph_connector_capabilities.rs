@@ -310,9 +310,11 @@ fn gap6_jira_oauth_callback_to_api_call_is_a_real_round_trip() {
     // round trip, not two disjoint mechanisms merely tested in isolation.
     match tools.dispatch_for("alice", "jira.get_issue", r#"{"key":"ABC-123"}"#) {
         DispatchResult::Ok(output) => {
+            // Assert on the outcome only — do not echo the connector response body into a
+            // test-failure message/log.
             assert!(
                 output.contains("a real issue"),
-                "expected the stub Jira response body to be surfaced verbatim: {output}"
+                "stub Jira response body was not surfaced verbatim"
             );
         }
         other => panic!("expected the real round trip to succeed, got: {other:?}"),

@@ -142,7 +142,7 @@ fn oversized_tool_output_is_truncated_by_the_default_hook_on_the_real_registry()
             );
             assert!(
                 out.contains("truncated by tool hook"),
-                "truncation must be visible, never a silent partial answer: {out}"
+                "truncation must be visible, never a silent partial answer"
             );
         }
         other => panic!("expected Ok(<truncated>), got {other:?}"),

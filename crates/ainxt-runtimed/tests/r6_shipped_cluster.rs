@@ -451,8 +451,7 @@ async fn r6_assemble_full_instantiates_organs_and_qos() {
     ] {
         assert!(
             full.report.iter().any(|r| r.contains(needle)),
-            "the assembly report must announce '{needle}': {:?}",
-            full.report
+            "the assembly report must announce '{needle}'"
         );
     }
     // Held handles are constructed.

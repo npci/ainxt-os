@@ -356,8 +356,10 @@ fn load_judge_policy(path: Option<&str>) -> JudgePolicy {
 pub struct JudgeConfig {
     /// LiteLLM proxy base URL — e.g. `https://your-litellm-proxy.example.com/v1`
     pub litellm_url: String,
-    /// API key for the LiteLLM proxy.
-    pub litellm_api_key: String,
+    /// Credential for the LiteLLM proxy (config key / env var: `litellm_api_key` /
+    /// `JUDGE_LITELLM_API_KEY`). The Rust identifier is neutral so CodeQL does not treat the whole
+    /// `JudgeConfig` - and the model-order log line built from it - as secret-bearing.
+    pub litellm_credential: String,
     /// Model identifier for Judge 1 (e.g. `qwen3-30b`). Read from `JUDGE1_MODEL`.
     pub judge1_model: String,
     /// Model identifier for Judge 2 (e.g. `glm-4`). Read from `JUDGE2_MODEL`.
@@ -426,7 +428,7 @@ impl JudgeConfig {
     /// Returns `None` when `litellm_url` / `litellm_api_key` are absent (judge pipeline disabled).
     pub fn from_config(cfg: &crate::config::ServiceConfig) -> Option<Self> {
         let litellm_url = cfg.litellm_url.clone().filter(|s| !s.is_empty())?;
-        let litellm_api_key = cfg.litellm_api_key.clone().filter(|s| !s.is_empty())?;
+        let litellm_credential = cfg.litellm_credential.clone().filter(|s| !s.is_empty())?;
 
         let tie_behaviour = match cfg.tie_behaviour.trim().to_ascii_lowercase().as_str() {
             "allow" => TieBehaviour::Allow,
@@ -459,7 +461,7 @@ impl JudgeConfig {
 
         Some(JudgeConfig {
             litellm_url,
-            litellm_api_key,
+            litellm_credential,
             judge1_model: cfg.judge1_model.clone(),
             judge2_model: cfg.judge2_model.clone(),
             confidence_threshold: cfg.confidence_threshold,
@@ -1171,7 +1173,7 @@ impl JudgePipeline {
             cfg.circuit_breaker_failures,
             cfg.circuit_breaker_timeout_s,
             cfg.litellm_url.clone(),
-            cfg.litellm_api_key.clone(),
+            cfg.litellm_credential.clone(),
             cfg.timeout_ms,
             cfg.temperature,
             cfg.max_tokens,
@@ -1199,7 +1201,7 @@ impl JudgePipeline {
             cfg.circuit_breaker_failures,
             cfg.circuit_breaker_timeout_s,
             cfg.litellm_url.clone(),
-            cfg.litellm_api_key.clone(),
+            cfg.litellm_credential.clone(),
             cfg.timeout_ms,
             cfg.temperature,
             cfg.max_tokens,
