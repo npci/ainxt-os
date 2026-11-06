@@ -24,7 +24,7 @@ tree-sitter = "0.25"
 # Rust grammar. License: MIT. Exports `LANGUAGE: LanguageFn`, converted to the host via `.into()`.
 tree-sitter-rust = "0.23"
 # Python grammar. License: MIT. Same LanguageFn export + host compatibility as above.
-tree-sitter-python = "0.23"
+tree-sitter-python = "0.25"
 # Go grammar. License: MIT. Round-11 AST-precise language coverage.
 tree-sitter-go = "0.25"
 # JavaScript grammar. License: MIT.
