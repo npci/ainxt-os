@@ -23,7 +23,7 @@ serde_json = "1"
 toml = "0.8"
 # Format-PRESERVING edits: Settings must not strip the shipped example config's comments,
 # which are the most useful documentation in the repo. Already in the tree via `toml`.
-toml_edit = "0.22"
+toml_edit = "0.25"
 # HMAC-SHA256 for minting the gateway's own JWT. sha2 is already used by eight crates in this
 # workspace; HMAC is implemented locally (25 lines, RFC 2104) rather than adding a new dependency.
 sha2 = "0.11"
